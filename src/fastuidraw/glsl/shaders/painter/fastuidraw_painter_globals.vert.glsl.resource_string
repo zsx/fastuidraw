@@ -1,0 +1,4 @@
+/* make the transformation matrix available to
+   vertex shader by making it global here.
+ */
+mat3 fastuidraw_item_matrix;

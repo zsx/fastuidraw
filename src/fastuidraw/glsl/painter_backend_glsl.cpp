@@ -252,6 +252,10 @@ PainterBackendGLSLPrivate(fastuidraw::glsl::PainterBackendGLSL *p,
   add_texture_size_constants(m_constant_code);
 
   m_vert_shader_utils
+    .add_source("fastuidraw_painter_uniforms.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_types.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_globals.vert.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_forward_declares.vert.glsl.resource_string", ShaderSource::from_resource)
     .add_source("fastuidraw_do_nothing.glsl.resource_string", ShaderSource::from_resource)
     .add_source("fastuidraw_circular_interpolate.glsl.resource_string", ShaderSource::from_resource)
     .add_source("fastuidraw_anisotropic.frag.glsl.resource_string", ShaderSource::from_resource)
@@ -259,9 +263,16 @@ PainterBackendGLSLPrivate(fastuidraw::glsl::PainterBackendGLSL *p,
     .add_source("fastuidraw_compute_local_distance_from_pixel_distance.glsl.resource_string",
                 ShaderSource::from_resource)
     .add_source("fastuidraw_align.vert.glsl.resource_string", ShaderSource::from_resource)
-    .add_source(code::compute_interval("fastuidraw_compute_interval", m_p->configuration_base().alignment()));
+    .add_source(code::compute_interval("fastuidraw_compute_interval", m_p->configuration_base().alignment()))
+    .add_source("fastuidraw_painter_brush_macros.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_brush_types.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_brush_read_data_forward_declares.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_brush_read_data.glsl.resource_string", ShaderSource::from_resource);
 
   m_frag_shader_utils
+    .add_source("fastuidraw_painter_uniforms.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_types.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_forward_declares.frag.glsl.resource_string", ShaderSource::from_resource)
     .add_source("fastuidraw_do_nothing.glsl.resource_string", ShaderSource::from_resource)
     .add_source("fastuidraw_circular_interpolate.glsl.resource_string", ShaderSource::from_resource)
     .add_source("fastuidraw_anisotropic.frag.glsl.resource_string", ShaderSource::from_resource)
@@ -277,7 +288,11 @@ PainterBackendGLSLPrivate(fastuidraw::glsl::PainterBackendGLSL *p,
     .add_source(code::curvepair_compute_pseudo_distance(m_p->glyph_atlas()->geometry_store()->alignment(),
                                                                           "fastuidraw_curvepair_pseudo_distance",
                                                                           "fastuidraw_fetch_glyph_data",
-                                                                          true));
+                                                                          true))
+    .add_source("fastuidraw_painter_brush_types.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_brush_macros.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_brush_read_data_forward_declares.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_brush_read_data.glsl.resource_string", ShaderSource::from_resource);
 }
 
 PainterBackendGLSLPrivate::
@@ -1040,16 +1055,10 @@ construct_shader(fastuidraw::glsl::ShaderSource &vert,
 
   vert
     .add_source(declare_uniforms.c_str(), ShaderSource::from_string)
-    .add_source("fastuidraw_painter_uniforms.glsl.resource_string", ShaderSource::from_resource)
-    .add_source("fastuidraw_painter_brush_macros.glsl.resource_string", ShaderSource::from_resource)
-    .add_source("fastuidraw_painter_types.glsl.resource_string", ShaderSource::from_resource)
-    .add_source("fastuidraw_painter_brush_types.glsl.resource_string", ShaderSource::from_resource)
-    .add_source("fastuidraw_painter_forward_declares.vert.glsl.resource_string", ShaderSource::from_resource)
-    .add_source("fastuidraw_painter_brush_unpack_forward_declares.glsl.resource_string", ShaderSource::from_resource)
+    .add_source(m_vert_shader_utils)
     .add_source("fastuidraw_painter_brush_unpack.glsl.resource_string", ShaderSource::from_resource)
     .add_source("fastuidraw_painter_brush.vert.glsl.resource_string", ShaderSource::from_resource)
-    .add_source("fastuidraw_painter_main.vert.glsl.resource_string", ShaderSource::from_resource)
-    .add_source(m_vert_shader_utils);
+    .add_source("fastuidraw_painter_main.vert.glsl.resource_string", ShaderSource::from_resource);
 
   stream_unpack_code(vert);
   stream_uber_vert_shader(params.vert_shader_use_switch(), vert, item_shaders,
@@ -1109,23 +1118,17 @@ construct_shader(fastuidraw::glsl::ShaderSource &vert,
 
   frag
     .add_source(declare_uniforms.c_str(), ShaderSource::from_string)
-    .add_source("fastuidraw_painter_uniforms.glsl.resource_string", ShaderSource::from_resource)
-    .add_source("fastuidraw_painter_brush_macros.glsl.resource_string", ShaderSource::from_resource)
-    .add_source("fastuidraw_painter_types.glsl.resource_string", ShaderSource::from_resource)
-    .add_source("fastuidraw_painter_brush_types.glsl.resource_string", ShaderSource::from_resource)
-    .add_source("fastuidraw_painter_forward_declares.frag.glsl.resource_string", ShaderSource::from_resource);
+    .add_source(m_frag_shader_utils);
 
   if(params.unpack_header_and_brush_in_frag_shader())
     {
       frag
-        .add_source("fastuidraw_painter_brush_unpack_forward_declares.glsl.resource_string", ShaderSource::from_resource)
         .add_source("fastuidraw_painter_brush_unpack.glsl.resource_string", ShaderSource::from_resource);
     }
 
   frag
     .add_source("fastuidraw_painter_brush.frag.glsl.resource_string", ShaderSource::from_resource)
-    .add_source("fastuidraw_painter_main.frag.glsl.resource_string", ShaderSource::from_resource)
-    .add_source(m_frag_shader_utils);
+    .add_source("fastuidraw_painter_main.frag.glsl.resource_string", ShaderSource::from_resource);
 
   stream_unpack_code(frag);
   stream_uber_frag_shader(params.frag_shader_use_switch(), frag, item_shaders,

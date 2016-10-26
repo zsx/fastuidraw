@@ -14,7 +14,9 @@ include $(dir)/Rules.mk
 dir := $(d)/blend
 include $(dir)/Rules.mk
 
-LIBRARY_RESOURCE_STRING += $(call filelist, fastuidraw_painter_main.vert.glsl.resource_string \
+LIBRARY_RESOURCE_STRING += $(call filelist, \
+	fastuidraw_painter_main.vert.glsl.resource_string \
+	fastuidraw_painter_globals.vert.glsl.resource_string \
 	fastuidraw_painter_types.glsl.resource_string \
 	fastuidraw_painter_forward_declares.vert.glsl.resource_string \
 	fastuidraw_painter_uniforms.glsl.resource_string \
