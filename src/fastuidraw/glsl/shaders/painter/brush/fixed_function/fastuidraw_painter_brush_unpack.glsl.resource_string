@@ -20,7 +20,7 @@ fastuidraw_painter_brush_unpack_values(in uint shader, inout uint data_ptr)
 
   if(fastuidraw_brush_shader_has_image(shader))
     {
-      data_ptr = fastuidraw_read_brush_image_data(data_ptr, shader, image);
+      data_ptr = fastuidraw_read_brush_image_data(data_ptr, image);
     }
   else
     {

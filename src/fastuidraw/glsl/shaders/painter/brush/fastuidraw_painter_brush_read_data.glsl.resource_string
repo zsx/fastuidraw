@@ -1,6 +1,5 @@
 void
-fastuidraw_process_image_data(in uint shader_brush,
-                              in fastuidraw_brush_image_data_raw raw,
+fastuidraw_process_image_data(in fastuidraw_brush_image_data_raw raw,
                               out fastuidraw_brush_image_data cooked)
 {
   uvec3 master_xyz;
@@ -90,13 +89,13 @@ fastuidraw_process_gradient_data(in fastuidraw_brush_gradient_raw raw,
 }
 
 uint
-fastuidraw_read_brush_image_data(in uint location, in uint shader, out fastuidraw_brush_image_data image)
+fastuidraw_read_brush_image_data(in uint location, out fastuidraw_brush_image_data image)
 {
   uint return_value;
   fastuidraw_brush_image_data_raw raw;
 
   return_value = fastuidraw_read_brush_image_raw_data(location, raw);
-  fastuidraw_process_image_data(shader, raw, image);
+  fastuidraw_process_image_data(raw, image);
   return return_value;
 }
 

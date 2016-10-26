@@ -22,7 +22,7 @@ uint
 fastuidraw_read_pen_color(in uint location, out vec4 pen_color);
 
 uint
-fastuidraw_read_brush_image_data(in uint location, in uint shader, out fastuidraw_brush_image_data image);
+fastuidraw_read_brush_image_data(in uint location, out fastuidraw_brush_image_data image);
 
 uint
 fastuidraw_read_brush_linear_gradient_data(in uint location, out fastuidraw_brush_gradient grad);
