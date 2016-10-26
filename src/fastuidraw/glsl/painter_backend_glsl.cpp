@@ -659,7 +659,7 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .set(PainterHeader::item_blend_shader_offset, ".item_blend_shader_packed", shader_unpack_value::uint_type)
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_header",
-                              "fastuidraw_shader_header", false);
+                              "fastuidraw_shader_header");
   }
 
   {
@@ -683,7 +683,7 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
 
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_clipping",
-                              "fastuidraw_clipping_data", false);
+                              "fastuidraw_clipping_data");
   }
 
   {
@@ -702,7 +702,7 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .set(PainterItemMatrix::matrix12_offset, "[2][1]")
       .set(PainterItemMatrix::matrix22_offset, "[2][2]")
       .stream_unpack_function(alignment, str,
-                              "fastuidraw_read_item_matrix", "mat3", false);
+                              "fastuidraw_read_item_matrix", "mat3");
   }
 
   {
@@ -712,8 +712,7 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .set(PainterStrokeParams::stroke_miter_limit_offset, ".miter_limit")
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_stroking_params",
-                              "fastuidraw_stroking_params",
-                              true);
+                              "fastuidraw_stroking_params");
   }
 
   {
@@ -727,8 +726,7 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .set(PainterDashedStrokeParams::stroke_number_intervals_offset, ".number_intervals", shader_unpack_value::uint_type)
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_dashed_stroking_params_header",
-                              "fastuidraw_dashed_stroking_params_header",
-                              true);
+                              "fastuidraw_dashed_stroking_params_header");
   }
 }
 

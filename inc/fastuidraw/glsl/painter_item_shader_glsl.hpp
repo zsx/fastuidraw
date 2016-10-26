@@ -240,8 +240,8 @@ namespace fastuidraw
         function_name(uint location, out out_type v)
         \endcode
         whose body is the unpacking of the values into an
-        out. Returns the number of blocks needed to unpack
-        the data in GLSL.
+        out. The return value of the function is the location
+        into the data store buffer -after- the data it unpacked.
         \param alignment the alignment of the data store used in a
                          PainterBackendGLSL (i.e. the value of
                          PainterBackend::ConfigurationBase::alignment(void) const)
@@ -249,16 +249,14 @@ namespace fastuidraw
         \param labels GLSL names of the fields and their types
         \param function_name name to give the function
         \param out_type the out type of the function
-        \param returns_new_offset if true, function returns the offset after
-                                  the data it unpacks.
+        \return the number of blocks needed to unpack the data in GLSL.
        */
       static
       unsigned int
       stream_unpack_function(unsigned int alignment, ShaderSource &str,
                              const_c_array<shader_unpack_value> labels,
                              const char *function_name,
-                             const char *out_type,
-                             bool returns_new_offset = true);
+                             const char *out_type);
     private:
       void *m_d;
     };
@@ -325,11 +323,9 @@ namespace fastuidraw
       unsigned int
       stream_unpack_function(unsigned int alignment, ShaderSource &str,
                              const char *function_name,
-                             const char *out_type,
-                             bool returns_new_offset = true)
+                             const char *out_type)
       {
-        return shader_unpack_value::stream_unpack_function(alignment, str, *this, function_name,
-                                                           out_type, returns_new_offset);
+        return shader_unpack_value::stream_unpack_function(alignment, str, *this, function_name, out_type);
       }
     };
 
