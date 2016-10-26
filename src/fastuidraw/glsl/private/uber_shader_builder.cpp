@@ -528,7 +528,6 @@ stream_uber_brush_shader(bool use_switch, ShaderSource &frag,
 
   const char *invoke_additional_arguments =
     ", brush_shader_data_location, "
-    "brush_shader_data_location, "
     "brush_location, color";
 
   UberShaderStreamer<PainterBrushShaderGLSL>::stream_uber(use_switch, frag, brush_shaders,

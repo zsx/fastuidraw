@@ -23,6 +23,16 @@
 
 #include <string>
 
+namespace
+{
+  fastuidraw::glsl::PainterBrushShaderGLSL*
+  create_brush_shader_from_file(const char *src)
+  {
+    return FASTUIDRAWnew fastuidraw::glsl::PainterBrushShaderGLSL(fastuidraw::glsl::ShaderSource()
+                                                                  .add_source(src, fastuidraw::glsl::ShaderSource::from_resource));
+  }
+}
+
 namespace fastuidraw { namespace glsl { namespace detail {
 
 /////////////////////////////////////
@@ -429,6 +439,24 @@ create_fill_shader(void)
   return fill_shader;
 }
 
+PainterBrushShaderSet
+ShaderSetCreator::
+create_brush_shader_set(void)
+{
+  PainterBrushShaderSet brush_shader_set;
+
+  brush_shader_set
+    .const_color(create_brush_shader_from_file("fastuidraw_painter_brush_const_color.glsl.resource_string"))
+    .linear_gradient(create_brush_shader_from_file("fastuidraw_painter_brush_linear_gradient.glsl.resource_string"))
+    .radial_gradient(create_brush_shader_from_file("fastuidraw_painter_brush_radial_gradient.glsl.resource_string"))
+    .image(create_brush_shader_from_file("fastuidraw_painter_brush_image.glsl.resource_string"))
+    .repeat_window(create_brush_shader_from_file("fastuidraw_painter_brush_repeat_window.glsl.resource_string"))
+    .transformation_translation(create_brush_shader_from_file("fastuidraw_painter_brush_transformation_translation.glsl.resource_string"))
+    .transformation_matrix(create_brush_shader_from_file("fastuidraw_painter_brush_transformation_matrix.glsl.resource_string"));
+
+  return brush_shader_set;
+}
+
 PainterShaderSet
 ShaderSetCreator::
 create_shader_set(void)
@@ -448,7 +476,8 @@ create_shader_set(void)
     .dashed_stroke_shader(create_dashed_stroke_shader_set(false))
     .pixel_width_dashed_stroke_shader(create_dashed_stroke_shader_set(true))
     .fill_shader(create_fill_shader())
-    .blend_shaders(create_blend_shaders());
+    .blend_shaders(create_blend_shaders())
+    .brush_shaders(create_brush_shader_set());
   return return_value;
 }
 

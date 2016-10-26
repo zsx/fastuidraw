@@ -1,0 +1,10 @@
+void
+fastuidraw_gl_brush_main(in uint sub_shader,
+                         inout uint shader_data_offset,
+                         inout vec2 brush_location,
+                         inout vec4 color)
+{
+  vec4 pen_color;
+  brush_location = fastuidraw_read_pen_color(brush_location, pen_color);
+  color *= pen_color;
+}

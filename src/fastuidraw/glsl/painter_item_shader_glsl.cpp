@@ -496,30 +496,20 @@ fastuidraw::glsl::shader_unpack_value::
 stream_unpack_function(unsigned int alignment, glsl::ShaderSource &src,
                        const_c_array<shader_unpack_value> labels,
                        const char *function_name,
-                       const char *out_type,
-                       bool has_return_value)
+                       const char *out_type)
 {
   unsigned int number_blocks;
   std::ostringstream str;
 
-  if(has_return_value)
-      {
-        str << "uint\n";
-      }
-    else
-      {
-        str << "void\n";
-      }
-  str << function_name << "(in uint location, out " << out_type << " out_value)\n"
+  str << "uint\n" << function_name
+      << "(in uint location, out " << out_type << " out_value)\n"
       << "{";
 
   number_blocks = GLSLShaderUnpackValuePrivate::stream_unpack_code(alignment, str, labels, "location", "out_value");
 
-  if(has_return_value)
-    {
-      str << "return uint(" << number_blocks << ") + location;\n";
-    }
-  str << "}\n\n";
+  str << "return uint(" << number_blocks << ") + location;\n"
+      << "}\n\n";
+
   src.add_source(str.str().c_str(), glsl::ShaderSource::from_string);
 
   return number_blocks;

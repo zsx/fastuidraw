@@ -24,9 +24,11 @@ namespace
   class PainterBrushShaderSetPrivate
   {
   public:
+    fastuidraw::reference_counted_ptr<fastuidraw::PainterBrushShader> m_const_color;
     fastuidraw::reference_counted_ptr<fastuidraw::PainterBrushShader> m_linear_gradient;
     fastuidraw::reference_counted_ptr<fastuidraw::PainterBrushShader> m_radial_gradient;
     fastuidraw::reference_counted_ptr<fastuidraw::PainterBrushShader> m_image;
+    fastuidraw::reference_counted_ptr<fastuidraw::PainterBrushShader> m_repeat_window;
     fastuidraw::reference_counted_ptr<fastuidraw::PainterBrushShader> m_transformation_translation;
     fastuidraw::reference_counted_ptr<fastuidraw::PainterBrushShader> m_transformation_matrix;
   };
@@ -92,9 +94,11 @@ operator=(const PainterBrushShaderSet &rhs)
   }
 
 
+setget_implement(const_color)
 setget_implement(linear_gradient)
 setget_implement(radial_gradient)
 setget_implement(image)
+setget_implement(repeat_window)
 setget_implement(transformation_translation)
 setget_implement(transformation_matrix)
 

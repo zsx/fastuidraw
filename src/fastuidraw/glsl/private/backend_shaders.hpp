@@ -21,6 +21,7 @@
 #include <fastuidraw/painter/painter_shader_set.hpp>
 #include <fastuidraw/glsl/painter_item_shader_glsl.hpp>
 #include <fastuidraw/glsl/painter_blend_shader_glsl.hpp>
+#include <fastuidraw/glsl/painter_brush_shader_glsl.hpp>
 
 namespace fastuidraw { namespace glsl { namespace detail {
 
@@ -106,6 +107,9 @@ public:
 
   PainterFillShader
   create_fill_shader(void);
+
+  PainterBrushShaderSet
+  create_brush_shader_set(void);
 
   PainterShaderSet
   create_shader_set(void);

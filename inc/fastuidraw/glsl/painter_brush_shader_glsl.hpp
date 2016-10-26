@@ -59,6 +59,7 @@ namespace fastuidraw
         \param src GLSL code fragment for blend shading
         \param num_sub_shaders the number of sub-shaders it supports
        */
+      explicit
       PainterBrushShaderGLSL(const ShaderSource &src, unsigned int num_sub_shaders = 1);
 
       ~PainterBrushShaderGLSL(void);

@@ -54,6 +54,19 @@ namespace fastuidraw
     operator=(const PainterBrushShaderSet &rhs);
 
     /*!
+      The brush shader for performing composite with a constant color value.
+     */
+    const reference_counted_ptr<PainterBrushShader>&
+    const_color(void) const;
+
+    /*!
+      Set the value returned by const_color(void) const.
+     */
+    PainterBrushShaderSet&
+    const_color(const reference_counted_ptr<PainterBrushShader> &sh);
+
+
+    /*!
       The brush shader for performing linear gradient.
      */
     const reference_counted_ptr<PainterBrushShader>&
@@ -88,6 +101,18 @@ namespace fastuidraw
      */
     PainterBrushShaderSet&
     image(const reference_counted_ptr<PainterBrushShader> &sh);
+
+    /*!
+      The brush shader for performing a repeat window on the brush position.
+     */
+    const reference_counted_ptr<PainterBrushShader>&
+    repeat_window(void) const;
+
+    /*!
+      Set the value returned by repeat_window(void) const.
+     */
+    PainterBrushShaderSet&
+    repeat_window(const reference_counted_ptr<PainterBrushShader> &sh);
 
     /*!
       The brush shader for performing translation on the brush position.
