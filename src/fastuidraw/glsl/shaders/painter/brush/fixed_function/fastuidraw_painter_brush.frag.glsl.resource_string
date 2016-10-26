@@ -157,22 +157,13 @@ fastuidraw_compute_brush_color(void)
     {
       vec2 index_coord, texel_coord, image_xy;
       int color_layer;
-      uint slack, number_lookups;
       vec2 q;
       uint image_filter;
       vec4 image_color;
 
-      slack = FASTUIDRAW_EXTRACT_BITS(fastuidraw_image_slack_bit0,
-                                     fastuidraw_image_slack_num_bits,
-                                     fastuidraw_brush_shader);
-
-      number_lookups = FASTUIDRAW_EXTRACT_BITS(fastuidraw_image_number_index_lookup_bit0,
-                                              fastuidraw_image_number_index_lookup_num_bits,
-                                              fastuidraw_brush_shader);
-
       image_filter = FASTUIDRAW_EXTRACT_BITS(fastuidraw_shader_image_filter_bit0,
-                                            fastuidraw_shader_image_filter_num_bits,
-                                            fastuidraw_brush_shader);
+                                             fastuidraw_shader_image_filter_num_bits,
+                                             fastuidraw_brush_shader);
 
       /* fract the brush coordinate to the size of
          the image.
@@ -189,7 +180,8 @@ fastuidraw_compute_brush_color(void)
          coordinate.
        */
       fastuidraw_brush_compute_image_atlas_coord(image_xy, int(fastuidraw_brush_image_layer),
-                                                 int(number_lookups), int(slack),
+                                                 int(fastuidraw_brush_image_number_lookups),
+                                                 int(fastuidraw_brush_image_slack),
                                                  texel_coord, color_layer);
 
       if(image_filter == uint(fastuidraw_shader_image_filter_nearest))

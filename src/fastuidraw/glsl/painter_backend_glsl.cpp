@@ -384,6 +384,8 @@ ready_brush_varyings(void)
     .add_float_varying("fastuidraw_brush_image_size_x", varying_list::interpolation_flat)
     .add_float_varying("fastuidraw_brush_image_size_y", varying_list::interpolation_flat)
     .add_float_varying("fastuidraw_brush_image_factor", varying_list::interpolation_flat)
+    .add_uint_varying("fastuidraw_brush_image_slack")
+    .add_uint_varying("fastuidraw_brush_image_number_lookups")
 
     /* ColorStop paremeters (only active if gradient active)
        - fastuidraw_brush_color_stop_xy (x,y) texture coordinates of start of color stop
@@ -611,6 +613,7 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .set(PainterBrush::image_atlas_location_xyz_offset, ".image_atlas_location_xyz", shader_unpack_value::uint_type)
       .set(PainterBrush::image_size_xy_offset, ".image_size_xy", shader_unpack_value::uint_type)
       .set(PainterBrush::image_start_xy_offset, ".image_start_xy", shader_unpack_value::uint_type)
+      .set(PainterBrush::image_slack_and_number_lookups_offset, ".image_slack_and_number_index_lookup", shader_unpack_value::uint_type)
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_brush_image_raw_data",
                               "fastuidraw_brush_image_data_raw");
