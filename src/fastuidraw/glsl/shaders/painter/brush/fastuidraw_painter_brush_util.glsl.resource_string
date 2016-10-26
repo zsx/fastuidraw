@@ -1,0 +1,47 @@
+vec4
+fastuidraw_brush_cubic_weights(float x)
+{
+    float x_squared = x * x;
+    float x_cubed = x_squared * x;
+    float one_minus_x = 1.0 - x;
+    float one_minus_x_squared = one_minus_x * one_minus_x;
+    float one_minus_x_cubed = one_minus_x_squared  * one_minus_x;
+    vec4 w;
+
+    w.x = one_minus_x_cubed;
+    w.y = 3.0 * x_cubed - 6.0 * x_squared + 4.0;
+    w.z = 3.0 * one_minus_x_cubed - 6.0 * one_minus_x_squared + 4.0;
+    w.w = x_cubed;
+    return w / 6.0;
+}
+
+void
+fastuidraw_brush_compute_image_atlas_coord(in vec2 image_shader_coord,
+                                          in int index_layer,
+                                          in int num_lookups,
+                                          in int slack,
+                                          out vec2 image_atlas_coord,
+                                          out int image_atlas_layer)
+{
+  /* this seams silly, but there is a reason.
+     On Mesa/i965 (as of Oct 23, 2015) without this wrapper,
+     the GLSL compiler produces an incorrect shader that
+     fails for the case where num_lookups is one.
+     However, making the case of 1 explicit makes this
+     thing work.
+   */
+  if(num_lookups == 1)
+    {
+      fastuidraw_compute_image_atlas_coord(image_shader_coord, index_layer,
+                                          1, slack,
+                                          image_atlas_coord,
+                                          image_atlas_layer);
+    }
+  else
+    {
+      fastuidraw_compute_image_atlas_coord(image_shader_coord, index_layer,
+                                          num_lookups, slack,
+                                          image_atlas_coord,
+                                          image_atlas_layer);
+    }
+}

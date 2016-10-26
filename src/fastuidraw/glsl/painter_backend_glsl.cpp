@@ -290,6 +290,7 @@ PainterBackendGLSLPrivate(fastuidraw::glsl::PainterBackendGLSL *p,
                                                                           "fastuidraw_fetch_glyph_data",
                                                                           true))
     .add_source("fastuidraw_painter_brush_types.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_brush_util.glsl.resource_string", ShaderSource::from_resource)
     .add_source("fastuidraw_painter_brush_macros.glsl.resource_string", ShaderSource::from_resource)
     .add_source("fastuidraw_painter_brush_read_data_forward_declares.glsl.resource_string", ShaderSource::from_resource)
     .add_source("fastuidraw_painter_brush_read_data.glsl.resource_string", ShaderSource::from_resource);
