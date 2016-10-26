@@ -22,6 +22,7 @@
 #include <fastuidraw/glsl/shader_source.hpp>
 #include <fastuidraw/glsl/painter_item_shader_glsl.hpp>
 #include <fastuidraw/glsl/painter_blend_shader_glsl.hpp>
+#include <fastuidraw/glsl/painter_brush_shader_glsl.hpp>
 
 namespace fastuidraw
 {
@@ -864,6 +865,22 @@ namespace fastuidraw
       compute_blend_shader_group(PainterShader::Tag tag,
                                 const reference_counted_ptr<PainterBlendShader> &shader);
 
+      /*!
+        To be optionally implemented by a derived class to
+        compute the shader group of a PainterItemShader.
+        The passed shader may or may not be a sub-shader.
+        Default implementation is to return 0.
+        \param tag The value of PainterShader::tag() that PainterBackendGLSL
+                   will assign to the shader. Do NOT access PainterShader::tag(),
+                   PainterShader::ID() or PainterShader::group() as they are
+                   not yet assgined.
+        \param shader shader whose group is to be computed
+       */
+      virtual
+      uint32_t
+      compute_brush_shader_group(PainterShader::Tag tag,
+                                const reference_counted_ptr<PainterBrushShader> &shader);
+
       //////////////////////////////////////////////////////////////
       // virtual methods from PainterBackend, do NOT reimplement(!)
       virtual
@@ -881,6 +898,14 @@ namespace fastuidraw
       virtual
       uint32_t
       compute_blend_sub_shader_group(const reference_counted_ptr<PainterBlendShader> &shader);
+
+      virtual
+      PainterShader::Tag
+      absorb_brush_shader(const reference_counted_ptr<PainterBrushShader> &shader);
+
+      virtual
+      uint32_t
+      compute_brush_sub_shader_group(const reference_counted_ptr<PainterBrushShader> &shader);
 
     private:
       void *m_d;

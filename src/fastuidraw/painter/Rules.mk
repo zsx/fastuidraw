@@ -22,7 +22,7 @@ LIBRARY_SOURCES += $(call filelist, \
 	painter_shader.cpp painter_shader_set.cpp \
 	painter_dashed_stroke_shader_set.cpp painter_stroke_shader.cpp \
 	painter_glyph_shader.cpp painter_blend_shader_set.cpp \
-	painter_fill_shader.cpp)
+	painter_brush_shader_set.cpp painter_fill_shader.cpp)
 
 # Begin standard footer
 d		:= $(dirstack_$(sp))

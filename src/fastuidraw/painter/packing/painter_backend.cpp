@@ -271,6 +271,31 @@ register_shader(const reference_counted_ptr<PainterBlendShader> &shader)
 
 void
 fastuidraw::PainterBackend::
+register_shader(const reference_counted_ptr<PainterBrushShader> &shader)
+{
+  if(!shader || shader->registered_to() == this)
+    {
+      return;
+    }
+  assert(shader->registered_to() == NULL);
+  if(shader->registered_to() == NULL)
+    {
+      if(shader->parent())
+        {
+          register_shader(shader->parent().static_cast_ptr<PainterBrushShader>());
+          shader->set_group_of_sub_shader(compute_brush_sub_shader_group(shader));
+        }
+      else
+        {
+          PainterShader::Tag tag;
+          tag = absorb_brush_shader(shader);
+          shader->register_shader(tag, this);
+        }
+    }
+}
+
+void
+fastuidraw::PainterBackend::
 register_shader(const PainterGlyphShader &shader)
 {
   for(unsigned int i = 0, endi = shader.shader_count(); i < endi; ++i)
@@ -291,6 +316,17 @@ register_shader(const PainterBlendShaderSet &p)
       const reference_counted_ptr<PainterBlendShader> &sh(p.shader(tp));
       register_shader(sh);
     }
+}
+
+void
+fastuidraw::PainterBackend::
+register_shader(const PainterBrushShaderSet &shaders)
+{
+  register_shader(shaders.linear_gradient());
+  register_shader(shaders.radial_gradient());
+  register_shader(shaders.image());
+  register_shader(shaders.transformation_translation());
+  register_shader(shaders.transformation_matrix());
 }
 
 void

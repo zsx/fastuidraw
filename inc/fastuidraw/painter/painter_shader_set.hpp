@@ -23,6 +23,7 @@
 #include <fastuidraw/painter/painter_stroke_shader.hpp>
 #include <fastuidraw/painter/painter_glyph_shader.hpp>
 #include <fastuidraw/painter/painter_blend_shader_set.hpp>
+#include <fastuidraw/painter/painter_brush_shader_set.hpp>
 #include <fastuidraw/painter/painter_dashed_stroke_shader_set.hpp>
 #include <fastuidraw/painter/painter_enums.hpp>
 
@@ -39,6 +40,8 @@ namespace fastuidraw
      - glyphs
      - stroking paths
      - filling paths
+    in addition, provides shader sets for blending and
+    performing a brush.
    */
   class PainterShaderSet
   {
@@ -179,6 +182,20 @@ namespace fastuidraw
      */
     PainterShaderSet&
     blend_shaders(const PainterBlendShaderSet &sh);
+
+    /*!
+      Brush shaders. If an element is a NULL shader, then that
+      brush mode is not supported.
+     */
+    const PainterBrushShaderSet&
+    brush_shaders(void) const;
+
+    /*!
+      Set the value returned by brush_shaders(void) const.
+      \param sh value to use
+     */
+    PainterShaderSet&
+    brush_shaders(const PainterBrushShaderSet &sh);
 
   private:
     void *m_d;
