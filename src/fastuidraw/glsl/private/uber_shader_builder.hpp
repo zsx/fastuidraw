@@ -62,11 +62,14 @@ stream_uber_frag_shader(bool use_switch, ShaderSource &frag,
                         const_c_array<reference_counted_ptr<PainterItemShaderGLSL> > item_shaders,
                         const DeclareVaryingsStringDatum &datum);
 
-
 void
 stream_uber_blend_shader(bool use_switch, ShaderSource &frag,
                          const_c_array<reference_counted_ptr<PainterBlendShaderGLSL> > blend_shaders,
                          enum PainterBlendShader::shader_type tp);
+
+void
+stream_uber_brush_shader(bool use_switch, ShaderSource &frag,
+                         const_c_array<reference_counted_ptr<PainterBrushShaderGLSL> > brush_shaders);
 
 
 }}}

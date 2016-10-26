@@ -34,22 +34,22 @@ namespace fastuidraw
       shader code fragment is via GLSL. A PainterBrushShaderGLSL
       provides a GLSL source code to implement the function
       \code
-        uint
+        void
         fastuidraw_gl_brush_main(in uint sub_shader,
-                                 in uint shader_data_offset,
+                                 inout uint shader_data_offset,
                                  inout vec2 brush_location,
                                  inout vec4 color);
       \endcode
       where:
        - sub_shader is the sub-shader ID,
-       - shader_data_offset is the location of the shader data,
+       - shader_data_offset is the location of the shader data this
+         value must be incremented to the location of the end of
+         the brush shader data,
        - brush_location is the position in the brush, this value
-                        can be written to as well to create more
-                        effects,
+         can be written to as well to create more
+         effects and
        - color is the color to emit and is initalized as the value
-               from the previous brush stage,
-      and the function is to return how many data blocks to its end
-      of its shader data.
+         from the previous brush stage.
      */
     class PainterBrushShaderGLSL:public PainterBrushShader
     {

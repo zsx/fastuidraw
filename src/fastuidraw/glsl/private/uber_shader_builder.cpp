@@ -482,13 +482,18 @@ stream_uber_vert_shader(bool use_switch,
                         const_c_array<reference_counted_ptr<PainterItemShaderGLSL> > item_shaders,
                         const DeclareVaryingsStringDatum &datum)
 {
+  const char *uber_shader_declaration =
+    "fastuidraw_run_vert_shader(in fastuidraw_shader_header h, out uint add_z)";
+
+  const char *invoke_additional_arguments =
+    ", fastuidraw_primary_attribute, fastuidraw_secondary_attribute, "
+    "fastuidraw_uint_attribute, h.item_shader_data_location, add_z";
+
   UberShaderStreamer<PainterItemShaderGLSL>::stream_uber(use_switch, vert, item_shaders,
                                                          &PainterItemShaderGLSL::vertex_src,
                                                          &pre_stream_varyings, &post_stream_varyings, datum,
-                                                         "vec4", "fastuidraw_run_vert_shader(in fastuidraw_shader_header h, out uint add_z)",
-                                                         "fastuidraw_gl_vert_main",
-                                                         ", fastuidraw_primary_attribute, fastuidraw_secondary_attribute, "
-                                                         "fastuidraw_uint_attribute, h.item_shader_data_location, add_z",
+                                                         "vec4", uber_shader_declaration,
+                                                         "fastuidraw_gl_vert_main", invoke_additional_arguments,
                                                          "h.item_shader");
 }
 
@@ -498,14 +503,40 @@ stream_uber_frag_shader(bool use_switch,
                         const_c_array<reference_counted_ptr<PainterItemShaderGLSL> > item_shaders,
                         const DeclareVaryingsStringDatum &datum)
 {
+  const char *uber_shader_declaration =
+    "fastuidraw_run_frag_shader(in uint frag_shader, "
+    "in uint frag_shader_data_location)";
+
+  const char *invoke_additional_arguments = ", frag_shader_data_location";
+
   UberShaderStreamer<PainterItemShaderGLSL>::stream_uber(use_switch, frag, item_shaders,
                                                          &PainterItemShaderGLSL::fragment_src,
                                                          &pre_stream_varyings, &post_stream_varyings, datum,
-                                                         "vec4",
-                                                         "fastuidraw_run_frag_shader(in uint frag_shader, "
-                                                         "in uint frag_shader_data_location)",
-                                                         "fastuidraw_gl_frag_main", ", frag_shader_data_location",
+                                                         "vec4", uber_shader_declaration,
+                                                         "fastuidraw_gl_frag_main", invoke_additional_arguments,
                                                          "frag_shader");
+}
+
+void
+stream_uber_brush_shader(bool use_switch, ShaderSource &frag,
+                         const_c_array<reference_counted_ptr<PainterBrushShaderGLSL> > brush_shaders)
+{
+  const char *uber_shader_declaration =
+    "fastuidraw_run_brush_shader(in uint brush_shader, "
+    "inout uint brush_shader_data_location, "
+    "inout vec2 brush_location, inout vec4 color)";
+
+  const char *invoke_additional_arguments =
+    ", brush_shader_data_location, "
+    "brush_shader_data_location, "
+    "brush_location, color";
+
+  UberShaderStreamer<PainterBrushShaderGLSL>::stream_uber(use_switch, frag, brush_shaders,
+                                                          &PainterBrushShaderGLSL::brush_src,
+                                                          "void",  uber_shader_declaration,
+                                                          "fastuidraw_gl_brush_main",
+                                                          invoke_additional_arguments,
+                                                          "brush_shader");
 }
 
 void
