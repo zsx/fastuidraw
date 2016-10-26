@@ -120,6 +120,7 @@ namespace
       m_vert_shader_use_switch(false),
       m_frag_shader_use_switch(false),
       m_blend_shader_use_switch(false),
+      m_brush_shader_use_switch(false),
       m_unpack_header_and_brush_in_frag_shader(false),
       m_data_store_backing(fastuidraw::glsl::PainterBackendGLSL::data_store_tbo),
       m_data_blocks_per_store_buffer(-1),
@@ -139,6 +140,7 @@ namespace
     bool m_vert_shader_use_switch;
     bool m_frag_shader_use_switch;
     bool m_blend_shader_use_switch;
+    bool m_brush_shader_use_switch;
     bool m_unpack_header_and_brush_in_frag_shader;
     enum fastuidraw::glsl::PainterBackendGLSL::data_store_backing_t m_data_store_backing;
     int m_data_blocks_per_store_buffer;
@@ -442,6 +444,9 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
   src
     .add_macro("fastuidraw_half_max_z", FASTUIDRAW_MAX_VALUE_FROM_NUM_BITS(z_bits_supported - 1))
     .add_macro("fastuidraw_max_z", FASTUIDRAW_MAX_VALUE_FROM_NUM_BITS(z_bits_supported))
+
+    /* macros for brush shading
+     */
     .add_macro("fastuidraw_shader_image_mask", PainterBrush::image_mask)
     .add_macro("fastuidraw_shader_image_filter_bit0", PainterBrush::image_filter_bit0)
     .add_macro("fastuidraw_shader_image_filter_num_bits", PainterBrush::image_filter_num_bits)
@@ -472,7 +477,6 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
     .add_macro("fastuidraw_color_stop_x_num_bits", PainterBrush::gradient_color_stop_x_num_bits)
     .add_macro("fastuidraw_color_stop_y_bit0",     PainterBrush::gradient_color_stop_y_bit0)
     .add_macro("fastuidraw_color_stop_y_num_bits", PainterBrush::gradient_color_stop_y_num_bits)
-
     .add_macro("fastuidraw_shader_pen_num_blocks", number_blocks(alignment, PainterBrush::pen_data_size))
     .add_macro("fastuidraw_shader_image_num_blocks", number_blocks(alignment, PainterBrush::image_data_size))
     .add_macro("fastuidraw_shader_linear_gradient_num_blocks", number_blocks(alignment, PainterBrush::linear_gradient_data_size))
@@ -480,9 +484,12 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
     .add_macro("fastuidraw_shader_repeat_window_num_blocks", number_blocks(alignment, PainterBrush::repeat_window_data_size))
     .add_macro("fastuidraw_shader_transformation_matrix_num_blocks", number_blocks(alignment, PainterBrush::transformation_matrix_data_size))
     .add_macro("fastuidraw_shader_transformation_translation_num_blocks", number_blocks(alignment, PainterBrush::transformation_translation_data_size))
+
     .add_macro("fastuidraw_stroke_dashed_stroking_params_header_num_blocks",
                number_blocks(alignment, PainterDashedStrokeParams::stroke_static_data_size))
 
+    /* macros for painter header
+     */
     .add_macro("fastuidraw_item_shader_bit0", PainterHeader::item_shader_bit0)
     .add_macro("fastuidraw_item_shader_num_bits", PainterHeader::item_shader_num_bits)
     .add_macro("fastuidraw_blend_shader_bit0", PainterHeader::blend_shader_bit0)
@@ -514,7 +521,7 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
     .add_macro("fastuidraw_stroke_depth_bit0", StrokedPath::depth_bit0)
     .add_macro("fastuidraw_stroke_depth_num_bits", StrokedPath::depth_num_bits)
 
-    /* dash shader modes.
+    /* dash shader modes for stroking.
      */
     .add_macro("fastuidraw_stroke_dashed_flat_caps", PainterEnums::flat_caps)
     .add_macro("fastuidraw_stroke_dashed_rounded_caps", PainterEnums::rounded_caps)
@@ -733,7 +740,7 @@ declare_shader_uniforms(const fastuidraw::glsl::PainterBackendGLSL::UberShaderPa
   if(params.use_ubo_for_uniforms())
     {
       const char *ext="xyzw";
-      /* Mesa packs UBO data float[N] as really vec4[N],
+      /* GL packs UBO data float[N] as really vec4[N],
          so instead realize the data directly as vec4[K]
        */
       ostr << "FASTUIDRAW_LAYOUT_BINDING("
@@ -1126,6 +1133,8 @@ construct_shader(fastuidraw::glsl::ShaderSource &vert,
   stream_uber_blend_shader(params.blend_shader_use_switch(), frag,
                            make_c_array(m_blend_shaders[params.blend_type()].m_shaders),
                            params.blend_type());
+  stream_uber_brush_shader(params.brush_shader_use_switch(), frag,
+                           make_c_array(m_brush_shaders));
 }
 
 /////////////////////////////////////////////////////////////////
@@ -1332,6 +1341,7 @@ setget_implement(bool, assign_binding_points)
 setget_implement(bool, vert_shader_use_switch)
 setget_implement(bool, frag_shader_use_switch)
 setget_implement(bool, blend_shader_use_switch)
+setget_implement(bool, brush_shader_use_switch)
 setget_implement(bool, unpack_header_and_brush_in_frag_shader)
 setget_implement(enum fastuidraw::glsl::PainterBackendGLSL::data_store_backing_t, data_store_backing)
 setget_implement(int, data_blocks_per_store_buffer)

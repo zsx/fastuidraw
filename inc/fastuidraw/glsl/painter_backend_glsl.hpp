@@ -576,6 +576,20 @@ namespace fastuidraw
         blend_shader_use_switch(bool);
 
         /*!
+          If true, use a switch() in the uber-fragment shader to
+          dispatch to the PainterBrushShader.
+         */
+        bool
+        brush_shader_use_switch(void) const;
+
+        /*!
+          Set the value returned by brush_shader_use_switch(void) const.
+          Default value is false.
+         */
+        UberShaderParams&
+        brush_shader_use_switch(bool);
+
+        /*!
           If true, unpack the PainterBrush data in the fragment shader.
           If false, unpack the data in the vertex shader and forward
           the data to the fragment shader via flat varyings.
