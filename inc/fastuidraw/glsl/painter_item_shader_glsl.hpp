@@ -215,8 +215,7 @@ namespace fastuidraw
 
       /*!
         Adds to a ShaderSource the GLSL code to unpack a
-        stream of values. Returns the number of blocks needed to unpack
-        the data in GLSL.
+        stream of values.
         \param alignment the alignment of the data store used in a
                          PainterBackendGLSL (i.e. the value of
                          PainterBackend::ConfigurationBase::alignment(void) const)
@@ -225,6 +224,7 @@ namespace fastuidraw
         \param offset_name GLSL name for offset from which to unpack
                            values
         \param prefix string prefix by which to prefix the name values of labels
+        \return the number of blocks needed to unpack the data in GLSL.
        */
       static
       unsigned int
