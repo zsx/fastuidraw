@@ -31,6 +31,7 @@ namespace
     fastuidraw::PainterDashedStrokeShaderSet m_pixel_width_dashed_stroke_shader;
     fastuidraw::PainterFillShader m_fill_shader;
     fastuidraw::PainterBlendShaderSet m_blend_shaders;
+    fastuidraw::PainterBrushShaderSet m_brush_shaders;
   };
 }
 
@@ -101,5 +102,6 @@ setget_implement(fastuidraw::PainterDashedStrokeShaderSet, dashed_stroke_shader)
 setget_implement(fastuidraw::PainterDashedStrokeShaderSet, pixel_width_dashed_stroke_shader)
 setget_implement(fastuidraw::PainterFillShader, fill_shader)
 setget_implement(fastuidraw::PainterBlendShaderSet, blend_shaders)
+setget_implement(fastuidraw::PainterBrushShaderSet, brush_shaders)
 
 #undef setget_implement

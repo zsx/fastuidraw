@@ -193,6 +193,8 @@ namespace
     unsigned int m_next_item_shader_ID;
     fastuidraw::vecN<BlendShaderGroup, fastuidraw::PainterBlendShader::number_types> m_blend_shaders;
     unsigned int m_next_blend_shader_ID;
+    std::vector<fastuidraw::reference_counted_ptr<fastuidraw::glsl::PainterBrushShaderGLSL> > m_brush_shaders;
+    unsigned int m_next_brush_shader_ID;
     fastuidraw::glsl::ShaderSource m_constant_code;
     fastuidraw::glsl::ShaderSource m_vert_shader_utils;
     fastuidraw::glsl::ShaderSource m_frag_shader_utils;
@@ -222,6 +224,7 @@ PainterBackendGLSLPrivate(fastuidraw::glsl::PainterBackendGLSL *p,
   m_shader_code_added(false),
   m_next_item_shader_ID(1),
   m_next_blend_shader_ID(1),
+  m_next_brush_shader_ID(1),
   m_number_float_varyings(0),
   m_number_uint_varyings(0),
   m_number_int_varyings(0),
@@ -1405,6 +1408,16 @@ compute_blend_shader_group(PainterShader::Tag tag,
   return 0u;
 }
 
+uint32_t
+fastuidraw::glsl::PainterBackendGLSL::
+compute_brush_shader_group(PainterShader::Tag tag,
+                           const reference_counted_ptr<PainterBrushShader> &shader)
+{
+  FASTUIDRAWunused(shader);
+  FASTUIDRAWunused(tag);
+  return 0u;
+}
+
 fastuidraw::PainterShader::Tag
 fastuidraw::glsl::PainterBackendGLSL::
 absorb_item_shader(const reference_counted_ptr<PainterItemShader> &shader)
@@ -1438,6 +1451,40 @@ compute_item_sub_shader_group(const reference_counted_ptr<PainterItemShader> &sh
   PainterShader::Tag tg(shader->parent()->tag());
   tg.m_ID += shader->sub_shader();
   return compute_item_shader_group(tg, shader);
+}
+
+fastuidraw::PainterShader::Tag
+fastuidraw::glsl::PainterBackendGLSL::
+absorb_brush_shader(const reference_counted_ptr<PainterBrushShader> &shader)
+{
+  PainterBackendGLSLPrivate *d;
+  d = reinterpret_cast<PainterBackendGLSLPrivate*>(m_d);
+
+  reference_counted_ptr<PainterBrushShaderGLSL> h;
+  fastuidraw::PainterShader::Tag return_value;
+
+  assert(!shader->parent());
+  assert(shader.dynamic_cast_ptr<PainterBrushShaderGLSL>());
+  h = shader.static_cast_ptr<PainterBrushShaderGLSL>();
+
+  d->m_shader_code_added = true;
+  d->m_brush_shaders.push_back(h);
+
+  return_value.m_ID = d->m_next_brush_shader_ID;
+  return_value.m_group = 0;
+  d->m_next_brush_shader_ID += h->number_sub_shaders();
+  return_value.m_group = compute_brush_shader_group(return_value, h);
+
+  return return_value;
+}
+
+uint32_t
+fastuidraw::glsl::PainterBackendGLSL::
+compute_brush_sub_shader_group(const reference_counted_ptr<PainterBrushShader> &shader)
+{
+  PainterShader::Tag tg(shader->parent()->tag());
+  tg.m_ID += shader->sub_shader();
+  return compute_brush_shader_group(tg, shader);
 }
 
 fastuidraw::PainterShader::Tag

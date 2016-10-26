@@ -24,7 +24,6 @@
 #include <fastuidraw/image.hpp>
 #include <fastuidraw/colorstop_atlas.hpp>
 #include <fastuidraw/painter/packing/painter_draw.hpp>
-#include <fastuidraw/painter/painter_shader.hpp>
 #include <fastuidraw/painter/painter_shader_set.hpp>
 
 
@@ -236,6 +235,13 @@ namespace fastuidraw
     register_shader(const reference_counted_ptr<PainterBlendShader> &shader);
 
     /*!
+      Registers a brush shader for use. Must not be called within
+      a on_pre_draw()/on_post_draw() pair.
+    */
+    void
+    register_shader(const reference_counted_ptr<PainterBrushShader> &shader);
+
+    /*!
       Provided as a conveniance, equivalent to
       \code
       register_shader(p.non_aa_shader());
@@ -279,6 +285,13 @@ namespace fastuidraw
      */
     void
     register_shader(const PainterBlendShaderSet &p);
+
+    /*!
+      Register each of the reference_counted_ptr<PainterBrushShader>
+      in a PainterBrushShaderSet.
+     */
+    void
+    register_shader(const PainterBrushShaderSet &p);
 
     /*!
       Register each of the shaders in a PainterShaderSet.
@@ -355,6 +368,32 @@ namespace fastuidraw
     virtual
     uint32_t
     compute_blend_sub_shader_group(const reference_counted_ptr<PainterBlendShader> &shader) = 0;
+
+    /*!
+      To be implemented by a derived class to take into use
+      a brush shader. Typically this means inserting the
+      the brush shader into a large uber shader. Returns
+      the PainterShader::Tag to be used by the backend
+      to identify the shader. An implementation will never
+      be passed an object for which PainterShader::parent()
+      is non-NULL.
+      \param shader shader whose Tag is to be computed
+     */
+    virtual
+    PainterShader::Tag
+    absorb_brush_shader(const reference_counted_ptr<PainterBrushShader> &shader) = 0;
+
+    /*!
+      To be implemented by a derived class to compute the PainterShader::group()
+      of a sub-shader. When called, the value of the shader's PainterShader::ID()
+      and PainterShader::registered_to() are already set correctly. In addition,
+      the value of PainterShader::group() is initialized to the same value as
+      that of the PainterBrushShader::parent().
+      \param shader shader whose group is to be computed
+     */
+    virtual
+    uint32_t
+    compute_brush_sub_shader_group(const reference_counted_ptr<PainterBrushShader> &shader) = 0;
 
     /*!
       To be accessed by a derived class in on_begin() (or before)
