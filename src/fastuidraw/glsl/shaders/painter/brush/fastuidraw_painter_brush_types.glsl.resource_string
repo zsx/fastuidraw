@@ -80,10 +80,15 @@ struct fastuidraw_brush_image_data_raw
    */
   uint image_size_xy;
 
-  /*
-    offset of start rectangle for sub-image.
+  /* offset of start rectangle for sub-image.
    */
   uint image_start_xy;
+
+  /* packed value containing:
+       - image slack
+       - number of index lookups
+   */
+  uint image_slack_and_number_index_lookup;
 };
 
 struct fastuidraw_brush_gradient_raw

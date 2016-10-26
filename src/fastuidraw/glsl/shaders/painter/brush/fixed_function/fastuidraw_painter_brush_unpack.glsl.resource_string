@@ -80,6 +80,8 @@ fastuidraw_painter_brush_unpack_values(in uint shader, inout uint data_ptr)
   fastuidraw_brush_image_factor = image_factor;
   fastuidraw_brush_image_size_x = float(image.image_size.x);
   fastuidraw_brush_image_size_y = float(image.image_size.y);
+  fastuidraw_brush_image_slack = image.slack;
+  fastuidraw_brush_image_number_lookups = image.number_index_lookups;
 
   float color_stop_recip;
 

@@ -104,6 +104,13 @@ pack_data(unsigned int alignment, c_array<generic_data> dst) const
       sub_dest[image_start_xy_offset].u =
         pack_bits(image_size_x_bit0, image_size_x_num_bits, m_data.m_image_start.x())
         | pack_bits(image_size_y_bit0, image_size_y_num_bits, m_data.m_image_start.y());
+
+      uint32_t lookups(m_data.m_image->number_index_lookups());
+      uint32_t slack(m_data.m_image->slack());
+
+      sub_dest[image_slack_and_number_lookups_offset].u =
+        pack_bits(image_number_index_lookups_bit0, image_number_index_lookups_num_bits, lookups)
+        | pack_bits(image_slack_bit0, image_slack_num_bits, slack);
     }
 
   if(pshader & gradient_mask)
@@ -188,7 +195,6 @@ fastuidraw::PainterBrush::
 sub_image(const reference_counted_ptr<const Image> &im,
           uvec2 xy, uvec2 wh, enum image_filter f)
 {
-  uint32_t slack, lookups;
   uint32_t filter_bits;
 
   filter_bits = im ? f : 0;
@@ -199,16 +205,6 @@ sub_image(const reference_counted_ptr<const Image> &im,
 
   m_data.m_shader_raw &= ~(filter_bits << image_filter_bit0);
   m_data.m_shader_raw |= (filter_bits << image_filter_bit0);
-
-  slack = im ? im->slack() : 0;
-  assert(slack <= image_slack_max);
-  m_data.m_shader_raw &= ~(image_slack_max << image_slack_bit0);
-  m_data.m_shader_raw |= (slack << image_slack_bit0);
-
-  lookups = im ? im->number_index_lookups() : 0;
-  assert(lookups <= image_number_index_lookups_max);
-  m_data.m_shader_raw &= ~(image_number_index_lookups_max << image_number_index_lookups_bit0);
-  m_data.m_shader_raw |= (lookups << image_number_index_lookups_bit0);
 
   return *this;
 }
