@@ -57,7 +57,7 @@ data_size(unsigned int alignment) const
 
   if(pshader & transformation_matrix_mask)
     {
-      return_value += round_up_to_multiple(transformation_matrix_data_size, alignment);
+      return_value += round_up_to_multiple(TransformationMatrixParams::data_size, alignment);
     }
 
   return return_value;
@@ -168,14 +168,14 @@ pack_data(unsigned int alignment, c_array<generic_data> dst) const
 
   if(pshader & transformation_matrix_mask)
     {
-      sz = round_up_to_multiple(transformation_matrix_data_size, alignment);
+      sz = round_up_to_multiple(TransformationMatrixParams::data_size, alignment);
       sub_dest = dst.sub_array(current, sz);
       current += sz;
 
-      sub_dest[transformation_matrix_m00_offset].f = m_data.m_transformation_matrix(0, 0);
-      sub_dest[transformation_matrix_m01_offset].f = m_data.m_transformation_matrix(0, 1);
-      sub_dest[transformation_matrix_m10_offset].f = m_data.m_transformation_matrix(1, 0);
-      sub_dest[transformation_matrix_m11_offset].f = m_data.m_transformation_matrix(1, 1);
+      sub_dest[TransformationMatrixParams::m00_offset].f = m_data.m_transformation_matrix(0, 0);
+      sub_dest[TransformationMatrixParams::m01_offset].f = m_data.m_transformation_matrix(0, 1);
+      sub_dest[TransformationMatrixParams::m10_offset].f = m_data.m_transformation_matrix(1, 0);
+      sub_dest[TransformationMatrixParams::m11_offset].f = m_data.m_transformation_matrix(1, 1);
     }
 
   if(pshader & transformation_translation_mask)

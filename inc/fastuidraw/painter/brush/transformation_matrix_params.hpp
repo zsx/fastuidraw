@@ -1,6 +1,6 @@
 /*!
- * \file transformation_translation_params.hpp
- * \brief file transformation_translation_params.hpp
+ * \file transformation_matrix_params.hpp
+ * \brief file transformation_matrix_params.hpp
  *
  * Copyright 2016 by Intel.
  *
@@ -20,6 +20,7 @@
 #pragma once
 
 #include <fastuidraw/util/vecN.hpp>
+#include <fastuidraw/util/matrix.hpp>
 #include <fastuidraw/painter/painter_shader_data.hpp>
 
 namespace fastuidraw
@@ -30,38 +31,40 @@ namespace fastuidraw
 
   /*!
     Class to specify a repeat window for a brush, data is
-    packed as according to TransformationTranslationParams::data_offset_t.
+    packed as according to TransformationMatrixParams::data_offset_t.
    */
-  class TransformationTranslationParams:public PainterBrushShaderData
+  class TransformationMatrixParams:public PainterBrushShaderData
   {
   public:
     /*!
       Enumeration that provides offset for packing of
-      data of a transformation translation.
+      data of a transformation matrix.
      */
     enum data_offset_t
       {
-        x_offset, /*!< offset for the x-position of the translation (packed at float) */
-        y_offset, /*!< offset for the y-position of the translation (packed at float) */
+        m00_offset, /*!< offset for float2x2(0, 0) (packed at float) */
+        m01_offset, /*!< offset for float2x2(0, 1) (packed at float) */
+        m10_offset, /*!< offset for float2x2(1, 0) (packed at float) */
+        m11_offset, /*!< offset for float2x2(1, 1) (packed at float) */
         data_size /*!< size of data */
       };
 
     /*!
       Ctor.
      */
-    TransformationTranslationParams(void);
+    TransformationMatrixParams(void);
 
     /*!
-      Gives the about by which to translation the brush.
+      Gives the matrix to apply to the brush.
      */
-    const vec2&
-    pos(void) const;
+    const float2x2&
+    matrix(void) const;
 
     /*!
       Set the value returned by pos(void) const.
      */
-    TransformationTranslationParams&
-    pos(const vec2 &v);
+    TransformationMatrixParams&
+    matrix(const float2x2 &v);
   };
 
 /*! @} */
