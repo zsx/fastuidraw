@@ -20,17 +20,18 @@
 #include <vector>
 
 #include <fastuidraw/glsl/painter_backend_glsl.hpp>
-#include <fastuidraw/painter/stroked_path.hpp>
-#include <fastuidraw/painter/painter_header.hpp>
-#include <fastuidraw/painter/painter_item_matrix.hpp>
-#include <fastuidraw/painter/painter_clip_equations.hpp>
-#include <fastuidraw/painter/painter_brush.hpp>
-#include <fastuidraw/painter/painter_shader_data.hpp>
-#include <fastuidraw/painter/painter_dashed_stroke_params.hpp>
-#include <fastuidraw/painter/painter_stroke_params.hpp>
 #include <fastuidraw/glsl/painter_blend_shader_glsl.hpp>
 #include <fastuidraw/glsl/painter_item_shader_glsl.hpp>
 #include <fastuidraw/glsl/shader_code.hpp>
+
+#include <fastuidraw/painter/painter_shader_data.hpp>
+#include <fastuidraw/painter/brush/painter_brush.hpp>
+#include <fastuidraw/painter/packing/painter_header.hpp>
+#include <fastuidraw/painter/packing/painter_item_matrix.hpp>
+#include <fastuidraw/painter/packing/painter_clip_equations.hpp>
+#include <fastuidraw/painter/paths/painter_dashed_stroke_params.hpp>
+#include <fastuidraw/painter/paths/painter_stroke_params.hpp>
+#include <fastuidraw/painter/paths/stroked_path.hpp>
 
 #include "private/uber_shader_builder.hpp"
 #include "private/backend_shaders.hpp"

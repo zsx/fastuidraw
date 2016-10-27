@@ -18,7 +18,7 @@
 
 
 #include <vector>
-#include <fastuidraw/painter/painter_blend_shader_set.hpp>
+#include <fastuidraw/painter/blend/painter_blend_shader_set.hpp>
 
 namespace
 {

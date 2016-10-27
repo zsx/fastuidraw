@@ -18,7 +18,7 @@
 
 
 #include <vector>
-#include <fastuidraw/painter/painter_glyph_shader.hpp>
+#include <fastuidraw/painter/text/painter_glyph_shader.hpp>
 
 namespace
 {

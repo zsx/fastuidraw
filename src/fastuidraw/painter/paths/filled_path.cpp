@@ -24,11 +24,11 @@
 
 #include <fastuidraw/tessellated_path.hpp>
 #include <fastuidraw/path.hpp>
-#include <fastuidraw/painter/filled_path.hpp>
 #include <fastuidraw/painter/painter_attribute_data.hpp>
-#include <fastuidraw/painter/painter_attribute_data_filler_path_fill.hpp>
-#include "../private/util_private.hpp"
-#include "../../3rd_party/glu-tess/glu-tess.hpp"
+#include <fastuidraw/painter/paths/painter_attribute_data_filler_path_fill.hpp>
+#include <fastuidraw/painter/paths/filled_path.hpp>
+#include "../../private/util_private.hpp"
+#include "../../../3rd_party/glu-tess/glu-tess.hpp"
 
 namespace
 {

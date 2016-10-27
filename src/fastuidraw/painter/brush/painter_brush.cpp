@@ -17,7 +17,7 @@
  */
 
 #include <algorithm>
-#include <fastuidraw/painter/painter_brush.hpp>
+#include <fastuidraw/painter/brush/painter_brush.hpp>
 
 ////////////////////////////////////
 // fastuidraw::PainterBrush methods

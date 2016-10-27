@@ -21,7 +21,6 @@
 #include <bitset>
 
 #include <fastuidraw/util/math.hpp>
-#include <fastuidraw/painter/painter_header.hpp>
 #include <fastuidraw/painter/painter.hpp>
 
 #include "../private/util_private.hpp"

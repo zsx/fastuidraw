@@ -16,7 +16,7 @@
  *
  */
 
-#include <fastuidraw/painter/painter_fill_shader.hpp>
+#include <fastuidraw/painter/paths/painter_fill_shader.hpp>
 
 namespace
 {

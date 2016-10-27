@@ -16,10 +16,10 @@
  *
  */
 
-#include <fastuidraw/painter/painter_dashed_stroke_params.hpp>
-#include <fastuidraw/painter/stroked_path.hpp>
+#include <fastuidraw/painter/paths/painter_dashed_stroke_params.hpp>
+#include <fastuidraw/painter/paths/stroked_path.hpp>
 #include <fastuidraw/util/pixel_distance_math.hpp>
-#include "../private/util_private.hpp"
+#include "../../private/util_private.hpp"
 
 
 namespace

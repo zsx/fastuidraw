@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <fastuidraw/painter/painter_brush_shader.hpp>
+#include <fastuidraw/painter/brush/painter_brush_shader.hpp>
 #include <fastuidraw/glsl/shader_source.hpp>
 
 namespace fastuidraw
