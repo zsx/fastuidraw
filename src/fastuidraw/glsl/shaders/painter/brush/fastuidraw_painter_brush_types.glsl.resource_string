@@ -119,3 +119,12 @@ struct fastuidraw_linear_gradient
   float color_stop_sequence_width;
   uint flags;
 };
+
+struct fastuidraw_radial_gradient
+{
+  vec2 start_pt, end_pt;
+  float start_r, end_r;
+  vec2 color_stop_sequence_xy;
+  float color_stop_sequence_width;
+  uint flags;
+};
