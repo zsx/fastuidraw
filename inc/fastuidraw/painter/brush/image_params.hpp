@@ -207,6 +207,13 @@ namespace fastuidraw
               enum filter_t f = filter_nearest);
 
     /*!
+      Returns the value of the handle to the
+      Image that the brush is set to use.
+     */
+    const reference_counted_ptr<const Image>&
+    image(void) const;
+
+    /*!
       Returns true if and only if passed image can
       be rendered correctly with the specified filter.
       \param im handle to image

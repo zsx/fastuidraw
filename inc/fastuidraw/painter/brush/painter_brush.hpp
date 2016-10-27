@@ -28,6 +28,8 @@
 #include <fastuidraw/colorstop_atlas.hpp>
 #include <fastuidraw/painter/brush/pen_params.hpp>
 #include <fastuidraw/painter/brush/image_params.hpp>
+#include <fastuidraw/painter/brush/linear_gradient_params.hpp>
+#include <fastuidraw/painter/brush/radial_gradient_params.hpp>
 #include <fastuidraw/painter/brush/repeat_window_params.hpp>
 #include <fastuidraw/painter/brush/transformation_translation_params.hpp>
 #include <fastuidraw/painter/brush/transformation_matrix_params.hpp>
@@ -65,19 +67,19 @@ namespace fastuidraw
         image_bit,
 
         /*!
-          Bit is up if a gradient is present
+          Bit is up if a linear gradient is present
          */
-        gradient_bit,
+        linear_gradient_bit,
 
         /*!
-          bit is up if gradient is present and it is radial
+          bit is up if a radial gradient is present
          */
         radial_gradient_bit,
 
         /*!
-          bit is up if gradient is present and gradient lookup repeats outside of [0,1]
+          bit is up if a gradient is repeated
          */
-        gradient_repeat_bit,
+        repeat_gradient_bit,
 
         /*!
           Bit up if the brush has a repeat window
@@ -108,21 +110,19 @@ namespace fastuidraw
         image_mask = FASTUIDRAW_MASK(image_bit, 1),
 
         /*!
-          bit for if gradient is used in brush
+          bit for if linear_gradient is used in brush
          */
-        gradient_mask = FASTUIDRAW_MASK(gradient_bit, 1),
+        linear_gradient_mask = FASTUIDRAW_MASK(linear_gradient_bit, 1),
 
         /*!
           bit for if radial_gradient is used in brush
-          (only up if gradient_mask is also up)
          */
         radial_gradient_mask = FASTUIDRAW_MASK(radial_gradient_bit, 1),
 
         /*!
-          bit for if repeat gradient is used in brush
-          (only up if gradient_mask is also up)
+          bit for if repeat_gradient is used in brush
          */
-        gradient_repeat_mask = FASTUIDRAW_MASK(gradient_repeat_bit, 1),
+        repeat_gradient_mask = FASTUIDRAW_MASK(repeat_gradient_bit, 1),
 
         /*!
           bit for if repeat_window is used in brush
@@ -150,122 +150,37 @@ namespace fastuidraw
     enum packing_order_t
       {
         /*!
-          Pen packed first, see \ref pen_offset_t
-          for the offsets for the individual fields
+          Pen packed first via \ref PenParams.
          */
         pen_packing,
 
         /*!
-          image packing, see \ref image_offset_t
-          for the offsets for the individual fields
+          image packing via \ref ImageParams.
          */
         image_packing,
 
         /*!
-          gradient packing, see \ref gradient_offset_t
-          for the offsets from the start of gradient packing
-          for individual fields
+          gradient packing via LinearGradientParams or
+          RadialGradientParams.
          */
         gradient_packing,
 
         /*!
-          repeat window packing, see \ref
-          repeat_window_offset_t for the offsets
-          for the individual fields
+          repeat window packing via \ref RepeatWindowParams
          */
         repeat_window_packing,
 
         /*!
-          transformation_translation, see \ref
-          transformation_translation_offset_t for the
-          offsets of the individual fields
+          transformation translation via \ref
+          TransformationTranslationParams.
          */
         transformation_translation_packing,
 
         /*!
-          transformation_matrix, see \ref
-          transformation_matrix_offset_t for the
-          offsets of the individual fields
+          transformation matrix via \ref
+          TransformationMatrixParams.
          */
         transformation_matrix_packing,
-      };
-
-    /*!
-      Bit encoding for packing ColorStopSequenceOnAtlas::texel_location()
-     */
-    enum gradient_color_stop_xy_encoding
-      {
-        gradient_color_stop_x_num_bits = 16, /*!< number bits to encode ColorStopSequenceOnAtlas::texel_location().x() */
-        gradient_color_stop_y_num_bits = 16, /*!< number bits to encode ColorStopSequenceOnAtlas::texel_location().y() */
-
-        gradient_color_stop_x_bit0 = 0, /*!< where ColorStopSequenceOnAtlas::texel_location().x() is encoded */
-        gradient_color_stop_y_bit0 = gradient_color_stop_x_num_bits /*!< where ColorStopSequenceOnAtlas::texel_location().y() is encoded */
-      };
-
-    /*!
-      Enumeration that provides offset from the start of
-      gradient packing to data for linear or radial gradients.
-     */
-    enum gradient_offset_t
-      {
-        /*!
-          Offset to x-coordinate of starting point of gradient
-          (packed at float)
-         */
-        gradient_p0_x_offset,
-
-        /*!
-          Offset to y-coordinate of starting point of gradient
-          (packed at float)
-         */
-        gradient_p0_y_offset,
-
-        /*!
-          Offset to x-coordinate of ending point of gradient
-          (packed at float)
-         */
-        gradient_p1_x_offset,
-
-        /*!
-          Offset to y-coordinate of ending point of gradient
-          (packed at float)
-         */
-        gradient_p1_y_offset,
-
-        /*!
-          Offset to the x and y-location of the color stops.
-          The offset is stored as a uint32 packed as according
-          in the enumeration gradient_color_stop_xy_encoding
-         */
-        gradient_color_stop_xy_offset,
-
-        /*!
-          Offset to the length of the color stop in -texels-, i.e.
-          ColorStopSequenceOnAtlas::width(), packed as a uint32
-         */
-        gradient_color_stop_length_offset,
-
-        /*!
-          Size of the data for linear gradients.
-         */
-        linear_gradient_data_size,
-
-        /*!
-          Offset to starting radius of gradient
-          (packed at float) (radial gradient only)
-         */
-        gradient_start_radius_offset = linear_gradient_data_size,
-
-        /*!
-          Offset to ending radius of gradient
-          (packed at float) (radial gradient only)
-         */
-        gradient_end_radius_offset,
-
-        /*!
-          Size of the data for radial gradients.
-         */
-        radial_gradient_data_size
       };
 
     /*!
@@ -273,7 +188,8 @@ namespace fastuidraw
       no repeat window and no transformation with the pen color
       as (1.0, 1.0, 1.0, 1.0) which is solid white.
      */
-    PainterBrush(void)
+    PainterBrush(void):
+      m_shader(0u)
     {}
 
     /*!
@@ -282,16 +198,21 @@ namespace fastuidraw
       pen color.
       \param ppen_color inital pen color
      */
-    PainterBrush(const vec4 &ppen_color)
+    PainterBrush(const vec4 &ppen_color):
+      m_shader(0u)
     {
-      m_data.m_pen = ppen_color;
+      m_pen.color(ppen_color);
     }
 
     /*!
       Reset the brush to initial conditions.
      */
-    void
-    reset(void);
+    PainterBrush&
+    reset(void)
+    {
+      m_shader = 0u;
+      return pen(1.0f, 1.0f, 1.0f, 1.0f);
+    }
 
     /*!
       Set the color to the pen, default value is (1.0, 1.0, 1.0, 1.0).
@@ -299,7 +220,7 @@ namespace fastuidraw
     PainterBrush&
     pen(const vec4 &color)
     {
-      m_data.m_pen = color;
+      m_pen.color(color);
       return *this;
     }
 
@@ -321,7 +242,12 @@ namespace fastuidraw
      */
     PainterBrush&
     image(const reference_counted_ptr<const Image> &im,
-          enum ImageParams::filter_t f = ImageParams::filter_nearest);
+          enum ImageParams::filter_t f = ImageParams::filter_nearest)
+    {
+      m_image.image(im, f);
+      m_shader = apply_bit_flag(m_shader, im, image_mask);
+      return *this;
+    }
 
     /*!
       Set the brush to source from a sub-rectangle of an image
@@ -333,7 +259,22 @@ namespace fastuidraw
      */
     PainterBrush&
     sub_image(const reference_counted_ptr<const Image> &im, uvec2 xy, uvec2 wh,
-              enum ImageParams::filter_t f = ImageParams::filter_nearest);
+              enum ImageParams::filter_t f = ImageParams::filter_nearest)
+    {
+      m_image.sub_image(im, xy, wh, f);
+      m_shader = apply_bit_flag(m_shader, im, image_mask);
+      return *this;
+    }
+
+    /*!
+      Returns the value of the handle to the
+      Image that the brush is set to use.
+     */
+    const reference_counted_ptr<const Image>&
+    image(void) const
+    {
+      return m_image.image();
+    }
 
     /*!
       Sets the brush to not have an image.
@@ -357,12 +298,17 @@ namespace fastuidraw
     linear_gradient(const reference_counted_ptr<const ColorStopSequenceOnAtlas> &cs,
                     const vec2 &start_p, const vec2 &end_p, bool repeat)
     {
-      m_data.m_cs = cs;
-      m_data.m_grad_start = start_p;
-      m_data.m_grad_end = end_p;
-      m_data.m_shader_raw = apply_bit_flag(m_data.m_shader_raw, cs, gradient_mask);
-      m_data.m_shader_raw = apply_bit_flag(m_data.m_shader_raw, cs && repeat, gradient_repeat_mask);
-      m_data.m_shader_raw &= ~radial_gradient_mask;
+      uint32_t flags;
+
+      flags = repeat ? uint32_t(LinearGradientParams::repeat_gradient_mask) : 0u;
+      m_linear_gradient
+        .start_pt(start_p)
+        .end_pt(end_p)
+        .color_stop_sequence(cs)
+        .flags(flags);
+      m_shader = apply_bit_flag(m_shader, cs, linear_gradient_mask);
+      m_shader = apply_bit_flag(m_shader, false, radial_gradient_mask);
+      m_shader = apply_bit_flag(m_shader, cs && repeat, repeat_gradient_mask);
       return *this;
     }
 
@@ -382,15 +328,33 @@ namespace fastuidraw
                     const vec2 &start_p, float start_r,
                     const vec2 &end_p, float end_r, bool repeat)
     {
-      m_data.m_cs = cs;
-      m_data.m_grad_start = start_p;
-      m_data.m_grad_start_r = start_r;
-      m_data.m_grad_end = end_p;
-      m_data.m_grad_end_r = end_r;
-      m_data.m_shader_raw = apply_bit_flag(m_data.m_shader_raw, cs, gradient_mask);
-      m_data.m_shader_raw = apply_bit_flag(m_data.m_shader_raw, cs && repeat, gradient_repeat_mask);
-      m_data.m_shader_raw = apply_bit_flag(m_data.m_shader_raw, cs, radial_gradient_mask);
+      uint32_t flags;
+
+      flags = repeat ? uint32_t(RadialGradientParams::repeat_gradient_mask) : 0u;
+      m_radial_gradient
+        .start_pt(start_p)
+        .start_r(start_r)
+        .end_pt(end_p)
+        .end_r(end_r)
+        .color_stop_sequence(cs)
+        .flags(flags);
+      m_shader = apply_bit_flag(m_shader, cs, radial_gradient_mask);
+      m_shader = apply_bit_flag(m_shader, false, linear_gradient_mask);
+      m_shader = apply_bit_flag(m_shader, cs && repeat, repeat_gradient_mask);
       return *this;
+    }
+
+    /*!
+      Returns the value of the handle to the
+      ColorStopSequenceOnAtlas that the
+      brush is set to use.
+     */
+    const reference_counted_ptr<const ColorStopSequenceOnAtlas>&
+    color_stops(void) const
+    {
+      return (m_shader & linear_gradient_mask) ?
+        m_linear_gradient.color_stop_sequence() :
+        m_radial_gradient.color_stop_sequence();
     }
 
     /*!
@@ -399,8 +363,7 @@ namespace fastuidraw
     PainterBrush&
     no_gradient(void)
     {
-      m_data.m_cs = reference_counted_ptr<const ColorStopSequenceOnAtlas>();
-      m_data.m_shader_raw &= ~(gradient_mask | gradient_repeat_mask | radial_gradient_mask);
+      m_shader &= ~(linear_gradient_mask | radial_gradient_mask | repeat_gradient_mask);
       return *this;
     }
 
@@ -411,8 +374,8 @@ namespace fastuidraw
     PainterBrush&
     transformation_translate(const vec2 &p)
     {
-      m_data.m_transformation_p = p;
-      m_data.m_shader_raw |= transformation_translation_mask;
+      m_translation.pos(p);
+      m_shader |= transformation_translation_mask;
       return *this;
     }
 
@@ -423,8 +386,8 @@ namespace fastuidraw
     PainterBrush&
     transformation_matrix(const float2x2 &m)
     {
-      m_data.m_transformation_matrix = m;
-      m_data.m_shader_raw |= transformation_matrix_mask;
+      m_matrix.matrix(m);
+      m_shader |= transformation_matrix_mask;
       return *this;
     }
 
@@ -448,7 +411,7 @@ namespace fastuidraw
     PainterBrush&
     no_transformation_translation(void)
     {
-      m_data.m_shader_raw &= ~transformation_translation_mask;
+      m_shader &= ~transformation_translation_mask;
       return *this;
     }
 
@@ -458,7 +421,7 @@ namespace fastuidraw
     PainterBrush&
     no_transformation_matrix(void)
     {
-      m_data.m_shader_raw &= ~transformation_matrix_mask;
+      m_shader &= ~transformation_matrix_mask;
       return *this;
     }
 
@@ -481,9 +444,11 @@ namespace fastuidraw
     PainterBrush&
     repeat_window(const vec2 &pos, const vec2 &size)
     {
-      m_data.m_window_position = pos;
-      m_data.m_window_size = size;
-      m_data.m_shader_raw |= repeat_window_mask;
+      m_repeat_window
+        .pos(pos)
+        .size(size);
+
+      m_shader |= repeat_window_mask;
       return *this;
     }
 
@@ -493,7 +458,7 @@ namespace fastuidraw
     PainterBrush&
     no_repeat_window(void)
     {
-      m_data.m_shader_raw &= ~repeat_window_mask;
+      m_shader &= ~repeat_window_mask;
       return *this;
     }
 
@@ -544,33 +509,9 @@ namespace fastuidraw
         2x2 matrix is applied to the brush.
      */
     uint32_t
-    shader(void) const;
-
-    /*!
-      Specialize assignment operator.
-     */
-    PainterBrush&
-    operator=(const PainterBrush &rhs);
-
-    /*!
-      Returns the value of the handle to the
-      Image that the brush is set to use.
-     */
-    const reference_counted_ptr<const Image>&
-    image(void) const
+    shader(void) const
     {
-      return m_data.m_image;
-    }
-
-    /*!
-      Returns the value of the handle to the
-      ColorStopSequenceOnAtlas that the
-      brush is set to use.
-     */
-    const reference_counted_ptr<const ColorStopSequenceOnAtlas>&
-    color_stops(void) const
-    {
-      return m_data.m_cs;
+      return m_shader;
     }
 
     /*!
@@ -583,7 +524,10 @@ namespace fastuidraw
     static
     bool
     filter_suitable_for_image(const reference_counted_ptr<const Image> &im,
-                              enum ImageParams::filter_t f);
+                              enum ImageParams::filter_t f)
+    {
+      return ImageParams::filter_suitable_for_image(im, f);
+    }
 
     /*!
       Returns the highest quality filter with which
@@ -592,7 +536,10 @@ namespace fastuidraw
      */
     static
     enum ImageParams::filter_t
-    best_filter_for_image(const reference_counted_ptr<const Image> &im);
+    best_filter_for_image(const reference_counted_ptr<const Image> &im)
+    {
+      return ImageParams::best_filter_for_image(im);
+    }
 
     /*!
       Returns the slack requirement for an image to
@@ -601,43 +548,21 @@ namespace fastuidraw
      */
     static
     int
-    slack_requirement(enum ImageParams::filter_t f);
+    slack_requirement(enum ImageParams::filter_t f)
+    {
+      return ImageParams::slack_requirement(f);
+    }
+
 
   private:
-
-    class brush_data
-    {
-    public:
-      brush_data(void):
-        m_shader_raw(0),
-        m_pen(1.0f, 1.0f, 1.0f, 1.0f),
-        m_image_size(0, 0),
-        m_image_start(0, 0),
-        m_filter(ImageParams::filter_nearest),
-        m_grad_start(0.0f, 0.0f),
-        m_grad_end(1.0f, 1.0f),
-        m_grad_start_r(0.0f),
-        m_grad_end_r(1.0f),
-        m_window_position(0.0f, 0.0f),
-        m_window_size(1.0f, 1.0f),
-        m_transformation_matrix(),
-        m_transformation_p(0.0f, 0.0f)
-      {}
-
-      uint32_t m_shader_raw;
-      vec4 m_pen;
-      reference_counted_ptr<const Image> m_image;
-      uvec2 m_image_size, m_image_start;
-      enum ImageParams::filter_t m_filter;
-      reference_counted_ptr<const ColorStopSequenceOnAtlas> m_cs;
-      vec2 m_grad_start, m_grad_end;
-      float m_grad_start_r, m_grad_end_r;
-      vec2 m_window_position, m_window_size;
-      float2x2 m_transformation_matrix;
-      vec2 m_transformation_p;
-    };
-
-    brush_data m_data;
+    PenParams m_pen;
+    ImageParams m_image;
+    LinearGradientParams m_linear_gradient;
+    RadialGradientParams m_radial_gradient;
+    RepeatWindowParams m_repeat_window;
+    TransformationTranslationParams m_translation;
+    TransformationMatrixParams m_matrix;
+    uint32_t m_shader;
   };
 /*! @} */
 }

@@ -1,51 +1,4 @@
 void
-fastuidraw_process_gradient_data(in fastuidraw_brush_gradient_raw raw,
-                                 out fastuidraw_brush_gradient cooked)
-{
-  cooked.p0 = raw.p0;
-  cooked.p1 = raw.p1;
-
-  cooked.r0 = raw.r0;
-  cooked.r1 = raw.r1;
-
-  cooked.color_stop_sequence_length = float(raw.color_stop_sequence_length);
-
-  uvec2 color_stop_sequence_xy;
-  color_stop_sequence_xy.x = FASTUIDRAW_EXTRACT_BITS(fastuidraw_color_stop_x_bit0,
-                                                    fastuidraw_color_stop_x_num_bits,
-                                                    raw.color_stop_sequence_xy);
-
-  color_stop_sequence_xy.y = FASTUIDRAW_EXTRACT_BITS(fastuidraw_color_stop_y_bit0,
-                                                    fastuidraw_color_stop_y_num_bits,
-                                                    raw.color_stop_sequence_xy);
-
-  cooked.color_stop_sequence_xy = vec2(color_stop_sequence_xy);
-}
-
-uint
-fastuidraw_read_brush_linear_gradient_data(in uint location, out fastuidraw_brush_gradient grad)
-{
-  uint return_value;
-  fastuidraw_brush_gradient_raw raw;
-
-  return_value = fastuidraw_read_brush_linear_gradient_data(location, raw);
-  raw.r0 = 0.0;
-  raw.r1 = 1.0;
-  fastuidraw_process_gradient_data(raw, grad);
-  return return_value;
-}
-
-uint
-fastuidraw_read_brush_radial_gradient_data(in uint location, out fastuidraw_brush_gradient grad)
-{
-  uint return_value;
-  fastuidraw_brush_gradient_raw raw;
-
-  return_value = fastuidraw_read_brush_radial_gradient_data(location, raw);
-  fastuidraw_process_gradient_data(raw, grad);
-  return return_value;
-}
-void
 fastuidraw_process_image_data(in fastuidraw_image_data_raw raw,
                               out fastuidraw_image_data cooked)
 {
@@ -53,32 +6,32 @@ fastuidraw_process_image_data(in fastuidraw_image_data_raw raw,
   uint index_pows, slack, number_index_lookups, ww;
 
   master_xyz.x = FASTUIDRAW_EXTRACT_BITS(fastuidraw_image_master_index_x_bit0,
-                                        fastuidraw_image_master_index_x_num_bits,
-                                        raw.image_atlas_location_xyz);
+                                         fastuidraw_image_master_index_x_num_bits,
+                                         raw.image_atlas_location_xyz);
 
   master_xyz.y = FASTUIDRAW_EXTRACT_BITS(fastuidraw_image_master_index_y_bit0,
-                                        fastuidraw_image_master_index_y_num_bits,
-                                        raw.image_atlas_location_xyz);
+                                         fastuidraw_image_master_index_y_num_bits,
+                                         raw.image_atlas_location_xyz);
 
   master_xyz.z = FASTUIDRAW_EXTRACT_BITS(fastuidraw_image_master_index_z_bit0,
-                                        fastuidraw_image_master_index_z_num_bits,
-                                        raw.image_atlas_location_xyz);
+                                         fastuidraw_image_master_index_z_num_bits,
+                                         raw.image_atlas_location_xyz);
 
   cooked.image_size.x = FASTUIDRAW_EXTRACT_BITS(fastuidraw_image_size_x_bit0,
-                                               fastuidraw_image_size_x_num_bits,
-                                               raw.image_size_xy);
+                                                fastuidraw_image_size_x_num_bits,
+                                                raw.image_size_xy);
 
   cooked.image_size.y = FASTUIDRAW_EXTRACT_BITS(fastuidraw_image_size_y_bit0,
-                                               fastuidraw_image_size_y_num_bits,
-                                               raw.image_size_xy);
+                                                fastuidraw_image_size_y_num_bits,
+                                                raw.image_size_xy);
 
   cooked.image_start.x = FASTUIDRAW_EXTRACT_BITS(fastuidraw_image_size_x_bit0,
-                                                fastuidraw_image_size_x_num_bits,
-                                                raw.image_start_xy);
+                                                 fastuidraw_image_size_x_num_bits,
+                                                 raw.image_start_xy);
 
   cooked.image_start.y = FASTUIDRAW_EXTRACT_BITS(fastuidraw_image_size_y_bit0,
-                                                fastuidraw_image_size_y_num_bits,
-                                                raw.image_start_xy);
+                                                 fastuidraw_image_size_y_num_bits,
+                                                 raw.image_start_xy);
 
   cooked.image_filter = FASTUIDRAW_EXTRACT_BITS(fastuidraw_image_filter_bit0,
                                                 fastuidraw_image_filter_num_bits,
