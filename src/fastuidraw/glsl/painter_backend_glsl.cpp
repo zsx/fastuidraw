@@ -1140,6 +1140,7 @@ construct_shader(fastuidraw::glsl::ShaderSource &vert,
                            params.blend_type());
   stream_uber_brush_shader(params.brush_shader_use_switch(), frag,
                            make_c_array(m_brush_shaders));
+  stream_brush_shader_runner(frag, m_p->configuration_base().alignment());
 }
 
 /////////////////////////////////////////////////////////////////

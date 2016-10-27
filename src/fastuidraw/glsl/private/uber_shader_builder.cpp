@@ -575,4 +575,73 @@ stream_uber_blend_shader(bool use_switch,
                                                           sub_func_name, sub_func_args, "blend_shader");
 }
 
+void
+stream_brush_shader_runner(ShaderSource &frag, unsigned int alignment)
+{
+  std::ostringstream str;
+
+  assert(1u <= alignment && alignment <= 4u);
+  str << "vec4\n"
+      << "fastuidraw_compute_brush_color(in uint shader_loc, in uint shader_data)\n"
+      << "{\n"
+      << "\tvec2 p;\n"
+      << "\tvec4 return_value;\n"
+      << "\tp = vec2(fastuidraw_brush_p_x, fastuidraw_brush_p_y);\n"
+      << "\treturn_value = vec4(1.0, 1.0, 1.0, 1.0);\n";
+
+  if(alignment == 1u)
+    {
+      str << "\tuint shader;\n"
+          << "\tshader = fastuidraw_fetch_data(int(shader_loc)).x;\n"
+          << "\twhile(shader != 0u)\n"
+          << "\t{\n"
+          << "\t\tfastuidraw_run_brush_shader(shader, shader_data, p, return_value);\n"
+          << "\t\t++shader_loc;\n"
+          << "\t\tshader = fastuidraw_fetch_data(int(shader_loc)).x;\n"
+          << "\t}\n";
+    }
+  else
+    {
+      const char *uvec_types[] =
+        {
+          "uvec2",
+          "uvec3",
+          "uvec4"
+        };
+
+      const char *components_array[] =
+        {
+          "xy",
+          "xyz",
+          "xyzw"
+        };
+
+      const char *components, *uvec_type;
+
+      uvec_type = uvec_types[alignment - 2];
+      components = components_array[alignment - 2];
+
+      str << "\t" << uvec_type << " shader_vec;\n"
+          << "\tshader_vec = fastuidraw_fetch_data(int(shader_loc))." << components << ";\n"
+          << "\twhile(shader_vec.x != 0u)\n"
+          << "\t{\n";
+
+      for(unsigned int i = 0; i < alignment; ++i)
+        {
+          str << "\t\tfastuidraw_run_brush_shader(shader_vec." << components[i]
+              << ", shader_data, p, return_value);\n";
+        }
+
+      str << "\t\t++shader_loc;\n"
+          << "\t\tshader_vec = fastuidraw_fetch_data(int(shader_loc))." << components << ";\n"
+          << "\t}\n";
+    }
+
+  str << "\treturn return_value;\n"
+      << "}\n";
+
+  frag.add_source(str.str().c_str(), fastuidraw::glsl::ShaderSource::from_string);
+}
+
+
 }}}
