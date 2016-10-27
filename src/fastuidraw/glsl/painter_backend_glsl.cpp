@@ -27,6 +27,7 @@
 #include <fastuidraw/painter/painter_shader_data.hpp>
 #include <fastuidraw/painter/brush/painter_brush.hpp>
 #include <fastuidraw/painter/brush/linear_gradient_params.hpp>
+#include <fastuidraw/painter/brush/radial_gradient_params.hpp>
 #include <fastuidraw/painter/packing/painter_header.hpp>
 #include <fastuidraw/painter/packing/painter_item_matrix.hpp>
 #include <fastuidraw/painter/packing/painter_clip_equations.hpp>
@@ -512,6 +513,10 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
      */
     .add_macro("fastuidraw_linear_gradient_repeat_mask", LinearGradientParams::repeat_gradient_mask)
 
+    /* macros for LinearGradientParams
+     */
+    .add_macro("fastuidraw_radial_gradient_repeat_mask", RadialGradientParams::repeat_gradient_mask)
+
     /* macros for painter header
      */
     .add_macro("fastuidraw_item_shader_bit0", PainterHeader::item_shader_bit0)
@@ -753,6 +758,24 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_linear_gradient",
                               "fastuidraw_linear_gradient");
+  }
+
+  {
+    shader_unpack_value_set<RadialGradientParams::data_size> labels;
+    labels
+      .set(RadialGradientParams::start_pt_x_offset, ".start_pt.x")
+      .set(RadialGradientParams::start_pt_y_offset, ".start_pt.y")
+      .set(RadialGradientParams::start_r_offset, ".start_r")
+      .set(RadialGradientParams::end_pt_x_offset, ".end_pt.x")
+      .set(RadialGradientParams::end_pt_y_offset, ".end_pt.y")
+      .set(RadialGradientParams::end_r_offset, ".end_r")
+      .set(RadialGradientParams::flags_offset, ".flags", shader_unpack_value::uint_type)
+      .set(RadialGradientParams::color_stop_sequence_x_offset, ".color_stop_sequence_xy.x")
+      .set(RadialGradientParams::color_stop_sequence_y_offset, ".color_stop_sequence_xy.y")
+      .set(RadialGradientParams::color_stop_sequence_width_offset, ".color_stop_sequence_width")
+      .stream_unpack_function(alignment, str,
+                              "fastuidraw_read_radial_gradient",
+                              "fastuidraw_radial_gradient");
   }
 
 }

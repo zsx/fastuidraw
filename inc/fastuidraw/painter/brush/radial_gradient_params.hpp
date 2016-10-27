@@ -1,6 +1,6 @@
 /*!
- * \file linear_gradient_params.hpp
- * \brief file linear_gradient_params.hpp
+ * \file radial_gradient_params.hpp
+ * \brief file radial_gradient_params.hpp
  *
  * Copyright 2016 by Intel.
  *
@@ -30,10 +30,10 @@ namespace fastuidraw
  */
 
   /*!
-    Class to specify linear gradient parameters, data is packed
-    as according to LinearGradientParams::data_offset_t.
+    Class to specify radial gradient parameters, data is packed
+    as according to RadialGradientParams::data_offset_t.
    */
-  class LinearGradientParams:public PainterBrushShaderData
+  class RadialGradientParams:public PainterBrushShaderData
   {
   public:
     /*!
@@ -60,7 +60,7 @@ namespace fastuidraw
 
     /*!
       Enumeration that provides offset from the start of
-      gradient packing to data for linear or radial gradients.
+      gradient packing to data for radial or radial gradients.
      */
     enum data_offset_t
       {
@@ -89,16 +89,26 @@ namespace fastuidraw
         end_pt_y_offset,
 
         /*!
+          Offset to start radius of gradient, packed as a float.
+         */
+        start_r_offset,
+
+        /*!
+          Offset to end radius of gradient, packed as a float.
+         */
+        end_r_offset,
+
+        /*!
           Offset to the value ColorStopSequenceOnAtlas::texel_location().x()
           times the reciprocal of ColorStopBackingStore::dimensions().x()
-          for the ColorStopSequenceOnAtlas used by the linear gradient,
+          for the ColorStopSequenceOnAtlas used by the radial gradient,
           packed as a float.
          */
         color_stop_sequence_x_offset,
 
         /*!
           Offset to the value ColorStopSequenceOnAtlas::texel_location().y()
-          for the ColorStopSequenceOnAtlas used by the linear gradient,
+          for the ColorStopSequenceOnAtlas used by the radial gradient,
           packed as a float.
          */
         color_stop_sequence_y_offset,
@@ -106,7 +116,7 @@ namespace fastuidraw
         /*!
           Offset to the value ColorStopSequenceOnAtlas::width()
           times the reciprocal of ColorStopBackingStore::dimensions().x()
-          for the ColorStopSequenceOnAtlas used by the linear gradient,
+          for the ColorStopSequenceOnAtlas used by the radial gradient,
           packed as a float.
          */
         color_stop_sequence_width_offset,
@@ -125,13 +135,13 @@ namespace fastuidraw
     /*!
       Ctor.
      */
-    LinearGradientParams(void);
+    RadialGradientParams(void);
 
     /*!
       Set the value for the start of the gradient
       \param pt value to use for the start point
      */
-    LinearGradientParams&
+    RadialGradientParams&
     start_pt(const vec2 &pt);
 
     /*!
@@ -144,7 +154,7 @@ namespace fastuidraw
       Set the value for the end of the gradient
       \param pt value to use for the end point
      */
-    LinearGradientParams&
+    RadialGradientParams&
     end_pt(const vec2 &pt);
 
     /*!
@@ -154,10 +164,36 @@ namespace fastuidraw
     end_pt(void) const;
 
     /*!
+      Set the value for the start of the gradient
+      \param pt value to use for the start point
+     */
+    RadialGradientParams&
+    start_r(float r);
+
+    /*!
+      Return the value as set by start_r(float).
+     */
+    float
+    start_r(void) const;
+
+    /*!
+      Set the value for the end of the gradient
+      \param pt value to use for the end point
+     */
+    RadialGradientParams&
+    end_r(float r);
+
+    /*!
+      Return the value as set by end_r(float).
+     */
+    float
+    end_r(void) const;
+
+    /*!
       Set the value for flags of the gradient
       \param v value to use for the flags
      */
-    LinearGradientParams&
+    RadialGradientParams&
     flags(uint32_t v);
 
     /*!
@@ -170,7 +206,7 @@ namespace fastuidraw
       Set what color stop sequence to use for the gradient.
       \param cs color stop sequence to use
      */
-    LinearGradientParams&
+    RadialGradientParams&
     color_stop_sequence(const reference_counted_ptr<const ColorStopSequenceOnAtlas> &cs);
 
     /*!
