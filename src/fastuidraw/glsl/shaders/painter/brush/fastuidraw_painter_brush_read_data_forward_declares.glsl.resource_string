@@ -7,9 +7,6 @@ uint
 fastuidraw_read_brush_radial_gradient_data(in uint location, out fastuidraw_brush_gradient_raw raw);
 
 uint
-fastuidraw_read_pen_color(in uint location, out vec4 pen_color);
-
-uint
 fastuidraw_read_brush_linear_gradient_data(in uint location, out fastuidraw_brush_gradient grad);
 
 uint
@@ -28,5 +25,9 @@ fastuidraw_read_image_raw_data(in uint location, out fastuidraw_image_data_raw r
 
 uint
 fastuidraw_read_transformation_translation(in uint location, out vec2 p);
+
 uint
 fastuidraw_read_transformation_matrix(in uint location, out mat2 m);
+
+uint
+fastuidraw_read_pen_color(in uint location, out vec4 pen_color);

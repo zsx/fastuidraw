@@ -26,6 +26,7 @@
 
 #include <fastuidraw/image.hpp>
 #include <fastuidraw/colorstop_atlas.hpp>
+#include <fastuidraw/painter/brush/pen_params.hpp>
 #include <fastuidraw/painter/brush/image_params.hpp>
 #include <fastuidraw/painter/brush/repeat_window_params.hpp>
 #include <fastuidraw/painter/brush/transformation_translation_params.hpp>
@@ -187,19 +188,6 @@ namespace fastuidraw
           offsets of the individual fields
          */
         transformation_matrix_packing,
-      };
-
-    /*!
-      enumerations for offsets to pen color values
-     */
-    enum pen_offset_t
-      {
-        pen_red_offset, /*!< offset for pen red value */
-        pen_green_offset, /*!< offset for pen green value */
-        pen_blue_offset, /*!< offset for pen blue value */
-        pen_alpha_offset, /*!< offset for pen alpha value */
-
-        pen_data_size /*!< number of elements to pack pen color */
       };
 
     /*!

@@ -1,6 +1,6 @@
 /*!
- * \file transformation_matrix_params.hpp
- * \brief file transformation_matrix_params.hpp
+ * \file pen_params.hpp
+ * \brief file pen_params.hpp
  *
  * Copyright 2016 by Intel.
  *
@@ -30,41 +30,50 @@ namespace fastuidraw
  */
 
   /*!
-    Class to specify a matrix tranformation on a brush, data is
-    packed as according to TransformationMatrixParams::data_offset_t.
+    Class to specify a color for a brush, data is
+    packed as according to PenParams::data_offset_t.
    */
-  class TransformationMatrixParams:public PainterBrushShaderData
+  class PenParams:public PainterBrushShaderData
   {
   public:
     /*!
       Enumeration that provides offset for packing of
-      data of a transformation matrix.
+      data of a pen.
      */
     enum data_offset_t
       {
-        m00_offset, /*!< offset for float2x2(0, 0) (packed at float) */
-        m01_offset, /*!< offset for float2x2(0, 1) (packed at float) */
-        m10_offset, /*!< offset for float2x2(1, 0) (packed at float) */
-        m11_offset, /*!< offset for float2x2(1, 1) (packed at float) */
+        red_offset, /*!< offset for pen red value */
+        green_offset, /*!< offset for pen green value */
+        blue_offset, /*!< offset for pen blue value */
+        alpha_offset, /*!< offset for pen alpha value */
         data_size /*!< size of data */
       };
 
     /*!
       Ctor.
      */
-    TransformationMatrixParams(void);
+    PenParams(void);
 
     /*!
       Gives the matrix to apply to the brush.
      */
-    const float2x2&
-    matrix(void) const;
+    const vec4&
+    color(void) const;
 
     /*!
-      Set the value returned by pos(void) const.
+      Set the value returned by color(void) const.
      */
-    TransformationMatrixParams&
-    matrix(const float2x2 &v);
+    PenParams&
+    color(const vec4 &v);
+
+    /*!
+      Set the value returned by color(void) const.
+     */
+    PenParams&
+    color(float r, float g, float b, float a = 1.0f)
+    {
+      return color(vec4(r, g, b, a));
+    }
   };
 
 /*! @} */

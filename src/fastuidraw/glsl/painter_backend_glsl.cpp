@@ -26,6 +26,7 @@
 
 #include <fastuidraw/painter/painter_shader_data.hpp>
 #include <fastuidraw/painter/brush/painter_brush.hpp>
+#include <fastuidraw/painter/brush/pen_params.hpp>
 #include <fastuidraw/painter/brush/linear_gradient_params.hpp>
 #include <fastuidraw/painter/brush/radial_gradient_params.hpp>
 #include <fastuidraw/painter/brush/image_params.hpp>
@@ -484,7 +485,7 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
     .add_macro("fastuidraw_color_stop_x_num_bits", PainterBrush::gradient_color_stop_x_num_bits)
     .add_macro("fastuidraw_color_stop_y_bit0",     PainterBrush::gradient_color_stop_y_bit0)
     .add_macro("fastuidraw_color_stop_y_num_bits", PainterBrush::gradient_color_stop_y_num_bits)
-    .add_macro("fastuidraw_shader_pen_num_blocks", number_blocks(alignment, PainterBrush::pen_data_size))
+    .add_macro("fastuidraw_shader_pen_num_blocks", number_blocks(alignment, PenParams::data_size))
     .add_macro("fastuidraw_shader_image_num_blocks", number_blocks(alignment, ImageParams::data_size))
     .add_macro("fastuidraw_shader_linear_gradient_num_blocks", number_blocks(alignment, PainterBrush::linear_gradient_data_size))
     .add_macro("fastuidraw_shader_radial_gradient_num_blocks", number_blocks(alignment, PainterBrush::radial_gradient_data_size))
@@ -579,16 +580,6 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
 
   unsigned int alignment;
   alignment = m_p->configuration_base().alignment();
-
-  {
-    shader_unpack_value_set<PainterBrush::pen_data_size> labels;
-    labels
-      .set(PainterBrush::pen_red_offset, ".r")
-      .set(PainterBrush::pen_green_offset, ".g")
-      .set(PainterBrush::pen_blue_offset, ".b")
-      .set(PainterBrush::pen_alpha_offset, ".a")
-      .stream_unpack_function(alignment, str, "fastuidraw_read_pen_color", "vec4");
-  }
 
   {
     shader_unpack_value_set<PainterBrush::linear_gradient_data_size> labels;
@@ -701,6 +692,16 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_dashed_stroking_params_header",
                               "fastuidraw_dashed_stroking_params_header");
+  }
+
+  {
+    shader_unpack_value_set<PenParams::data_size> labels;
+    labels
+      .set(PenParams::red_offset, ".r")
+      .set(PenParams::green_offset, ".g")
+      .set(PenParams::blue_offset, ".b")
+      .set(PenParams::alpha_offset, ".a")
+      .stream_unpack_function(alignment, str, "fastuidraw_read_pen_color", "vec4");
   }
 
   {

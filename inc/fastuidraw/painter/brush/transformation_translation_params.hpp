@@ -29,7 +29,7 @@ namespace fastuidraw
  */
 
   /*!
-    Class to specify a repeat window for a brush, data is
+    Class to specify a translation acting on a brush, data is
     packed as according to TransformationTranslationParams::data_offset_t.
    */
   class TransformationTranslationParams:public PainterBrushShaderData

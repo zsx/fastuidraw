@@ -28,7 +28,7 @@ data_size(unsigned int alignment) const
   unsigned int return_value(0);
   uint32_t pshader = shader();
 
-  return_value += round_up_to_multiple(pen_data_size, alignment);
+  return_value += round_up_to_multiple(PenParams::data_size, alignment);
 
   if(pshader & image_mask)
     {
@@ -73,14 +73,14 @@ pack_data(unsigned int alignment, c_array<generic_data> dst) const
   uint32_t pshader = shader();
 
   {
-    sz = round_up_to_multiple(pen_data_size, alignment);
+    sz = round_up_to_multiple(PenParams::data_size, alignment);
     sub_dest = dst.sub_array(current, sz);
     current += sz;
 
-    sub_dest[pen_red_offset].f = m_data.m_pen.x();
-    sub_dest[pen_green_offset].f = m_data.m_pen.y();
-    sub_dest[pen_blue_offset].f = m_data.m_pen.z();
-    sub_dest[pen_alpha_offset].f = m_data.m_pen.w();
+    sub_dest[PenParams::red_offset].f = m_data.m_pen.x();
+    sub_dest[PenParams::green_offset].f = m_data.m_pen.y();
+    sub_dest[PenParams::blue_offset].f = m_data.m_pen.z();
+    sub_dest[PenParams::alpha_offset].f = m_data.m_pen.w();
   }
 
   if(pshader & image_mask)
