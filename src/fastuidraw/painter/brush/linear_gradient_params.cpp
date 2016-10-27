@@ -49,12 +49,14 @@ namespace
     void
     pack_data(unsigned int alignment, fastuidraw::c_array<fastuidraw::generic_data> dst) const
     {
+      using namespace fastuidraw;
+
       FASTUIDRAWunused(alignment);
-      dst[fastuidraw::LinearGradientParams::start_pt_x_offset].f = m_start_pt.x();
-      dst[fastuidraw::LinearGradientParams::start_pt_y_offset].f = m_start_pt.y();
-      dst[fastuidraw::LinearGradientParams::end_pt_x_offset].f = m_end_pt.x();
-      dst[fastuidraw::LinearGradientParams::end_pt_y_offset].f = m_end_pt.y();
-      dst[fastuidraw::LinearGradientParams::flags_offset].u = m_flags;
+      dst[LinearGradientParams::start_pt_x_offset].f = m_start_pt.x();
+      dst[LinearGradientParams::start_pt_y_offset].f = m_start_pt.y();
+      dst[LinearGradientParams::end_pt_x_offset].f = m_end_pt.x();
+      dst[LinearGradientParams::end_pt_y_offset].f = m_end_pt.y();
+      dst[LinearGradientParams::flags_offset].u = m_flags;
       if(m_color_stop_sequence)
         {
           int d;
@@ -63,15 +65,15 @@ namespace
           d = m_color_stop_sequence->atlas()->backing_store()->dimensions().x();
           r = 1.0f / static_cast<float>(d);
 
-          dst[fastuidraw::LinearGradientParams::color_stop_sequence_x_offset].f = r * static_cast<float>(m_color_stop_sequence->texel_location().x());
-          dst[fastuidraw::LinearGradientParams::color_stop_sequence_y_offset].f = r * static_cast<float>(m_color_stop_sequence->texel_location().y());
-          dst[fastuidraw::LinearGradientParams::color_stop_sequence_width_offset].f = r * static_cast<float>(m_color_stop_sequence->width());
+          dst[LinearGradientParams::color_stop_sequence_x_offset].f = r * static_cast<float>(m_color_stop_sequence->texel_location().x());
+          dst[LinearGradientParams::color_stop_sequence_y_offset].f = r * static_cast<float>(m_color_stop_sequence->texel_location().y());
+          dst[LinearGradientParams::color_stop_sequence_width_offset].f = r * static_cast<float>(m_color_stop_sequence->width());
         }
       else
         {
-          dst[fastuidraw::LinearGradientParams::color_stop_sequence_x_offset].f = 0.0f;
-          dst[fastuidraw::LinearGradientParams::color_stop_sequence_y_offset].f = 0.0f;
-          dst[fastuidraw::LinearGradientParams::color_stop_sequence_width_offset].f = 0.0f;
+          dst[LinearGradientParams::color_stop_sequence_x_offset].f = 0.0f;
+          dst[LinearGradientParams::color_stop_sequence_y_offset].f = 0.0f;
+          dst[LinearGradientParams::color_stop_sequence_width_offset].f = 0.0f;
         }
     }
 

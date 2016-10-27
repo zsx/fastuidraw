@@ -28,6 +28,8 @@
 #include <fastuidraw/painter/brush/painter_brush.hpp>
 #include <fastuidraw/painter/brush/linear_gradient_params.hpp>
 #include <fastuidraw/painter/brush/radial_gradient_params.hpp>
+#include <fastuidraw/painter/brush/image_params.hpp>
+#include <fastuidraw/painter/brush/repeat_window_params.hpp>
 #include <fastuidraw/painter/packing/painter_header.hpp>
 #include <fastuidraw/painter/packing/painter_item_matrix.hpp>
 #include <fastuidraw/painter/packing/painter_clip_equations.hpp>
@@ -484,7 +486,7 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
     .add_macro("fastuidraw_shader_image_num_blocks", number_blocks(alignment, ImageParams::data_size))
     .add_macro("fastuidraw_shader_linear_gradient_num_blocks", number_blocks(alignment, PainterBrush::linear_gradient_data_size))
     .add_macro("fastuidraw_shader_radial_gradient_num_blocks", number_blocks(alignment, PainterBrush::radial_gradient_data_size))
-    .add_macro("fastuidraw_shader_repeat_window_num_blocks", number_blocks(alignment, PainterBrush::repeat_window_data_size))
+    .add_macro("fastuidraw_shader_repeat_window_num_blocks", number_blocks(alignment, RepeatWindowParams::data_size))
     .add_macro("fastuidraw_shader_transformation_matrix_num_blocks", number_blocks(alignment, PainterBrush::transformation_matrix_data_size))
     .add_macro("fastuidraw_shader_transformation_translation_num_blocks", number_blocks(alignment, PainterBrush::transformation_translation_data_size))
 
@@ -609,18 +611,6 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_brush_transformation_translation",
                               "vec2");
-  }
-
-  {
-    shader_unpack_value_set<PainterBrush::repeat_window_data_size> labels;
-    labels
-      .set(PainterBrush::repeat_window_x_offset, ".xy.x")
-      .set(PainterBrush::repeat_window_y_offset, ".xy.y")
-      .set(PainterBrush::repeat_window_width_offset, ".wh.x")
-      .set(PainterBrush::repeat_window_height_offset, ".wh.y")
-      .stream_unpack_function(alignment, str,
-                              "fastuidraw_read_brush_repeat_window",
-                              "fastuidraw_brush_repeat_window");
   }
 
   {
@@ -780,6 +770,18 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_image_raw_data",
                               "fastuidraw_image_data_raw");
+  }
+
+  {
+    shader_unpack_value_set<RepeatWindowParams::data_size> labels;
+    labels
+      .set(RepeatWindowParams::x_offset, ".xy.x")
+      .set(RepeatWindowParams::y_offset, ".xy.y")
+      .set(RepeatWindowParams::width_offset, ".wh.x")
+      .set(RepeatWindowParams::height_offset, ".wh.y")
+      .stream_unpack_function(alignment, str,
+                              "fastuidraw_read_repeat_window",
+                              "fastuidraw_repeat_window");
   }
 
 }

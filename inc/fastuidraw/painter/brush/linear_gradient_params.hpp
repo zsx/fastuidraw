@@ -59,8 +59,8 @@ namespace fastuidraw
       };
 
     /*!
-      Enumeration that provides offset from the start of
-      gradient packing to data for linear or radial gradients.
+      Enumeration that provides offset for packing of
+      data of a linear gradient.
      */
     enum data_offset_t
       {

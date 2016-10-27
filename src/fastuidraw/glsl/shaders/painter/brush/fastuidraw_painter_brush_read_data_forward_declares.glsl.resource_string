@@ -7,9 +7,6 @@ uint
 fastuidraw_read_brush_transformation_translation(in uint location, out vec2 p);
 
 uint
-fastuidraw_read_brush_repeat_window(in uint location, out fastuidraw_brush_repeat_window w);
-
-uint
 fastuidraw_read_brush_linear_gradient_data(in uint location, out fastuidraw_brush_gradient_raw raw);
 
 uint
@@ -26,6 +23,9 @@ fastuidraw_read_brush_radial_gradient_data(in uint location, out fastuidraw_brus
 
 /////////////////////////
 // save for later(!)
+uint
+fastuidraw_read_repeat_window(in uint location, out fastuidraw_repeat_window w);
+
 uint
 fastuidraw_read_image_data(in uint location, out fastuidraw_image_data image);
 

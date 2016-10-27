@@ -51,6 +51,7 @@ namespace
     {
       using namespace fastuidraw;
 
+      FASTUIDRAWunused(alignment);
       if(m_image)
         {
           uvec3 loc(m_image->master_index_tile());

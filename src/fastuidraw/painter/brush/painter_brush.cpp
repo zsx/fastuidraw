@@ -47,7 +47,7 @@ data_size(unsigned int alignment) const
 
   if(pshader & repeat_window_mask)
     {
-      return_value += round_up_to_multiple(repeat_window_data_size, alignment);
+      return_value += round_up_to_multiple(RepeatWindowParams::data_size, alignment);
     }
 
   if(pshader & transformation_translation_mask)
@@ -156,14 +156,14 @@ pack_data(unsigned int alignment, c_array<generic_data> dst) const
 
   if(pshader & repeat_window_mask)
     {
-      sz = round_up_to_multiple(repeat_window_data_size, alignment);
+      sz = round_up_to_multiple(RepeatWindowParams::data_size, alignment);
       sub_dest = dst.sub_array(current, sz);
       current += sz;
 
-      sub_dest[repeat_window_x_offset].f = m_data.m_window_position.x();
-      sub_dest[repeat_window_y_offset].f = m_data.m_window_position.y();
-      sub_dest[repeat_window_width_offset].f = m_data.m_window_size.x();
-      sub_dest[repeat_window_height_offset].f = m_data.m_window_size.y();
+      sub_dest[RepeatWindowParams::x_offset].f = m_data.m_window_position.x();
+      sub_dest[RepeatWindowParams::y_offset].f = m_data.m_window_position.y();
+      sub_dest[RepeatWindowParams::width_offset].f = m_data.m_window_size.x();
+      sub_dest[RepeatWindowParams::height_offset].f = m_data.m_window_size.y();
     }
 
   if(pshader & transformation_matrix_mask)

@@ -27,6 +27,7 @@
 #include <fastuidraw/image.hpp>
 #include <fastuidraw/colorstop_atlas.hpp>
 #include <fastuidraw/painter/brush/image_params.hpp>
+#include <fastuidraw/painter/brush/repeat_window_params.hpp>
 
 namespace fastuidraw
 {
@@ -275,19 +276,6 @@ namespace fastuidraw
           Size of the data for radial gradients.
          */
         radial_gradient_data_size
-      };
-
-    /*!
-      Enumeration that provides offset from the start of
-      repeat window packing to data for repeat window data
-     */
-    enum repeat_window_offset_t
-      {
-        repeat_window_x_offset, /*!< offset for the x-position of the repeat window (packed at float) */
-        repeat_window_y_offset, /*!< offset for the y-position of the repeat window (packed at float) */
-        repeat_window_width_offset, /*!< offset for the width of the repeat window (packed at float) */
-        repeat_window_height_offset, /*!< offset for the height of the repeat window (packed at float) */
-        repeat_window_data_size /*!< size of data for repeat window */
       };
 
     /*!
