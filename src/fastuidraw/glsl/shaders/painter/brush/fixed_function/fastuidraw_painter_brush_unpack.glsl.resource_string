@@ -9,7 +9,7 @@ fastuidraw_painter_brush_unpack_values(in uint shader, inout uint data_ptr)
 {
   fastuidraw_image_data image;
   fastuidraw_brush_gradient gradient;
-  fastuidraw_brush_repeat_window repeat_window;
+  fastuidraw_repeat_window repeat_window;
 
   vec4 pen_color;
   data_ptr = fastuidraw_read_pen_color(data_ptr, pen_color);
@@ -50,7 +50,7 @@ fastuidraw_painter_brush_unpack_values(in uint shader, inout uint data_ptr)
 
   if(fastuidraw_brush_shader_has_repeat_window(shader))
     {
-      data_ptr = fastuidraw_read_brush_repeat_window(data_ptr, repeat_window);
+      data_ptr = fastuidraw_read_repeat_window(data_ptr, repeat_window);
     }
   else
     {

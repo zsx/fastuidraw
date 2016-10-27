@@ -1,3 +1,48 @@
+struct fastuidraw_brush_gradient
+{
+  /* location on atlas in texels
+   */
+  vec2 color_stop_sequence_xy;
+
+  /* just the length
+   */
+  float color_stop_sequence_length;
+
+  /* start and end of gradients packed as usual floats
+   */
+  vec2 p0, p1;
+
+  /* radial gradient values
+   */
+  float r0, r1;
+};
+
+struct fastuidraw_brush_gradient_raw
+{
+  /* start and end of gradients packed as usual floats
+   */
+  vec2 p0, p1;
+
+  /* packed:
+     - bits [0 , 15] ColorStopSequenceOnAtlas::texel_location().x()
+     - bits [16, 31] ColorStopSequenceOnAtlas::texel_location().y
+   */
+  uint color_stop_sequence_xy;
+
+  /* just the length
+   */
+  uint color_stop_sequence_length;
+
+  /* radial gradient values
+   */
+  float r0, r1;
+};
+
+struct fastuidraw_repeat_window
+{
+  vec2 xy; //x-y position of window
+  vec2 wh; //width and height of window
+};
 
 struct fastuidraw_image_data
 {
@@ -30,33 +75,6 @@ struct fastuidraw_image_data
   // location within image of start of sub-image
   uvec2 image_start;
 };
-
-
-struct fastuidraw_brush_gradient
-{
-  /* location on atlas in texels
-   */
-  vec2 color_stop_sequence_xy;
-
-  /* just the length
-   */
-  float color_stop_sequence_length;
-
-  /* start and end of gradients packed as usual floats
-   */
-  vec2 p0, p1;
-
-  /* radial gradient values
-   */
-  float r0, r1;
-};
-
-struct fastuidraw_brush_repeat_window
-{
-  vec2 xy; //x-y position of window
-  vec2 wh; //width and height of window
-};
-
 
 struct fastuidraw_image_data_raw
 {
@@ -93,27 +111,6 @@ struct fastuidraw_image_data_raw
        - filter to apply
    */
   uint misc;
-};
-
-struct fastuidraw_brush_gradient_raw
-{
-  /* start and end of gradients packed as usual floats
-   */
-  vec2 p0, p1;
-
-  /* packed:
-     - bits [0 , 15] ColorStopSequenceOnAtlas::texel_location().x()
-     - bits [16, 31] ColorStopSequenceOnAtlas::texel_location().y
-   */
-  uint color_stop_sequence_xy;
-
-  /* just the length
-   */
-  uint color_stop_sequence_length;
-
-  /* radial gradient values
-   */
-  float r0, r1;
 };
 
 struct fastuidraw_linear_gradient
