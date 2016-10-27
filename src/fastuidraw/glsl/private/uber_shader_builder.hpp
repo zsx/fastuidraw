@@ -71,5 +71,8 @@ void
 stream_uber_brush_shader(bool use_switch, ShaderSource &frag,
                          const_c_array<reference_counted_ptr<PainterBrushShaderGLSL> > brush_shaders);
 
+void
+stream_brush_shader_runner(ShaderSource &frag, unsigned int alignment);
+
 
 }}}
