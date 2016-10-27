@@ -52,7 +52,7 @@ data_size(unsigned int alignment) const
 
   if(pshader & transformation_translation_mask)
     {
-      return_value += round_up_to_multiple(transformation_translation_data_size, alignment);
+      return_value += round_up_to_multiple(TransformationTranslationParams::data_size, alignment);
     }
 
   if(pshader & transformation_matrix_mask)
@@ -180,12 +180,12 @@ pack_data(unsigned int alignment, c_array<generic_data> dst) const
 
   if(pshader & transformation_translation_mask)
     {
-      sz = round_up_to_multiple(transformation_translation_data_size, alignment);
+      sz = round_up_to_multiple(TransformationTranslationParams::data_size, alignment);
       sub_dest = dst.sub_array(current, sz);
       current += sz;
 
-      sub_dest[transformation_translation_x_offset].f = m_data.m_transformation_p.x();
-      sub_dest[transformation_translation_y_offset].f = m_data.m_transformation_p.y();
+      sub_dest[TransformationTranslationParams::x_offset].f = m_data.m_transformation_p.x();
+      sub_dest[TransformationTranslationParams::y_offset].f = m_data.m_transformation_p.y();
     }
 
   assert(current == dst.size());

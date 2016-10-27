@@ -28,6 +28,7 @@
 #include <fastuidraw/colorstop_atlas.hpp>
 #include <fastuidraw/painter/brush/image_params.hpp>
 #include <fastuidraw/painter/brush/repeat_window_params.hpp>
+#include <fastuidraw/painter/brush/transformation_translation_params.hpp>
 
 namespace fastuidraw
 {
@@ -290,18 +291,6 @@ namespace fastuidraw
         transformation_matrix_m10_offset, /*!< offset for float2x2(1, 0) (packed at float) */
         transformation_matrix_m11_offset, /*!< offset for float2x2(1, 1) (packed at float) */
         transformation_matrix_data_size /*!< size of data for transformation matrix */
-      };
-
-    /*!
-      Enumeration that provides offset from the start of
-      repeat transformation translation to data for the
-      transformation translation data
-     */
-    enum transformation_translation_offset_t
-      {
-        transformation_translation_x_offset, /*!< offset for x-coordinate of translation (packed at float) */
-        transformation_translation_y_offset, /*!< offset for y-coordinate of translation (packed at float) */
-        transformation_translation_data_size /*!< size of data for transformation translation (packed at float) */
       };
 
     /*!
