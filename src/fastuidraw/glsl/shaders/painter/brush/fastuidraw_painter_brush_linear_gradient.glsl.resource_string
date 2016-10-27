@@ -4,15 +4,19 @@ fastuidraw_gl_brush_main(in uint sub_shader,
                          inout vec2 brush_location,
                          inout vec4 color)
 {
-  fastuidraw_brush_gradient linear_gradient;
+  fastuidraw_linear_gradient linear_gradient;
   vec2 v, d;
   float t;
 
-  shader_data_offset = fastuidraw_read_brush_linear_gradient_data(shader_data_offset, linear_gradient);
+  shader_data_offset = fastuidraw_read_linear_gradient(shader_data_offset, linear_gradient);
 
-  v = linear_gradient.p1 - linear_gradient.p0;
-  d = brush_location - linear_gradient.p0;
+  v = linear_gradient.end_pt - linear_gradient.start_pt;
+  d = brush_location - linear_gradient.start_pt;
   t = dot(v, d) / dot(v, v);
-  t = linear_gradient.color_stop_sequence_xy.x + t * linear_gradient.color_stop_sequence_length;
+  if((linear_gradient.flags & uint(fastuidraw_linear_gradient_repeat_mask)) != 0u)
+    {
+      t = fract(t);
+    }
+  t = linear_gradient.color_stop_sequence_xy.x + t * linear_gradient.color_stop_sequence_width;
   color *= fastuidraw_colorStopFetch(t, linear_gradient.color_stop_sequence_xy.y);
 }
