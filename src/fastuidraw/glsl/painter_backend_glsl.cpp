@@ -390,6 +390,7 @@ ready_brush_varyings(void)
     .add_float_varying("fastuidraw_brush_image_factor", varying_list::interpolation_flat)
     .add_uint_varying("fastuidraw_brush_image_slack")
     .add_uint_varying("fastuidraw_brush_image_number_lookups")
+    .add_uint_varying("fastuidraw_brush_image_filter")
 
     /* ColorStop paremeters (only active if gradient active)
        - fastuidraw_brush_color_stop_xy (x,y) texture coordinates of start of color stop
@@ -469,37 +470,18 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
     /* macros for brush shading
      */
     .add_macro("fastuidraw_shader_image_mask", PainterBrush::image_mask)
-    .add_macro("fastuidraw_shader_image_filter_bit0", PainterBrush::image_filter_bit0)
-    .add_macro("fastuidraw_shader_image_filter_num_bits", PainterBrush::image_filter_num_bits)
-    .add_macro("fastuidraw_shader_image_filter_nearest", PainterBrush::image_filter_nearest)
-    .add_macro("fastuidraw_shader_image_filter_linear", PainterBrush::image_filter_linear)
-    .add_macro("fastuidraw_shader_image_filter_cubic", PainterBrush::image_filter_cubic)
     .add_macro("fastuidraw_shader_linear_gradient_mask", PainterBrush::gradient_mask)
     .add_macro("fastuidraw_shader_radial_gradient_mask", PainterBrush::radial_gradient_mask)
     .add_macro("fastuidraw_shader_gradient_repeat_mask", PainterBrush::gradient_repeat_mask)
     .add_macro("fastuidraw_shader_repeat_window_mask", PainterBrush::repeat_window_mask)
     .add_macro("fastuidraw_shader_transformation_translation_mask", PainterBrush::transformation_translation_mask)
     .add_macro("fastuidraw_shader_transformation_matrix_mask", PainterBrush::transformation_matrix_mask)
-    .add_macro("fastuidraw_image_number_index_lookup_bit0", PainterBrush::image_number_index_lookups_bit0)
-    .add_macro("fastuidraw_image_number_index_lookup_num_bits", PainterBrush::image_number_index_lookups_num_bits)
-    .add_macro("fastuidraw_image_slack_bit0", PainterBrush::image_slack_bit0)
-    .add_macro("fastuidraw_image_slack_num_bits", PainterBrush::image_slack_num_bits)
-    .add_macro("fastuidraw_image_master_index_x_bit0",     PainterBrush::image_atlas_location_x_bit0)
-    .add_macro("fastuidraw_image_master_index_x_num_bits", PainterBrush::image_atlas_location_x_num_bits)
-    .add_macro("fastuidraw_image_master_index_y_bit0",     PainterBrush::image_atlas_location_y_bit0)
-    .add_macro("fastuidraw_image_master_index_y_num_bits", PainterBrush::image_atlas_location_y_num_bits)
-    .add_macro("fastuidraw_image_master_index_z_bit0",     PainterBrush::image_atlas_location_z_bit0)
-    .add_macro("fastuidraw_image_master_index_z_num_bits", PainterBrush::image_atlas_location_z_num_bits)
-    .add_macro("fastuidraw_image_size_x_bit0",     PainterBrush::image_size_x_bit0)
-    .add_macro("fastuidraw_image_size_x_num_bits", PainterBrush::image_size_x_num_bits)
-    .add_macro("fastuidraw_image_size_y_bit0",     PainterBrush::image_size_y_bit0)
-    .add_macro("fastuidraw_image_size_y_num_bits", PainterBrush::image_size_y_num_bits)
     .add_macro("fastuidraw_color_stop_x_bit0",     PainterBrush::gradient_color_stop_x_bit0)
     .add_macro("fastuidraw_color_stop_x_num_bits", PainterBrush::gradient_color_stop_x_num_bits)
     .add_macro("fastuidraw_color_stop_y_bit0",     PainterBrush::gradient_color_stop_y_bit0)
     .add_macro("fastuidraw_color_stop_y_num_bits", PainterBrush::gradient_color_stop_y_num_bits)
     .add_macro("fastuidraw_shader_pen_num_blocks", number_blocks(alignment, PainterBrush::pen_data_size))
-    .add_macro("fastuidraw_shader_image_num_blocks", number_blocks(alignment, PainterBrush::image_data_size))
+    .add_macro("fastuidraw_shader_image_num_blocks", number_blocks(alignment, ImageParams::data_size))
     .add_macro("fastuidraw_shader_linear_gradient_num_blocks", number_blocks(alignment, PainterBrush::linear_gradient_data_size))
     .add_macro("fastuidraw_shader_radial_gradient_num_blocks", number_blocks(alignment, PainterBrush::radial_gradient_data_size))
     .add_macro("fastuidraw_shader_repeat_window_num_blocks", number_blocks(alignment, PainterBrush::repeat_window_data_size))
@@ -513,9 +495,31 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
      */
     .add_macro("fastuidraw_linear_gradient_repeat_mask", LinearGradientParams::repeat_gradient_mask)
 
-    /* macros for LinearGradientParams
+    /* macros for RadialGradientParams
      */
     .add_macro("fastuidraw_radial_gradient_repeat_mask", RadialGradientParams::repeat_gradient_mask)
+
+    /* macros for ImageParams (also applies to PainterBrush).
+     */
+    .add_macro("fastuidraw_image_filter_bit0", ImageParams::filter_bit0)
+    .add_macro("fastuidraw_image_filter_num_bits", ImageParams::filter_num_bits)
+    .add_macro("fastuidraw_image_filter_nearest", ImageParams::filter_nearest)
+    .add_macro("fastuidraw_image_filter_linear", ImageParams::filter_linear)
+    .add_macro("fastuidraw_image_filter_cubic", ImageParams::filter_cubic)
+    .add_macro("fastuidraw_image_number_index_lookup_bit0", ImageParams::number_index_lookups_bit0)
+    .add_macro("fastuidraw_image_number_index_lookup_num_bits", ImageParams::number_index_lookups_num_bits)
+    .add_macro("fastuidraw_image_slack_bit0", ImageParams::slack_bit0)
+    .add_macro("fastuidraw_image_slack_num_bits", ImageParams::slack_num_bits)
+    .add_macro("fastuidraw_image_master_index_x_bit0",     ImageParams::atlas_location_x_bit0)
+    .add_macro("fastuidraw_image_master_index_x_num_bits", ImageParams::atlas_location_x_num_bits)
+    .add_macro("fastuidraw_image_master_index_y_bit0",     ImageParams::atlas_location_y_bit0)
+    .add_macro("fastuidraw_image_master_index_y_num_bits", ImageParams::atlas_location_y_num_bits)
+    .add_macro("fastuidraw_image_master_index_z_bit0",     ImageParams::atlas_location_z_bit0)
+    .add_macro("fastuidraw_image_master_index_z_num_bits", ImageParams::atlas_location_z_num_bits)
+    .add_macro("fastuidraw_image_size_x_bit0",     ImageParams::size_x_bit0)
+    .add_macro("fastuidraw_image_size_x_num_bits", ImageParams::size_x_num_bits)
+    .add_macro("fastuidraw_image_size_y_bit0",     ImageParams::size_y_bit0)
+    .add_macro("fastuidraw_image_size_y_num_bits", ImageParams::size_y_num_bits)
 
     /* macros for painter header
      */
@@ -617,18 +621,6 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_brush_repeat_window",
                               "fastuidraw_brush_repeat_window");
-  }
-
-  {
-    shader_unpack_value_set<PainterBrush::image_data_size> labels;
-    labels
-      .set(PainterBrush::image_atlas_location_xyz_offset, ".image_atlas_location_xyz", shader_unpack_value::uint_type)
-      .set(PainterBrush::image_size_xy_offset, ".image_size_xy", shader_unpack_value::uint_type)
-      .set(PainterBrush::image_start_xy_offset, ".image_start_xy", shader_unpack_value::uint_type)
-      .set(PainterBrush::image_slack_and_number_lookups_offset, ".image_slack_and_number_index_lookup", shader_unpack_value::uint_type)
-      .stream_unpack_function(alignment, str,
-                              "fastuidraw_read_brush_image_raw_data",
-                              "fastuidraw_brush_image_data_raw");
   }
 
   {
@@ -776,6 +768,18 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_radial_gradient",
                               "fastuidraw_radial_gradient");
+  }
+
+  {
+    shader_unpack_value_set<ImageParams::data_size> labels;
+    labels
+      .set(ImageParams::atlas_location_xyz_offset, ".image_atlas_location_xyz", shader_unpack_value::uint_type)
+      .set(ImageParams::size_xy_offset, ".image_size_xy", shader_unpack_value::uint_type)
+      .set(ImageParams::start_xy_offset, ".image_start_xy", shader_unpack_value::uint_type)
+      .set(ImageParams::misc_offset, ".misc", shader_unpack_value::uint_type)
+      .stream_unpack_function(alignment, str,
+                              "fastuidraw_read_image_raw_data",
+                              "fastuidraw_image_data_raw");
   }
 
 }

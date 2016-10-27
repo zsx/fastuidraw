@@ -8,11 +8,11 @@ fastuidraw_gl_brush_main(in uint sub_shader,
   int color_layer;
   uint image_filter;
   vec4 image_color;
-  fastuidraw_brush_image_data image;
+  fastuidraw_image_data image;
   float image_factor;
 
-  image_filter = sub_shader;
-  shader_data_offset = fastuidraw_read_brush_image_data(shader_data_offset, image);
+  shader_data_offset = fastuidraw_read_image_data(shader_data_offset, image);
+  image_filter = image.image_filter;
 
   /* fract the brush coordinate to the size of the image.
      TODO: support different wrap modes.
@@ -33,11 +33,11 @@ fastuidraw_gl_brush_main(in uint sub_shader,
                                              int(image.slack),
                                              texel_coord, color_layer);
 
-  if(image_filter == uint(fastuidraw_shader_image_filter_nearest))
+  if(image_filter == uint(fastuidraw_image_filter_nearest))
     {
       image_color = texelFetch(fastuidraw_imageAtlas, ivec3(texel_coord, color_layer), 0).rgba;
     }
-  else if(image_filter == uint(fastuidraw_shader_image_filter_linear))
+  else if(image_filter == uint(fastuidraw_image_filter_linear))
     {
       image_color = texture(fastuidraw_imageAtlasFiltered,
                             vec3(texel_coord * fastuidraw_imageAtlas_size_reciprocal, color_layer)).rgba;
