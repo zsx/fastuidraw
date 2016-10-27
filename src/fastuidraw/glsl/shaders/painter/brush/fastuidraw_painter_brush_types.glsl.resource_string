@@ -1,5 +1,5 @@
 
-struct fastuidraw_brush_image_data
+struct fastuidraw_image_data
 {
   // location of mater index tile for the image
   vec3 master_index_tile_atlas_location_xyz;
@@ -13,6 +13,9 @@ struct fastuidraw_brush_image_data
 
   // number of index tile lookups
   uint number_index_lookups;
+
+  // filter to apply
+  uint image_filter;
 
   // conversion factor from master index tile
   // coordinates to image texel coordinates
@@ -55,7 +58,7 @@ struct fastuidraw_brush_repeat_window
 };
 
 
-struct fastuidraw_brush_image_data_raw
+struct fastuidraw_image_data_raw
 {
   /* packed: Image::master_index_tile().xyz()
    */
@@ -87,8 +90,9 @@ struct fastuidraw_brush_image_data_raw
   /* packed value containing:
        - image slack
        - number of index lookups
+       - filter to apply
    */
-  uint image_slack_and_number_index_lookup;
+  uint misc;
 };
 
 struct fastuidraw_brush_gradient_raw

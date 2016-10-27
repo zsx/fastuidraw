@@ -1267,21 +1267,21 @@ draw_frame(void)
         }
       else
         {
-          enum PainterBrush::image_filter f;
+          enum ImageParams::filter_t f;
           switch(m_image_filter)
             {
             case image_nearest_filter:
-              f = PainterBrush::image_filter_nearest;
+              f = ImageParams::filter_nearest;
               break;
             case image_linear_filter:
-              f = PainterBrush::image_filter_linear;
+              f = ImageParams::filter_linear;
               break;
             case image_cubic_filter:
-              f = PainterBrush::image_filter_cubic;
+              f = ImageParams::filter_cubic;
               break;
             default:
               assert(!"Incorrect value for m_image_filter!");
-              f = PainterBrush::image_filter_nearest;
+              f = ImageParams::filter_nearest;
             }
           fill_brush.sub_image(m_image, m_image_offset, m_image_size, f);
         }

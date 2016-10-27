@@ -121,7 +121,7 @@ main(int argc, char **argv)
   std::cout << std::setw(40) << "header_size = " << PainterHeader::header_size << "\n"
             << std::setw(40) << "clip_equations_data_size = " << PainterClipEquations::clip_data_size << "\n"
             << std::setw(40) << "item_matrix_data_size = " << PainterItemMatrix::matrix_data_size << "\n"
-            << std::setw(40) << "image_data_size = " << PainterBrush::image_data_size << "\n"
+            << std::setw(40) << "image_data_size = " << ImageParams::data_size << "\n"
             << std::setw(40) << "linear_gradient_data_size = " << PainterBrush::linear_gradient_data_size << "\n"
             << std::setw(40) << "radial_gradient_data_size = " << PainterBrush::radial_gradient_data_size << "\n"
             << std::setw(40) << "repeat_window_data_size = " << PainterBrush::repeat_window_data_size << "\n"

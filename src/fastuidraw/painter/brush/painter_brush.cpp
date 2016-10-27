@@ -32,7 +32,7 @@ data_size(unsigned int alignment) const
 
   if(pshader & image_mask)
     {
-      return_value += round_up_to_multiple(image_data_size, alignment);
+      return_value += round_up_to_multiple(ImageParams::data_size, alignment);
     }
 
   if(pshader & radial_gradient_mask)
@@ -85,32 +85,33 @@ pack_data(unsigned int alignment, c_array<generic_data> dst) const
 
   if(pshader & image_mask)
     {
-      sz = round_up_to_multiple(image_data_size, alignment);
+      sz = round_up_to_multiple(ImageParams::data_size, alignment);
       sub_dest = dst.sub_array(current, sz);
       current += sz;
 
       assert(m_data.m_image);
       uvec3 loc(m_data.m_image->master_index_tile());
 
-      sub_dest[image_atlas_location_xyz_offset].u =
-        pack_bits(image_atlas_location_x_bit0, image_atlas_location_x_num_bits, loc.x())
-        | pack_bits(image_atlas_location_y_bit0, image_atlas_location_y_num_bits, loc.y())
-        | pack_bits(image_atlas_location_z_bit0, image_atlas_location_z_num_bits, loc.z());
+      sub_dest[ImageParams::atlas_location_xyz_offset].u =
+        pack_bits(ImageParams::atlas_location_x_bit0, ImageParams::atlas_location_x_num_bits, loc.x())
+        | pack_bits(ImageParams::atlas_location_y_bit0, ImageParams::atlas_location_y_num_bits, loc.y())
+        | pack_bits(ImageParams::atlas_location_z_bit0, ImageParams::atlas_location_z_num_bits, loc.z());
 
-      sub_dest[image_size_xy_offset].u =
-        pack_bits(image_size_x_bit0, image_size_x_num_bits, m_data.m_image_size.x())
-        | pack_bits(image_size_y_bit0, image_size_y_num_bits, m_data.m_image_size.y());
+      sub_dest[ImageParams::size_xy_offset].u =
+        pack_bits(ImageParams::size_x_bit0, ImageParams::size_x_num_bits, m_data.m_image_size.x())
+        | pack_bits(ImageParams::size_y_bit0, ImageParams::size_y_num_bits, m_data.m_image_size.y());
 
-      sub_dest[image_start_xy_offset].u =
-        pack_bits(image_size_x_bit0, image_size_x_num_bits, m_data.m_image_start.x())
-        | pack_bits(image_size_y_bit0, image_size_y_num_bits, m_data.m_image_start.y());
+      sub_dest[ImageParams::start_xy_offset].u =
+        pack_bits(ImageParams::size_x_bit0, ImageParams::size_x_num_bits, m_data.m_image_start.x())
+        | pack_bits(ImageParams::size_y_bit0, ImageParams::size_y_num_bits, m_data.m_image_start.y());
 
       uint32_t lookups(m_data.m_image->number_index_lookups());
       uint32_t slack(m_data.m_image->slack());
 
-      sub_dest[image_slack_and_number_lookups_offset].u =
-        pack_bits(image_number_index_lookups_bit0, image_number_index_lookups_num_bits, lookups)
-        | pack_bits(image_slack_bit0, image_slack_num_bits, slack);
+      sub_dest[ImageParams::misc_offset].u =
+        pack_bits(ImageParams::number_index_lookups_bit0, ImageParams::number_index_lookups_num_bits, lookups)
+        | pack_bits(ImageParams::slack_bit0, ImageParams::slack_num_bits, slack)
+        | pack_bits(ImageParams::filter_bit0, ImageParams::filter_num_bits, m_data.m_filter);
     }
 
   if(pshader & gradient_mask)
@@ -193,25 +194,19 @@ pack_data(unsigned int alignment, c_array<generic_data> dst) const
 fastuidraw::PainterBrush&
 fastuidraw::PainterBrush::
 sub_image(const reference_counted_ptr<const Image> &im,
-          uvec2 xy, uvec2 wh, enum image_filter f)
+          uvec2 xy, uvec2 wh, enum ImageParams::filter_t f)
 {
-  uint32_t filter_bits;
-
-  filter_bits = im ? f : 0;
-
+  m_data.m_filter = f;
   m_data.m_image = im;
   m_data.m_image_start = xy;
   m_data.m_image_size = wh;
-
-  m_data.m_shader_raw &= ~(filter_bits << image_filter_bit0);
-  m_data.m_shader_raw |= (filter_bits << image_filter_bit0);
-
+  m_data.m_shader_raw = apply_bit_flag(m_data.m_shader_raw, im, image_mask);
   return *this;
 }
 
 fastuidraw::PainterBrush&
 fastuidraw::PainterBrush::
-image(const reference_counted_ptr<const Image> &im, enum image_filter f)
+image(const reference_counted_ptr<const Image> &im, enum ImageParams::filter_t f)
 {
   uvec2 sz(0, 0);
   if(im)
@@ -256,31 +251,24 @@ operator=(const PainterBrush &rhs)
   return *this;
 }
 
-enum fastuidraw::PainterBrush::image_filter
+enum fastuidraw::ImageParams::filter_t
 fastuidraw::PainterBrush::
 best_filter_for_image(const reference_counted_ptr<const Image> &im)
 {
-  return im ?
-    static_cast<enum image_filter>(std::min(im->slack() + 1,
-                                            static_cast<unsigned int>(image_filter_cubic))) :
-    image_filter_nearest;
+  return ImageParams::best_filter_for_image(im);
 }
 
 bool
 fastuidraw::PainterBrush::
 filter_suitable_for_image(const reference_counted_ptr<const Image> &im,
-                          enum image_filter f)
+                          enum ImageParams::filter_t f)
 {
-  assert(f >= image_filter_nearest);
-  assert(f <= image_filter_cubic);
-  return im && im->slack() >= static_cast<unsigned int>(f) - 1;
+  return ImageParams::filter_suitable_for_image(im, f);
 }
 
 int
 fastuidraw::PainterBrush::
-slack_requirement(enum image_filter f)
+slack_requirement(enum ImageParams::filter_t f)
 {
-  assert(f >= image_filter_nearest);
-  assert(f <= image_filter_cubic);
-  return f - 1;
+  return ImageParams::slack_requirement(f);
 }
