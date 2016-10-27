@@ -28,7 +28,7 @@ fastuidraw_vert_brush_processing(in vec2 in_p, in fastuidraw_shader_header h)
   if(fastuidraw_brush_shader_has_transformation_matrix(shader))
     {
       mat2 m;
-      data_ptr = fastuidraw_read_brush_transformation_matrix(data_ptr, m);
+      data_ptr = fastuidraw_read_transformation_matrix(data_ptr, m);
       p = m * p;
     }
 

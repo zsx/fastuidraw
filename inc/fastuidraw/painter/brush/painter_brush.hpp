@@ -29,6 +29,7 @@
 #include <fastuidraw/painter/brush/image_params.hpp>
 #include <fastuidraw/painter/brush/repeat_window_params.hpp>
 #include <fastuidraw/painter/brush/transformation_translation_params.hpp>
+#include <fastuidraw/painter/brush/transformation_matrix_params.hpp>
 
 namespace fastuidraw
 {
@@ -277,20 +278,6 @@ namespace fastuidraw
           Size of the data for radial gradients.
          */
         radial_gradient_data_size
-      };
-
-    /*!
-      Enumeration that provides offset from the start of
-      repeat transformation matrix to data for the transformation
-      matrix data
-     */
-    enum transformation_matrix_offset_t
-      {
-        transformation_matrix_m00_offset, /*!< offset for float2x2(0, 0) (packed at float) */
-        transformation_matrix_m01_offset, /*!< offset for float2x2(0, 1) (packed at float) */
-        transformation_matrix_m10_offset, /*!< offset for float2x2(1, 0) (packed at float) */
-        transformation_matrix_m11_offset, /*!< offset for float2x2(1, 1) (packed at float) */
-        transformation_matrix_data_size /*!< size of data for transformation matrix */
       };
 
     /*!

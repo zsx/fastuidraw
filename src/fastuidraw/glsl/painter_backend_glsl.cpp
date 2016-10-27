@@ -30,6 +30,8 @@
 #include <fastuidraw/painter/brush/radial_gradient_params.hpp>
 #include <fastuidraw/painter/brush/image_params.hpp>
 #include <fastuidraw/painter/brush/repeat_window_params.hpp>
+#include <fastuidraw/painter/brush/transformation_translation_params.hpp>
+#include <fastuidraw/painter/brush/transformation_matrix_params.hpp>
 #include <fastuidraw/painter/packing/painter_header.hpp>
 #include <fastuidraw/painter/packing/painter_item_matrix.hpp>
 #include <fastuidraw/painter/packing/painter_clip_equations.hpp>
@@ -487,7 +489,7 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
     .add_macro("fastuidraw_shader_linear_gradient_num_blocks", number_blocks(alignment, PainterBrush::linear_gradient_data_size))
     .add_macro("fastuidraw_shader_radial_gradient_num_blocks", number_blocks(alignment, PainterBrush::radial_gradient_data_size))
     .add_macro("fastuidraw_shader_repeat_window_num_blocks", number_blocks(alignment, RepeatWindowParams::data_size))
-    .add_macro("fastuidraw_shader_transformation_matrix_num_blocks", number_blocks(alignment, PainterBrush::transformation_matrix_data_size))
+    .add_macro("fastuidraw_shader_transformation_matrix_num_blocks", number_blocks(alignment, TransformationMatrixParams::data_size))
     .add_macro("fastuidraw_shader_transformation_translation_num_blocks", number_blocks(alignment, TransformationTranslationParams::data_size))
 
     .add_macro("fastuidraw_stroke_dashed_stroking_params_header_num_blocks",
@@ -586,21 +588,6 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .set(PainterBrush::pen_blue_offset, ".b")
       .set(PainterBrush::pen_alpha_offset, ".a")
       .stream_unpack_function(alignment, str, "fastuidraw_read_pen_color", "vec4");
-  }
-
-  {
-    /* Matrics in GLSL are [column][row], that is why
-       one sees the transposing to the loads
-    */
-    shader_unpack_value_set<PainterBrush::transformation_matrix_data_size> labels;
-    labels
-      .set(PainterBrush::transformation_matrix_m00_offset, "[0][0]")
-      .set(PainterBrush::transformation_matrix_m10_offset, "[0][1]")
-      .set(PainterBrush::transformation_matrix_m01_offset, "[1][0]")
-      .set(PainterBrush::transformation_matrix_m11_offset, "[1][1]")
-      .stream_unpack_function(alignment, str,
-                              "fastuidraw_read_brush_transformation_matrix",
-                              "mat2");
   }
 
   {
@@ -782,6 +769,21 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_transformation_translation",
                               "vec2");
+  }
+
+  {
+    /* Matrics in GLSL are [column][row], that is why
+       one sees the transposing to the loads
+    */
+    shader_unpack_value_set<TransformationMatrixParams::data_size> labels;
+    labels
+      .set(TransformationMatrixParams::m00_offset, "[0][0]")
+      .set(TransformationMatrixParams::m10_offset, "[0][1]")
+      .set(TransformationMatrixParams::m01_offset, "[1][0]")
+      .set(TransformationMatrixParams::m11_offset, "[1][1]")
+      .stream_unpack_function(alignment, str,
+                              "fastuidraw_read_transformation_matrix",
+                              "mat2");
   }
 
 }
