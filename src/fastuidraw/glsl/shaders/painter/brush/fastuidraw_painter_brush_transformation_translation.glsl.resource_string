@@ -5,6 +5,6 @@ fastuidraw_gl_brush_main(in uint sub_shader,
                          inout vec4 color)
 {
   vec2 q;
-  shader_data_offset = fastuidraw_read_brush_transformation_translation(shader_data_offset, q);
+  shader_data_offset = fastuidraw_read_transformation_translation(shader_data_offset, q);
   brush_location += q;
 }

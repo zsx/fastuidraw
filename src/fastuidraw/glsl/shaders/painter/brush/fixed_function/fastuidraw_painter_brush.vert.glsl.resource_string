@@ -35,7 +35,7 @@ fastuidraw_vert_brush_processing(in vec2 in_p, in fastuidraw_shader_header h)
   if(fastuidraw_brush_shader_has_transformation_translation(shader))
     {
       vec2 q;
-      data_ptr = fastuidraw_read_brush_transformation_translation(data_ptr, q);
+      data_ptr = fastuidraw_read_transformation_translation(data_ptr, q);
       p += q;
     }
 

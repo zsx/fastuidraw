@@ -488,7 +488,7 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
     .add_macro("fastuidraw_shader_radial_gradient_num_blocks", number_blocks(alignment, PainterBrush::radial_gradient_data_size))
     .add_macro("fastuidraw_shader_repeat_window_num_blocks", number_blocks(alignment, RepeatWindowParams::data_size))
     .add_macro("fastuidraw_shader_transformation_matrix_num_blocks", number_blocks(alignment, PainterBrush::transformation_matrix_data_size))
-    .add_macro("fastuidraw_shader_transformation_translation_num_blocks", number_blocks(alignment, PainterBrush::transformation_translation_data_size))
+    .add_macro("fastuidraw_shader_transformation_translation_num_blocks", number_blocks(alignment, TransformationTranslationParams::data_size))
 
     .add_macro("fastuidraw_stroke_dashed_stroking_params_header_num_blocks",
                number_blocks(alignment, PainterDashedStrokeParams::stroke_static_data_size))
@@ -601,16 +601,6 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_brush_transformation_matrix",
                               "mat2");
-  }
-
-  {
-    shader_unpack_value_set<PainterBrush::transformation_translation_data_size> labels;
-    labels
-      .set(PainterBrush::transformation_translation_x_offset, ".x")
-      .set(PainterBrush::transformation_translation_y_offset, ".y")
-      .stream_unpack_function(alignment, str,
-                              "fastuidraw_read_brush_transformation_translation",
-                              "vec2");
   }
 
   {
@@ -782,6 +772,16 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
       .stream_unpack_function(alignment, str,
                               "fastuidraw_read_repeat_window",
                               "fastuidraw_repeat_window");
+  }
+
+  {
+    shader_unpack_value_set<TransformationTranslationParams::data_size> labels;
+    labels
+      .set(TransformationTranslationParams::x_offset, ".x")
+      .set(TransformationTranslationParams::y_offset, ".y")
+      .stream_unpack_function(alignment, str,
+                              "fastuidraw_read_transformation_translation",
+                              "vec2");
   }
 
 }
