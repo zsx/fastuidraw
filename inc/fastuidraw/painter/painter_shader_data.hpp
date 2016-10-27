@@ -29,14 +29,14 @@ namespace fastuidraw
  */
 
   /*!
-    Common base class to PainterItemShaderData and
-    PainterBlendShaderData to hold shader data for
-    custom shaders. Derived classes CANNOT add any
-    data or virtual functions. The class
-    PainterShaderData is essentially a wrapper over
-    a PainterShaderData::DataBase object that handles
-    holding data and copying itself (for the purpose
-    of copying PainterShaderData objects).
+    Common base class to PainterItemShaderData,
+    PainterBlendShaderData and PainterBrushShaderData
+    to hold shader data for custom shaders. Derived
+    classes CANNOT add any data or virtual functions.
+    The class PainterShaderData is essentially a wrapper
+    over a PainterShaderData::DataBase object that handles
+    holding data and copying itself (for the purpose of
+    copying PainterShaderData objects).
    */
   class PainterShaderData
   {
@@ -73,7 +73,6 @@ namespace fastuidraw
       virtual
       unsigned int
       data_size(unsigned int alignment) const = 0;
-
 
       /*!
         To be implemtend by a derive dclass to pack its data.
@@ -159,6 +158,12 @@ namespace fastuidraw
     PainterBlendShaderData holds custom data for blend shaders
    */
   class PainterBlendShaderData:public PainterShaderData
+  {};
+
+  /*!
+    PainterBrushShaderData holds custom data for brush shaders
+   */
+  class PainterBrushShaderData:public PainterShaderData
   {};
 /*! @} */
 
