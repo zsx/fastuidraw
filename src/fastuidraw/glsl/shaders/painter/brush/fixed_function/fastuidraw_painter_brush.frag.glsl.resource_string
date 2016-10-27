@@ -69,7 +69,6 @@ compute_gradient_interpolate(in vec2 p, out float good)
   return t;
 }
 
-
 vec4
 fastuidraw_compute_brush_color(void)
 {

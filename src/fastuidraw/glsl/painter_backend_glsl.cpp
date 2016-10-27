@@ -475,20 +475,16 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
     /* macros for brush shading
      */
     .add_macro("fastuidraw_shader_image_mask", PainterBrush::image_mask)
-    .add_macro("fastuidraw_shader_linear_gradient_mask", PainterBrush::gradient_mask)
+    .add_macro("fastuidraw_shader_linear_gradient_mask", PainterBrush::linear_gradient_mask)
     .add_macro("fastuidraw_shader_radial_gradient_mask", PainterBrush::radial_gradient_mask)
-    .add_macro("fastuidraw_shader_gradient_repeat_mask", PainterBrush::gradient_repeat_mask)
+    .add_macro("fastuidraw_shader_repeat_gradient_mask", PainterBrush::repeat_gradient_mask)
     .add_macro("fastuidraw_shader_repeat_window_mask", PainterBrush::repeat_window_mask)
     .add_macro("fastuidraw_shader_transformation_translation_mask", PainterBrush::transformation_translation_mask)
     .add_macro("fastuidraw_shader_transformation_matrix_mask", PainterBrush::transformation_matrix_mask)
-    .add_macro("fastuidraw_color_stop_x_bit0",     PainterBrush::gradient_color_stop_x_bit0)
-    .add_macro("fastuidraw_color_stop_x_num_bits", PainterBrush::gradient_color_stop_x_num_bits)
-    .add_macro("fastuidraw_color_stop_y_bit0",     PainterBrush::gradient_color_stop_y_bit0)
-    .add_macro("fastuidraw_color_stop_y_num_bits", PainterBrush::gradient_color_stop_y_num_bits)
     .add_macro("fastuidraw_shader_pen_num_blocks", number_blocks(alignment, PenParams::data_size))
     .add_macro("fastuidraw_shader_image_num_blocks", number_blocks(alignment, ImageParams::data_size))
-    .add_macro("fastuidraw_shader_linear_gradient_num_blocks", number_blocks(alignment, PainterBrush::linear_gradient_data_size))
-    .add_macro("fastuidraw_shader_radial_gradient_num_blocks", number_blocks(alignment, PainterBrush::radial_gradient_data_size))
+    .add_macro("fastuidraw_shader_linear_gradient_num_blocks", number_blocks(alignment, LinearGradientParams::data_size))
+    .add_macro("fastuidraw_shader_radial_gradient_num_blocks", number_blocks(alignment, RadialGradientParams::data_size))
     .add_macro("fastuidraw_shader_repeat_window_num_blocks", number_blocks(alignment, RepeatWindowParams::data_size))
     .add_macro("fastuidraw_shader_transformation_matrix_num_blocks", number_blocks(alignment, TransformationMatrixParams::data_size))
     .add_macro("fastuidraw_shader_transformation_translation_num_blocks", number_blocks(alignment, TransformationTranslationParams::data_size))
@@ -580,36 +576,6 @@ stream_unpack_code(fastuidraw::glsl::ShaderSource &str)
 
   unsigned int alignment;
   alignment = m_p->configuration_base().alignment();
-
-  {
-    shader_unpack_value_set<PainterBrush::linear_gradient_data_size> labels;
-    labels
-      .set(PainterBrush::gradient_p0_x_offset, ".p0.x")
-      .set(PainterBrush::gradient_p0_y_offset, ".p0.y")
-      .set(PainterBrush::gradient_p1_x_offset, ".p1.x")
-      .set(PainterBrush::gradient_p1_y_offset, ".p1.y")
-      .set(PainterBrush::gradient_color_stop_xy_offset, ".color_stop_sequence_xy", shader_unpack_value::uint_type)
-      .set(PainterBrush::gradient_color_stop_length_offset, ".color_stop_sequence_length", shader_unpack_value::uint_type)
-      .stream_unpack_function(alignment, str,
-                              "fastuidraw_read_brush_linear_gradient_data",
-                              "fastuidraw_brush_gradient_raw");
-  }
-
-  {
-    shader_unpack_value_set<PainterBrush::radial_gradient_data_size> labels;
-    labels
-      .set(PainterBrush::gradient_p0_x_offset, ".p0.x")
-      .set(PainterBrush::gradient_p0_y_offset, ".p0.y")
-      .set(PainterBrush::gradient_p1_x_offset, ".p1.x")
-      .set(PainterBrush::gradient_p1_y_offset, ".p1.y")
-      .set(PainterBrush::gradient_color_stop_xy_offset, ".color_stop_sequence_xy", shader_unpack_value::uint_type)
-      .set(PainterBrush::gradient_color_stop_length_offset, ".color_stop_sequence_length", shader_unpack_value::uint_type)
-      .set(PainterBrush::gradient_start_radius_offset, ".r0")
-      .set(PainterBrush::gradient_end_radius_offset, ".r1")
-      .stream_unpack_function(alignment, str,
-                              "fastuidraw_read_brush_radial_gradient_data",
-                              "fastuidraw_brush_gradient_raw");
-  }
 
   {
     shader_unpack_value_set<PainterHeader::header_size> labels;

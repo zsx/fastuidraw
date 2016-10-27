@@ -3,9 +3,6 @@ fastuidraw_vert_brush_processing(in vec2 in_p, in fastuidraw_shader_header h)
 {
   uint shader;
   uint data_ptr;
-  fastuidraw_image_data image;
-  fastuidraw_brush_gradient gradient;
-  fastuidraw_repeat_window repeat_window;
   vec2 p;
 
   p = in_p;

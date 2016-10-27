@@ -127,6 +127,16 @@ sub_image(const reference_counted_ptr<const Image> &im,
   d->m_filter = f;
 }
 
+const fastuidraw::reference_counted_ptr<const fastuidraw::Image>&
+fastuidraw::ImageParams::
+image(void) const
+{
+  Params *d;
+  assert(dynamic_cast<Params*>(m_data) != NULL);
+  d = static_cast<Params*>(m_data);
+  return d->m_image;
+}
+
 enum fastuidraw::ImageParams::filter_t
 fastuidraw::ImageParams::
 best_filter_for_image(const reference_counted_ptr<const Image> &im)
