@@ -20,8 +20,8 @@
 #pragma once
 
 #include <fastuidraw/util/blend_mode.hpp>
-#include <fastuidraw/painter/painter_blend_shader.hpp>
 #include <fastuidraw/painter/painter_enums.hpp>
+#include <fastuidraw/painter/blend/painter_blend_shader.hpp>
 
 namespace fastuidraw
 {

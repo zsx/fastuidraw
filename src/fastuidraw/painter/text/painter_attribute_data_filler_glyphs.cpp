@@ -19,8 +19,8 @@
 #include <algorithm>
 #include <vector>
 #include <fastuidraw/util/fastuidraw_memory.hpp>
-#include <fastuidraw/painter/painter_attribute_data_filler_glyphs.hpp>
-#include "../private/util_private.hpp"
+#include <fastuidraw/painter/text/painter_attribute_data_filler_glyphs.hpp>
+#include "../../private/util_private.hpp"
 
 namespace
 {

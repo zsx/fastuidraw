@@ -5,9 +5,8 @@ d		:= $(dir)
 # End standard header
 
 LIBRARY_SOURCES += $(call filelist, \
-	painter_clip_equations.cpp painter_item_matrix.cpp \
-	painter_header.cpp painter_packer.cpp \
-	painter_backend.cpp painter_draw.cpp)
+	painter_attribute_data_filler_glyphs.cpp \
+	painter_glyph_shader.cpp)
 
 # Begin standard footer
 d		:= $(dirstack_$(sp))

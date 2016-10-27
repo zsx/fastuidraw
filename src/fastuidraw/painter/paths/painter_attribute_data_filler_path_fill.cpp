@@ -17,7 +17,7 @@
  */
 
 #include <algorithm>
-#include <fastuidraw/painter/painter_attribute_data_filler_path_fill.hpp>
+#include <fastuidraw/painter/paths/painter_attribute_data_filler_path_fill.hpp>
 
 namespace
 {

@@ -16,7 +16,7 @@
  *
  */
 
-#include <fastuidraw/painter/painter_stroke_shader.hpp>
+#include <fastuidraw/painter/paths/painter_stroke_shader.hpp>
 
 namespace
 {

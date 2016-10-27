@@ -17,7 +17,7 @@
  */
 
 
-#include <fastuidraw/painter/painter_brush_shader_set.hpp>
+#include <fastuidraw/painter/brush/painter_brush_shader_set.hpp>
 
 namespace
 {
