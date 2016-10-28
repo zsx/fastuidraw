@@ -231,16 +231,47 @@ namespace
     copy_value(const T &obj) { m_value = obj; }
   };
 
+  template<typename T, typename S>
+  class DerivedStateValue {};
+
+  template<typename T>
+  class DerivedStateValue<T, fastuidraw::true_type>
+  {
+  public:
+    typename T::derived_value_type m_value;
+
+    void*
+    get_raw_ptr(void) { return &m_value; }
+
+    void
+    copy_value(const T &v)
+    {
+      m_value = v.derived_value();
+    }
+  };
+
+  template<typename T>
+  class DerivedStateValue<T, fastuidraw::false_type>
+  {
+  public:
+    void
+    copy_value(const T&) {}
+
+    void*
+    get_raw_ptr(void) { return NULL; }
+  };
+
   template<typename T>
   class StateValue<T, fastuidraw::false_type>
   {
   public:
+    DerivedStateValue<T, typename T::packed_value_has_derived_value> m_value;
+
     void*
-    get_raw_ptr(void) { return NULL; }
+    get_raw_ptr(void) { return m_value.get_raw_ptr(); }
 
     void
-    copy_value(const T &)
-    {}
+    copy_value(const T &v) { m_value.copy_value(v); }
   };
 
   template<typename T>

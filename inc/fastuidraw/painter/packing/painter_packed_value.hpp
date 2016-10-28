@@ -48,6 +48,53 @@ namespace fastuidraw
     friend class PainterPackedValuePool;
     template<typename> friend class PainterPackedValue;
 
+    template<typename T, typename has_derived_value>
+    class derived_value_type_builder
+    {};
+
+    template<typename T>
+    class derived_value_type_builder<T, false_type>
+    {
+    public:
+      typedef T type;
+    };
+
+    template<typename T>
+    class derived_value_type_builder<T, true_type>
+    {
+    public:
+      typedef typename T::derived_value_type type;
+    };
+
+    template<typename T, typename has_value>
+    class derived_value_type
+    {};
+
+    template<typename T>
+    class derived_value_type<T, true_type>
+    {
+    public:
+      typedef false_type has_derived_value;
+      typedef typename derived_value_type_builder<T, has_derived_value>::type type;
+    };
+
+    template<typename T>
+    class derived_value_type<T, false_type>
+    {
+    public:
+      typedef typename T::packed_value_has_derived_value has_derived_value;
+      typedef typename derived_value_type_builder<T, has_derived_value>::type type;
+    };
+
+    template<typename T>
+    class derived_value_t
+    {
+    public:
+      typedef typename T::packed_value_has_value packed_value_has_value;
+      typedef typename derived_value_type<T, packed_value_has_value>::type type;
+      typedef typename derived_value_type<T, packed_value_has_value>::has_derived_value has_derived_value;
+    };
+
     ~PainterPackedValueBase();
     PainterPackedValueBase(void);
     PainterPackedValueBase(const PainterPackedValueBase&);
@@ -86,7 +133,9 @@ namespace fastuidraw
   {
   private:
     typedef const T& (PainterPackedValue::*unspecified_bool_type)(void) const;
-
+    typedef typename T::packed_value_has_value has_value;
+    typedef typename PainterPackedValueBase::derived_value_t<T>::type derived_type;
+    typedef typename PainterPackedValueBase::derived_value_t<T>::has_derived_value has_derived_value;
   public:
     /*!
       Ctor, initializes handle to NULL, i.e.
@@ -106,8 +155,26 @@ namespace fastuidraw
     {
       const T *p;
       assert(this->m_d);
-      assert(typename T::packed_value_has_value());
+      assert(has_value());
       p = reinterpret_cast<const T*>(this->raw_value());
+      return *p;
+    }
+
+    /*!
+      Returns the derived value to which the handle
+      points. If the handle is not-value, then asserts.
+      If T::packed_value_has_value is not false_type,
+      then asserts. If T::has_derived_value is not true_type
+      then asserts.
+     */
+    const derived_type&
+    derived_value(void) const
+    {
+      const derived_type *p;
+      assert(this->m_d);
+      assert(!has_value());
+      assert(has_derived_value());
+      p = reinterpret_cast<const derived_type*>(this->raw_value());
       return *p;
     }
 
