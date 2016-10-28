@@ -21,10 +21,10 @@
 
 namespace
 {
-  class Params:public fastuidraw::PainterShaderData::DataBase
+  class RGParams:public fastuidraw::PainterShaderData::DataBase
   {
   public:
-    Params(void):
+    RGParams(void):
       m_start_pt(0.0f, 0.0f),
       m_end_pt(1.0f, 1.0f),
       m_start_r(0.0f),
@@ -37,7 +37,7 @@ namespace
     fastuidraw::PainterShaderData::DataBase*
     copy(void) const
     {
-      return FASTUIDRAWnew Params(*this);
+      return FASTUIDRAWnew RGParams(*this);
     }
 
     virtual
@@ -91,29 +91,29 @@ namespace
 fastuidraw::RadialGradientParams::
 RadialGradientParams(void)
 {
-  m_data = FASTUIDRAWnew Params();
+  m_data = FASTUIDRAWnew RGParams();
 }
 
-#define set_get_implement(name, type)                   \
-  fastuidraw::RadialGradientParams&                     \
-  fastuidraw::RadialGradientParams::                    \
-  name(type v)                                          \
-  {                                                     \
-    Params *d;                                          \
-    assert(dynamic_cast<Params*>(m_data) != NULL);      \
-    d = static_cast<Params*>(m_data);                   \
-    d->m_##name = v;                                    \
-    return *this;                                       \
-  }                                                     \
-                                                        \
-  type                                                  \
-  fastuidraw::RadialGradientParams::                    \
-  name(void) const                                      \
-  {                                                     \
-    Params *d;                                          \
-    assert(dynamic_cast<Params*>(m_data) != NULL);      \
-    d = static_cast<Params*>(m_data);                   \
-    return d->m_##name;                                 \
+#define set_get_implement(name, type)                     \
+  fastuidraw::RadialGradientParams&                       \
+  fastuidraw::RadialGradientParams::                      \
+  name(type v)                                            \
+  {                                                       \
+    RGParams *d;                                          \
+    assert(dynamic_cast<RGParams*>(m_data) != NULL);      \
+    d = static_cast<RGParams*>(m_data);                   \
+    d->m_##name = v;                                      \
+    return *this;                                         \
+  }                                                       \
+                                                          \
+  type                                                    \
+  fastuidraw::RadialGradientParams::                      \
+  name(void) const                                        \
+  {                                                       \
+    RGParams *d;                                          \
+    assert(dynamic_cast<RGParams*>(m_data) != NULL);      \
+    d = static_cast<RGParams*>(m_data);                   \
+    return d->m_##name;                                   \
   }
 
 

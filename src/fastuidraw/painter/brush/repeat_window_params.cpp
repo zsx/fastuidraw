@@ -20,10 +20,10 @@
 #include <fastuidraw/painter/brush/repeat_window_params.hpp>
 namespace
 {
-  class Params:public fastuidraw::PainterShaderData::DataBase
+  class RWParams:public fastuidraw::PainterShaderData::DataBase
   {
   public:
-    Params(void):
+    RWParams(void):
       m_pos(0.0f, 0.0f),
       m_size(1.0f, 1.0f)
     {}
@@ -32,7 +32,7 @@ namespace
     fastuidraw::PainterShaderData::DataBase*
     copy(void) const
     {
-      return FASTUIDRAWnew Params(*this);
+      return FASTUIDRAWnew RWParams(*this);
     }
 
     virtual
@@ -63,29 +63,29 @@ namespace
 fastuidraw::RepeatWindowParams::
 RepeatWindowParams(void)
 {
-  m_data = FASTUIDRAWnew Params();
+  m_data = FASTUIDRAWnew RWParams();
 }
 
-#define set_get_implement(name, type)                   \
-  fastuidraw::RepeatWindowParams&                       \
-  fastuidraw::RepeatWindowParams::                      \
-  name(type v)                                          \
-  {                                                     \
-    Params *d;                                          \
-    assert(dynamic_cast<Params*>(m_data) != NULL);      \
-    d = static_cast<Params*>(m_data);                   \
-    d->m_##name = v;                                    \
-    return *this;                                       \
-  }                                                     \
-                                                        \
-  type                                                  \
-  fastuidraw::RepeatWindowParams::                      \
-  name(void) const                                      \
-  {                                                     \
-    Params *d;                                          \
-    assert(dynamic_cast<Params*>(m_data) != NULL);      \
-    d = static_cast<Params*>(m_data);                   \
-    return d->m_##name;                                 \
+#define set_get_implement(name, type)                     \
+  fastuidraw::RepeatWindowParams&                         \
+  fastuidraw::RepeatWindowParams::                        \
+  name(type v)                                            \
+  {                                                       \
+    RWParams *d;                                          \
+    assert(dynamic_cast<RWParams*>(m_data) != NULL);      \
+    d = static_cast<RWParams*>(m_data);                   \
+    d->m_##name = v;                                      \
+    return *this;                                         \
+  }                                                       \
+                                                          \
+  type                                                    \
+  fastuidraw::RepeatWindowParams::                        \
+  name(void) const                                        \
+  {                                                       \
+    RWParams *d;                                          \
+    assert(dynamic_cast<RWParams*>(m_data) != NULL);      \
+    d = static_cast<RWParams*>(m_data);                   \
+    return d->m_##name;                                   \
   }
 
 set_get_implement(pos, const fastuidraw::vec2&)

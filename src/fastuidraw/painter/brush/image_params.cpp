@@ -21,10 +21,10 @@
 
 namespace
 {
-  class Params:public fastuidraw::PainterShaderData::DataBase
+  class IParams:public fastuidraw::PainterShaderData::DataBase
   {
   public:
-    Params(void):
+    IParams(void):
       m_image_start(0, 0),
       m_image_size(1, 1),
       m_filter(fastuidraw::ImageParams::filter_nearest)
@@ -34,7 +34,7 @@ namespace
     fastuidraw::PainterShaderData::DataBase*
     copy(void) const
     {
-      return FASTUIDRAWnew Params(*this);
+      return FASTUIDRAWnew IParams(*this);
     }
 
     virtual
@@ -96,7 +96,7 @@ namespace
 fastuidraw::ImageParams::
 ImageParams(void)
 {
-  m_data = FASTUIDRAWnew Params();
+  m_data = FASTUIDRAWnew IParams();
 }
 
 void
@@ -118,9 +118,9 @@ fastuidraw::ImageParams::
 sub_image(const reference_counted_ptr<const Image> &im,
           uvec2 xy, uvec2 wh, enum filter_t f)
 {
-  Params *d;
-  assert(dynamic_cast<Params*>(m_data) != NULL);
-  d = static_cast<Params*>(m_data);
+  IParams *d;
+  assert(dynamic_cast<IParams*>(m_data) != NULL);
+  d = static_cast<IParams*>(m_data);
   d->m_image = im;
   d->m_image_start = xy;
   d->m_image_size = wh;
@@ -131,9 +131,9 @@ const fastuidraw::reference_counted_ptr<const fastuidraw::Image>&
 fastuidraw::ImageParams::
 image(void) const
 {
-  Params *d;
-  assert(dynamic_cast<Params*>(m_data) != NULL);
-  d = static_cast<Params*>(m_data);
+  IParams *d;
+  assert(dynamic_cast<IParams*>(m_data) != NULL);
+  d = static_cast<IParams*>(m_data);
   return d->m_image;
 }
 
