@@ -312,21 +312,20 @@ register_shader(const PainterBlendShaderSet &p)
     {
       enum PainterEnums::blend_mode_t tp;
       tp = static_cast<enum PainterEnums::blend_mode_t>(i);
-
-      const reference_counted_ptr<PainterBlendShader> &sh(p.shader(tp));
-      register_shader(sh);
+      register_shader(p.shader(tp));
     }
 }
 
 void
 fastuidraw::PainterBackend::
-register_shader(const PainterBrushShaderSet &shaders)
+register_shader(const PainterBrushShaderSet &p)
 {
-  register_shader(shaders.linear_gradient());
-  register_shader(shaders.radial_gradient());
-  register_shader(shaders.image());
-  register_shader(shaders.transformation_translation());
-  register_shader(shaders.transformation_matrix());
+  for(unsigned int i = 0, endi = p.shader_count(); i < endi; ++i)
+    {
+      enum PainterBrushShaderSet::effect_t tp;
+      tp = static_cast<enum PainterBrushShaderSet::effect_t>(i);
+      register_shader(p.shader(tp));
+    }
 }
 
 void
