@@ -153,7 +153,6 @@ namespace
   class EntryBase
   {
   public:
-
     EntryBase(void):
       m_raw_value(NULL),
       m_pool_slot(-1)
@@ -216,13 +215,41 @@ namespace
     fastuidraw::reference_count_non_concurrent m_count;
   };
 
+  template<typename T, typename S>
+  class StateValue {};
+
+  template<typename T>
+  class StateValue<T, fastuidraw::true_type>
+  {
+  public:
+    T m_value;
+
+    void*
+    get_raw_ptr(void) { return &m_value; }
+
+    void
+    copy_value(const T &obj) { m_value = obj; }
+  };
+
+  template<typename T>
+  class StateValue<T, fastuidraw::false_type>
+  {
+  public:
+    void*
+    get_raw_ptr(void) { return NULL; }
+
+    void
+    copy_value(const T &)
+    {}
+  };
+
   template<typename T>
   class Entry:public EntryBase
   {
   public:
     Entry(void)
     {
-      m_raw_value = &m_state;
+      m_raw_value = m_state.get_raw_ptr();
     }
 
     void
@@ -232,19 +259,19 @@ namespace
       assert(slot >= 0);
 
       m_pool = p;
-      m_state = st;
       m_pool_slot = slot;
+      m_state.copy_value(st);
 
       this->m_begin_id = -1;
       this->m_draw_command_id = 0;
       this->m_offset = 0;
       this->m_painter = NULL;
       this->m_alignment = alignment;
-      this->m_data.resize(m_state.data_size(alignment));
-      m_state.pack_data(alignment, fastuidraw::make_c_array(this->m_data));
+      this->m_data.resize(st.data_size(alignment));
+      st.pack_data(alignment, fastuidraw::make_c_array(this->m_data));
     }
 
-    T m_state;
+    StateValue<T, typename T::packed_value_has_value> m_state;
   };
 
   template<typename T>

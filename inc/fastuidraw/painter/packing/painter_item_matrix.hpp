@@ -38,6 +38,11 @@ namespace fastuidraw
   class PainterItemMatrix
   {
   public:
+    /*!
+      Indicates that PainterPackedValue<PainterItemMatrix> has
+      a copy of the value that generated it.
+     */
+    typedef true_type packed_value_has_value;
 
     /*!
       Enumeration that provides offsets for the

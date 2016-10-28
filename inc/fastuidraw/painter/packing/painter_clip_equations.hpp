@@ -39,6 +39,12 @@ namespace fastuidraw
   {
   public:
     /*!
+      Indicates that PainterPackedValue<PainterClipEquations> has
+      a copy of the value that generated it.
+     */
+    typedef true_type packed_value_has_value;
+
+    /*!
       Enumeration that provides offsets for the
       elements of the clip equation offsets
       (clip_equations_offset)
