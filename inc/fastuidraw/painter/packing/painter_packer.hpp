@@ -275,6 +275,13 @@ namespace fastuidraw
     register_shader(const reference_counted_ptr<PainterBlendShader> &shader);
 
     /*!
+      Registers a shader for use. Must not be called within
+      a begin() / end() pair.
+    */
+    void
+    register_shader(const reference_counted_ptr<PainterBrushShader> &shader);
+
+    /*!
       Registers a stroke shader for use. Must not be called within
       a begin() / end() pair.
       \param p PainterStrokeShader hold shaders to register
@@ -304,6 +311,13 @@ namespace fastuidraw
      */
     void
     register_shader(const PainterGlyphShader &p);
+
+    /*!
+      Registers a shader set for use. Must not be called within
+      a begin() / end() pair.
+     */
+    void
+    register_shader(const PainterBrushShaderSet &p);
 
     /*!
       Registers a shader set for use. Must not be called within
