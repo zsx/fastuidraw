@@ -21,10 +21,10 @@
 
 namespace
 {
-  class Params:public fastuidraw::PainterShaderData::DataBase
+  class PParams:public fastuidraw::PainterShaderData::DataBase
   {
   public:
-    Params(void):
+    PParams(void):
       m_color(1.0f, 1.0f, 1.0f, 1.0f)
     {}
 
@@ -32,7 +32,7 @@ namespace
     fastuidraw::PainterShaderData::DataBase*
     copy(void) const
     {
-      return FASTUIDRAWnew Params(*this);
+      return FASTUIDRAWnew PParams(*this);
     }
 
     virtual
@@ -63,29 +63,29 @@ namespace
 fastuidraw::PenParams::
 PenParams(void)
 {
-  m_data = FASTUIDRAWnew Params();
+  m_data = FASTUIDRAWnew PParams();
 }
 
-#define set_get_implement(name, type)                                \
-  fastuidraw::PenParams&                                             \
-  fastuidraw::PenParams::                                            \
-  name(type v)                                                       \
-  {                                                                  \
-    Params *d;                                                       \
-    assert(dynamic_cast<Params*>(m_data) != NULL);                   \
-    d = static_cast<Params*>(m_data);                                \
-    d->m_##name = v;                                                 \
-    return *this;                                                    \
-  }                                                                  \
-                                                                     \
-  type                                                               \
-  fastuidraw::PenParams::                                            \
-  name(void) const                                                   \
-  {                                                                  \
-    Params *d;                                                       \
-    assert(dynamic_cast<Params*>(m_data) != NULL);                   \
-    d = static_cast<Params*>(m_data);                                \
-    return d->m_##name;                                              \
+#define set_get_implement(name, type)                                 \
+  fastuidraw::PenParams&                                              \
+  fastuidraw::PenParams::                                             \
+  name(type v)                                                        \
+  {                                                                   \
+    PParams *d;                                                       \
+    assert(dynamic_cast<PParams*>(m_data) != NULL);                   \
+    d = static_cast<PParams*>(m_data);                                \
+    d->m_##name = v;                                                  \
+    return *this;                                                     \
+  }                                                                   \
+                                                                      \
+  type                                                                \
+  fastuidraw::PenParams::                                             \
+  name(void) const                                                    \
+  {                                                                   \
+    PParams *d;                                                       \
+    assert(dynamic_cast<PParams*>(m_data) != NULL);                   \
+    d = static_cast<PParams*>(m_data);                                \
+    return d->m_##name;                                               \
   }
 
 set_get_implement(color, const fastuidraw::vec4&)

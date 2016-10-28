@@ -21,10 +21,10 @@
 
 namespace
 {
-  class Params:public fastuidraw::PainterShaderData::DataBase
+  class LGParams:public fastuidraw::PainterShaderData::DataBase
   {
   public:
-    Params(void):
+    LGParams(void):
       m_start_pt(0.0f, 0.0f),
       m_end_pt(1.0f, 1.0f),
       m_flags(0u),
@@ -35,7 +35,7 @@ namespace
     fastuidraw::PainterShaderData::DataBase*
     copy(void) const
     {
-      return FASTUIDRAWnew Params(*this);
+      return FASTUIDRAWnew LGParams(*this);
     }
 
     virtual
@@ -88,29 +88,29 @@ namespace
 fastuidraw::LinearGradientParams::
 LinearGradientParams(void)
 {
-  m_data = FASTUIDRAWnew Params();
+  m_data = FASTUIDRAWnew LGParams();
 }
 
-#define set_get_implement(name, type)                   \
-  fastuidraw::LinearGradientParams&                     \
-  fastuidraw::LinearGradientParams::                    \
-  name(type v)                                          \
-  {                                                     \
-    Params *d;                                          \
-    assert(dynamic_cast<Params*>(m_data) != NULL);      \
-    d = static_cast<Params*>(m_data);                   \
-    d->m_##name = v;                                    \
-    return *this;                                       \
-  }                                                     \
-                                                        \
-  type                                                  \
-  fastuidraw::LinearGradientParams::                    \
-  name(void) const                                      \
-  {                                                     \
-    Params *d;                                          \
-    assert(dynamic_cast<Params*>(m_data) != NULL);      \
-    d = static_cast<Params*>(m_data);                   \
-    return d->m_##name;                                 \
+#define set_get_implement(name, type)                     \
+  fastuidraw::LinearGradientParams&                       \
+  fastuidraw::LinearGradientParams::                      \
+  name(type v)                                            \
+  {                                                       \
+    LGParams *d;                                          \
+    assert(dynamic_cast<LGParams*>(m_data) != NULL);      \
+    d = static_cast<LGParams*>(m_data);                   \
+    d->m_##name = v;                                      \
+    return *this;                                         \
+  }                                                       \
+                                                          \
+  type                                                    \
+  fastuidraw::LinearGradientParams::                      \
+  name(void) const                                        \
+  {                                                       \
+    LGParams *d;                                          \
+    assert(dynamic_cast<LGParams*>(m_data) != NULL);      \
+    d = static_cast<LGParams*>(m_data);                   \
+    return d->m_##name;                                   \
   }
 
 

@@ -21,10 +21,10 @@
 
 namespace
 {
-  class Params:public fastuidraw::PainterShaderData::DataBase
+  class TTParams:public fastuidraw::PainterShaderData::DataBase
   {
   public:
-    Params(void):
+    TTParams(void):
       m_pos(0.0f, 0.0f)
     {}
 
@@ -32,7 +32,7 @@ namespace
     fastuidraw::PainterShaderData::DataBase*
     copy(void) const
     {
-      return FASTUIDRAWnew Params(*this);
+      return FASTUIDRAWnew TTParams(*this);
     }
 
     virtual
@@ -61,29 +61,29 @@ namespace
 fastuidraw::TransformationTranslationParams::
 TransformationTranslationParams(void)
 {
-  m_data = FASTUIDRAWnew Params();
+  m_data = FASTUIDRAWnew TTParams();
 }
 
-#define set_get_implement(name, type)                                \
-  fastuidraw::TransformationTranslationParams&                       \
-  fastuidraw::TransformationTranslationParams::                      \
-  name(type v)                                                       \
-  {                                                                  \
-    Params *d;                                                       \
-    assert(dynamic_cast<Params*>(m_data) != NULL);                   \
-    d = static_cast<Params*>(m_data);                                \
-    d->m_##name = v;                                                 \
-    return *this;                                                    \
-  }                                                                  \
-                                                                     \
-  type                                                               \
-  fastuidraw::TransformationTranslationParams::                      \
-  name(void) const                                                   \
-  {                                                                  \
-    Params *d;                                                       \
-    assert(dynamic_cast<Params*>(m_data) != NULL);                   \
-    d = static_cast<Params*>(m_data);                                \
-    return d->m_##name;                                              \
+#define set_get_implement(name, type)                                  \
+  fastuidraw::TransformationTranslationParams&                         \
+  fastuidraw::TransformationTranslationParams::                        \
+  name(type v)                                                         \
+  {                                                                    \
+    TTParams *d;                                                       \
+    assert(dynamic_cast<TTParams*>(m_data) != NULL);                   \
+    d = static_cast<TTParams*>(m_data);                                \
+    d->m_##name = v;                                                   \
+    return *this;                                                      \
+  }                                                                    \
+                                                                       \
+  type                                                                 \
+  fastuidraw::TransformationTranslationParams::                        \
+  name(void) const                                                     \
+  {                                                                    \
+    TTParams *d;                                                       \
+    assert(dynamic_cast<TTParams*>(m_data) != NULL);                   \
+    d = static_cast<TTParams*>(m_data);                                \
+    return d->m_##name;                                                \
   }
 
 set_get_implement(pos, const fastuidraw::vec2&)
