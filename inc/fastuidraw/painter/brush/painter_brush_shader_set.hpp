@@ -36,6 +36,48 @@ namespace fastuidraw
   {
   public:
     /*!
+      Enumeration to name a PainterBrushShader
+      within a PainterBrushShaderSet
+     */
+    enum effect_t
+      {
+        /*!
+          Modulate by a constant color value
+         */
+        color,
+
+        /*!
+          Modulate by a linear gradient
+         */
+        linear_gradient,
+
+        /*!
+          Modulate by a radial gradient
+         */
+        radial_gradient,
+
+        /*!
+          Modulate by an image
+         */
+        image,
+
+        /*!
+          Apply a repeat window to the brush position
+         */
+        repeat_window,
+
+        /*!
+          Apply a translation to the brush position
+         */
+        transformation_translation,
+
+        /*!
+          Apply a matrix to the brush position
+         */
+        transformation_matrix,
+      };
+
+    /*!
       Ctor
      */
     PainterBrushShaderSet(void);
@@ -54,90 +96,24 @@ namespace fastuidraw
     operator=(const PainterBrushShaderSet &rhs);
 
     /*!
-      The brush shader for performing composite with a constant color value.
+      Returns the PainterBrushShader for a brush effect type.
      */
     const reference_counted_ptr<PainterBrushShader>&
-    const_color(void) const;
+    shader(enum effect_t tp) const;
 
     /*!
-      Set the value returned by const_color(void) const.
+      Set the PainterBrushShader for a brush effect type.
      */
     PainterBrushShaderSet&
-    const_color(const reference_counted_ptr<PainterBrushShader> &sh);
-
-
-    /*!
-      The brush shader for performing linear gradient.
-     */
-    const reference_counted_ptr<PainterBrushShader>&
-    linear_gradient(void) const;
+    shader(enum effect_t tp, const reference_counted_ptr<PainterBrushShader> &sh);
 
     /*!
-      Set the value returned by linear_gradient(void) const.
+      Returns the one plus the largest value for which
+      shader(enum effect_t, const reference_counted_ptr<PainterBrushShader>&)
+      was called.
      */
-    PainterBrushShaderSet&
-    linear_gradient(const reference_counted_ptr<PainterBrushShader> &sh);
-
-    /*!
-      The brush shader for performing radial gradient.
-     */
-    const reference_counted_ptr<PainterBrushShader>&
-    radial_gradient(void) const;
-
-    /*!
-      Set the value returned by radial_gradient(void) const.
-     */
-    PainterBrushShaderSet&
-    radial_gradient(const reference_counted_ptr<PainterBrushShader> &sh);
-
-    /*!
-      The brush shader for performing composite with an image.
-     */
-    const reference_counted_ptr<PainterBrushShader>&
-    image(void) const;
-
-    /*!
-      Set the value returned by image(void) const.
-     */
-    PainterBrushShaderSet&
-    image(const reference_counted_ptr<PainterBrushShader> &sh);
-
-    /*!
-      The brush shader for performing a repeat window on the brush position.
-     */
-    const reference_counted_ptr<PainterBrushShader>&
-    repeat_window(void) const;
-
-    /*!
-      Set the value returned by repeat_window(void) const.
-     */
-    PainterBrushShaderSet&
-    repeat_window(const reference_counted_ptr<PainterBrushShader> &sh);
-
-    /*!
-      The brush shader for performing translation on the brush position.
-     */
-    const reference_counted_ptr<PainterBrushShader>&
-    transformation_translation(void) const;
-
-    /*!
-      Set the value returned by translation(void) const.
-     */
-    PainterBrushShaderSet&
-    transformation_translation(const reference_counted_ptr<PainterBrushShader> &sh);
-
-    /*!
-      The brush shader for performing a 2x2 matrix transformation
-      on the brush position.
-     */
-    const reference_counted_ptr<PainterBrushShader>&
-    transformation_matrix(void) const;
-
-    /*!
-      Set the value returned by (void) const.
-     */
-    PainterBrushShaderSet&
-    transformation_matrix(const reference_counted_ptr<PainterBrushShader> &sh);
+    unsigned int
+    shader_count(void) const;
 
   private:
     void *m_d;
