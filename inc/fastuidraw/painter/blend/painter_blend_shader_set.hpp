@@ -86,7 +86,9 @@ namespace fastuidraw
 
     /*!
       Returns the one plus the largest value for which
-      shader(enum PainterEnums::blend_mode_t, const reference_counted_ptr<PainterShader>&)
+      shader(enum PainterEnums::blend_mode_t,
+             const BlendMode&,
+             const reference_counted_ptr<PainterBlendShader>&)
       was called.
      */
     unsigned int
