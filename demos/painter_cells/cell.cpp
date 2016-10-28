@@ -147,9 +147,9 @@ paint_pre_children(const reference_counted_ptr<Painter> &painter)
   if(m_shared_state->m_draw_image)
     {
       vec2 wh;
-      if(m_image_brush.value().image())
+      if(m_image_brush.derived_value().m_image)
         {
-          wh = vec2(m_image_brush.value().image()->dimensions());
+          wh = vec2(m_image_brush.derived_value().m_image->dimensions());
         }
       else
         {

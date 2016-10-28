@@ -37,21 +37,20 @@ namespace
     uint64_t m_blend_mode;
   };
 
-  template<typename T>
-  const T&
-  fetch_value(const fastuidraw::PainterData::value<T> &obj)
+  const fastuidraw::PainterBrush::derived_value_type&
+  fetch_derived_value(const fastuidraw::PainterData::value<fastuidraw::PainterBrush> &obj)
   {
     if(obj.m_packed_value)
       {
-        return obj.m_packed_value.value();
+        return obj.m_packed_value.derived_value();
       }
 
     if(obj.m_value != NULL)
       {
-        return *obj.m_value;
+        return obj.m_value->derived_value();
       }
 
-    static T default_value;
+    static fastuidraw::PainterBrush::derived_value_type default_value;
     return default_value;
   }
 
@@ -652,16 +651,16 @@ pack_painter_state(const fastuidraw::PainterPackerData &state,
      not deleted until the draw command built is sent down to the 3D
      API.
    */
-  const fastuidraw::PainterBrush &brush(fetch_value(state.m_brush));
-  if(brush.image() && m_last_image != brush.image())
+  const fastuidraw::PainterBrush::derived_value_type &brush(fetch_derived_value(state.m_brush));
+  if(brush.m_image && m_last_image != brush.m_image)
     {
-      m_last_image = brush.image();
+      m_last_image = brush.m_image;
       m_images_active.push_back(m_last_image);
     }
 
-  if(brush.color_stops() && m_last_color_stop != brush.color_stops())
+  if(brush.m_color_stops && m_last_color_stop != brush.m_color_stops)
     {
-      m_last_color_stop = brush.color_stops();
+      m_last_color_stop = brush.m_color_stops;
       m_color_stops_active.push_back(m_last_color_stop);
     }
 }
@@ -1037,7 +1036,7 @@ draw_generic(const reference_counted_ptr<PainterItemShader> &shader,
           ++d->m_stats[num_headers];
           allocate_header = false;
           header_loc = cmd.pack_header(d->m_header_size,
-                                       fetch_value(draw.m_brush).shader(),
+                                       fetch_derived_value(draw.m_brush).m_shader,
                                        d->m_blend_shader,
                                        d->m_blend_mode,
                                        shader,
