@@ -39,7 +39,7 @@ namespace fastuidraw
  */
 
   /*!
-    (Private) base classe used for PainterPackedValue
+    (Private) base class used for PainterPackedValue
    */
   class PainterPackedValueBase
   {
@@ -116,17 +116,17 @@ namespace fastuidraw
 
   /*!
     A PainterPackedValue represents a handle to an object that stores
-    packed state data and tracks if that underlying data is already is
-    already copied to PainterDraw::m_store. If already
-    on a store, then rather than copying the data again, the data is
-    reused. The object behind the handle is NOT thread safe. In addition
-    the underlying reference count is not either. Hence any access
-    (even dtor, copy ctor and equality operator) on a fixed object cannot
-    be done from multiple threads simutaneously. A fixed
-    PainterPackedValue can be used by different Painter (and PainterPacker)
-    objects subject to the condition that the data store alignment (see
-    PainterPacker::Configuration::alignment()) is the same for each of these
-    objects.
+    packed state data and tracks if that underlying data is already
+    copied to PainterDraw::m_store. If already on a store, then rather
+    than copying the data again, the data is reused. The object behind
+    the handle is NOT thread safe. In addition, the underlying reference
+    count is not either. Hence any access (even dtor, copy ctor and
+    equality operator) on a fixed object cannot be done from multiple
+    threads simutaneously. A fixed PainterPackedValue can be used by
+    different Painter (and PainterPacker) objects subject to the condition
+    that the data store alignment (see
+    PainterPacker::Configuration::alignment()) is the same for each of
+    these objects.
    */
   template<typename T>
   class PainterPackedValue:PainterPackedValueBase
@@ -156,6 +156,7 @@ namespace fastuidraw
       const T *p;
       assert(this->m_d);
       assert(has_value());
+      assert(!has_derived_value());
       p = reinterpret_cast<const T*>(this->raw_value());
       return *p;
     }

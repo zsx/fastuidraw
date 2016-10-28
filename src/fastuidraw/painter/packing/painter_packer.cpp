@@ -1189,6 +1189,15 @@ register_shader(const reference_counted_ptr<PainterBlendShader> &shader)
 
 void
 fastuidraw::PainterPacker::
+register_shader(const reference_counted_ptr<PainterBrushShader> &shader)
+{
+  PainterPackerPrivate *d;
+  d = reinterpret_cast<PainterPackerPrivate*>(m_d);
+  d->m_backend->register_shader(shader);
+}
+
+void
+fastuidraw::PainterPacker::
 register_shader(const PainterStrokeShader &p)
 {
   PainterPackerPrivate *d;
@@ -1217,6 +1226,15 @@ register_shader(const PainterDashedStrokeShaderSet &p)
 void
 fastuidraw::PainterPacker::
 register_shader(const PainterGlyphShader &p)
+{
+  PainterPackerPrivate *d;
+  d = reinterpret_cast<PainterPackerPrivate*>(m_d);
+  d->m_backend->register_shader(p);
+}
+
+void
+fastuidraw::PainterPacker::
+register_shader(const PainterBrushShaderSet &p)
 {
   PainterPackerPrivate *d;
   d = reinterpret_cast<PainterPackerPrivate*>(m_d);
