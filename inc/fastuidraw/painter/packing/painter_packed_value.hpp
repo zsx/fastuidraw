@@ -98,13 +98,15 @@ namespace fastuidraw
     /*!
       Returns the value to which the handle points.
       If the handle is not-value, then asserts.
+      If T::packed_value_has_value is not true_type,
+      then asserts.
      */
     const T&
     value(void) const
     {
       const T *p;
-
       assert(this->m_d);
+      assert(typename T::packed_value_has_value());
       p = reinterpret_cast<const T*>(this->raw_value());
       return *p;
     }

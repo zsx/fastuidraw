@@ -56,6 +56,12 @@ namespace fastuidraw
   {
   public:
     /*!
+      Indicates that PainterPackedValue<PainterBrush> has
+      a copy of the value that generated it.
+     */
+    typedef true_type packed_value_has_value;
+
+    /*!
       Enumeration describing the roles of the bits for
       PainterBrush::shader().
      */

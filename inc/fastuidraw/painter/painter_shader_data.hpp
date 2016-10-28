@@ -42,6 +42,12 @@ namespace fastuidraw
   {
   public:
     /*!
+      Indicates that PainterPackedValue<PainterShaderData> does
+      NOT have a copy of the value that generated it.
+     */
+    typedef false_type packed_value_has_value;
+
+    /*!
       Class that holds the actual data and packs the data.
       A class derived from PainterShaderData should set the
       field \ref m_data to point to an object derived from
