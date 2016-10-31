@@ -1,6 +1,6 @@
 /*!
- * \file painter_shader_data.hpp
- * \brief file painter_shader_data.hpp
+ * \file painter_brush_shader_data.hpp
+ * \brief file painter_brush_shader_data.hpp
  *
  * Copyright 2016 by Intel.
  *
@@ -29,34 +29,22 @@ namespace fastuidraw
  */
 
   /*!
-    Common base class to PainterItemShaderData,
-    and PainterBlendShaderData to hold shader data for
-    custom shaders. Derived classes CANNOT add any data
-    or virtual functions. The class PainterShaderData is
-    essentially a wrapper over a PainterShaderData::DataBase
+    Base class to hold shader data for brush shaders.
+    Derived classes CANNOT add any data or virtual
+    functions. The class PainterBrushShaderData is
+    essentially a wrapper over a PainterBrushShaderData::DataBase
     object that handles holding data and copying itself
-    (for the purpose of copying PainterShaderData objects).
+    (for the purpose of copying PainterBrushShaderData
+    objects).
    */
-  class PainterShaderData
+  class PainterBrushShaderData
   {
   public:
     /*!
-      Indicates that PainterPackedValue<PainterShaderData> does
-      NOT have a copy of the value that generated it.
-     */
-    typedef false_type packed_value_has_value;
-
-    /*!
-      Indicates that PainterPackedValue<PainterShaderData> does
-      NOT have a derived value either.
-     */
-    typedef false_type packed_value_has_derived_value;
-
-    /*!
       Class that holds the actual data and packs the data.
-      A class derived from PainterShaderData should set the
-      field \ref m_data to point to an object derived from
-      DataBase for the purpose of holding and packing data.
+      A class derived from PainterBrushShaderData should set
+      the field \ref m_data to point to an object derived
+      from DataBase for the purpose of holding and packing data.
      */
     class DataBase
     {
@@ -98,24 +86,24 @@ namespace fastuidraw
     };
 
     /*!
-      Ctor. A derived class from PainterShaderData
+      Ctor. A derived class from PainterBrushShaderData
       should set \ref m_data.
      */
-    PainterShaderData(void);
+    PainterBrushShaderData(void);
 
     /*!
       Copy ctor, calls DataBase::copy() to
       copy the data behind \ref m_data.
      */
-    PainterShaderData(const PainterShaderData &obj);
+    PainterBrushShaderData(const PainterBrushShaderData &obj);
 
-    ~PainterShaderData();
+    ~PainterBrushShaderData();
 
     /*!
       Assignment operator
      */
-    PainterShaderData&
-    operator=(const PainterShaderData &rhs);
+    PainterBrushShaderData&
+    operator=(const PainterBrushShaderData &rhs);
 
     /*!
       Returns the length of the data needed to encode the data.
@@ -139,7 +127,7 @@ namespace fastuidraw
 
     /*!
       Returns a pointer to the underlying object holding
-      the data of the PainterShaderData.
+      the data of the PainterBrushShaderData.
      */
     const DataBase*
     data_base(void) const
@@ -149,8 +137,8 @@ namespace fastuidraw
 
   protected:
     /*!
-      Initialized as NULL by the ctor PainterShaderData(void).
-      A derived class of PainterShaderData should assign \ref
+      Initialized as NULL by the ctor PainterBrushShaderData(void).
+      A derived class of PainterBrushShaderData should assign \ref
       m_data to point to an object derived from DataBase.
       That object is the object that is to determine the
       size of data to pack and how to pack the data into
@@ -158,19 +146,6 @@ namespace fastuidraw
      */
     DataBase *m_data;
   };
-
-  /*!
-    PainterItemShaderData holds custom data for item shaders
-   */
-  class PainterItemShaderData:public PainterShaderData
-  {};
-
-  /*!
-    PainterBlendShaderData holds custom data for blend shaders
-   */
-  class PainterBlendShaderData:public PainterShaderData
-  {};
-
 /*! @} */
 
 } //namespace fastuidraw

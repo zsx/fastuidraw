@@ -21,7 +21,7 @@
 
 namespace
 {
-  class PParams:public fastuidraw::PainterShaderData::DataBase
+  class PParams:public fastuidraw::PainterBrushShaderData::DataBase
   {
   public:
     PParams(void):
@@ -29,7 +29,7 @@ namespace
     {}
 
     virtual
-    fastuidraw::PainterShaderData::DataBase*
+    fastuidraw::PainterBrushShaderData::DataBase*
     copy(void) const
     {
       return FASTUIDRAWnew PParams(*this);

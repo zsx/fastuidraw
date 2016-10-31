@@ -21,7 +21,7 @@
 
 namespace
 {
-  class LGParams:public fastuidraw::PainterShaderData::DataBase
+  class LGParams:public fastuidraw::PainterBrushShaderData::DataBase
   {
   public:
     LGParams(void):
@@ -32,7 +32,7 @@ namespace
     {}
 
     virtual
-    fastuidraw::PainterShaderData::DataBase*
+    fastuidraw::PainterBrushShaderData::DataBase*
     copy(void) const
     {
       return FASTUIDRAWnew LGParams(*this);

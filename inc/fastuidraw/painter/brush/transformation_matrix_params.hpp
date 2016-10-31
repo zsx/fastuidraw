@@ -21,7 +21,7 @@
 
 #include <fastuidraw/util/vecN.hpp>
 #include <fastuidraw/util/matrix.hpp>
-#include <fastuidraw/painter/painter_shader_data.hpp>
+#include <fastuidraw/painter/brush/painter_brush_shader_data.hpp>
 
 namespace fastuidraw
 {

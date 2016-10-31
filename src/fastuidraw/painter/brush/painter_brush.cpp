@@ -23,7 +23,7 @@ namespace
 {
   void
   data_size_helper(unsigned int *v, unsigned int alignment,
-                   const fastuidraw::PainterShaderData &data,
+                   const fastuidraw::PainterBrushShaderData &data,
                    uint32_t shader, uint32_t mask)
   {
     if(mask & shader)
@@ -34,7 +34,7 @@ namespace
 
   void
   pack_data_helper(unsigned int *current, fastuidraw::c_array<fastuidraw::generic_data> dst,
-                   unsigned int alignment, const fastuidraw::PainterShaderData &data,
+                   unsigned int alignment, const fastuidraw::PainterBrushShaderData &data,
                    uint32_t shader, uint32_t mask)
   {
     if(mask & shader)

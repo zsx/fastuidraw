@@ -21,7 +21,7 @@
 
 namespace
 {
-  class RGParams:public fastuidraw::PainterShaderData::DataBase
+  class RGParams:public fastuidraw::PainterBrushShaderData::DataBase
   {
   public:
     RGParams(void):
@@ -34,7 +34,7 @@ namespace
     {}
 
     virtual
-    fastuidraw::PainterShaderData::DataBase*
+    fastuidraw::PainterBrushShaderData::DataBase*
     copy(void) const
     {
       return FASTUIDRAWnew RGParams(*this);
