@@ -20,7 +20,7 @@
 #include <fastuidraw/painter/brush/repeat_window_params.hpp>
 namespace
 {
-  class RWParams:public fastuidraw::PainterShaderData::DataBase
+  class RWParams:public fastuidraw::PainterBrushShaderData::DataBase
   {
   public:
     RWParams(void):
@@ -29,7 +29,7 @@ namespace
     {}
 
     virtual
-    fastuidraw::PainterShaderData::DataBase*
+    fastuidraw::PainterBrushShaderData::DataBase*
     copy(void) const
     {
       return FASTUIDRAWnew RWParams(*this);

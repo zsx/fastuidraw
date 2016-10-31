@@ -21,7 +21,7 @@
 
 namespace
 {
-  class TTParams:public fastuidraw::PainterShaderData::DataBase
+  class TTParams:public fastuidraw::PainterBrushShaderData::DataBase
   {
   public:
     TTParams(void):
@@ -29,7 +29,7 @@ namespace
     {}
 
     virtual
-    fastuidraw::PainterShaderData::DataBase*
+    fastuidraw::PainterBrushShaderData::DataBase*
     copy(void) const
     {
       return FASTUIDRAWnew TTParams(*this);
