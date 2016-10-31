@@ -497,10 +497,6 @@ namespace
 
     unsigned int m_store_blocks_written;
     unsigned int m_alignment;
-    fastuidraw::reference_counted_ptr<const fastuidraw::Image> m_last_image;
-    fastuidraw::reference_counted_ptr<const fastuidraw::ColorStopSequenceOnAtlas> m_last_color_stop;
-    std::list<fastuidraw::reference_counted_ptr<const fastuidraw::Image> > m_images_active;
-    std::list<fastuidraw::reference_counted_ptr<const fastuidraw::ColorStopSequenceOnAtlas> > m_color_stops_active;
 
     uint32_t m_brush_shader_mask;
     PainterShaderGroupPrivate m_prev_state;
@@ -645,24 +641,6 @@ pack_painter_state(const fastuidraw::PainterPackerData &state,
   pack_state_data(p, state.m_item_shader_data, out_data.m_item_shader_data_loc);
   pack_state_data(p, state.m_blend_shader_data, out_data.m_blend_shader_data_loc);
   pack_state_data(p, state.m_brush, out_data.m_brush_shader_data_loc);
-
-  /* We save a handle to the image and colorstop used by the brush,
-     to make sure the Image and ColorStopSequenceOnAtlas objects are
-     not deleted until the draw command built is sent down to the 3D
-     API.
-   */
-  const fastuidraw::PainterBrush::derived_value_type &brush(fetch_derived_value(state.m_brush));
-  if(brush.m_image && m_last_image != brush.m_image)
-    {
-      m_last_image = brush.m_image;
-      m_images_active.push_back(m_last_image);
-    }
-
-  if(brush.m_color_stops && m_last_color_stop != brush.m_color_stops)
-    {
-      m_last_color_stop = brush.m_color_stops;
-      m_color_stops_active.push_back(m_last_color_stop);
-    }
 }
 
 unsigned int
@@ -864,6 +842,7 @@ begin(void)
 
   assert(d->m_accumulated_draws.empty());
   std::fill(d->m_stats.begin(), d->m_stats.end(), 0u);
+  d->m_backend->image_atlas()->delay_tile_freeing();
   d->start_new_command();
   ++d->m_number_begins;
 }
@@ -919,7 +898,11 @@ void
 fastuidraw::PainterPacker::
 end(void)
 {
+  PainterPackerPrivate *d;
+  d = reinterpret_cast<PainterPackerPrivate*>(m_d);
+
   flush();
+  d->m_backend->image_atlas()->undelay_tile_freeing();
 }
 
 void
