@@ -39,6 +39,21 @@ namespace
     }
 
     virtual
+    fastuidraw::const_c_array<ColorStopSequenceOnAtlasRef>
+    color_stops(void) const
+    {
+      if(m_color_stop_sequence)
+        {
+          fastuidraw::const_c_array<ColorStopSequenceOnAtlasRef> R(&m_color_stop_sequence, 1);
+          return R;
+        }
+      else
+        {
+          return fastuidraw::const_c_array<ColorStopSequenceOnAtlasRef>();
+        }
+    }
+
+    virtual
     unsigned int
     data_size(unsigned int alignment) const
     {
