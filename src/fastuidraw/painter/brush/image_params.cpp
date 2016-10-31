@@ -38,6 +38,21 @@ namespace
     }
 
     virtual
+    fastuidraw::const_c_array<ImageRef>
+    images(void) const
+    {
+      if(m_image)
+        {
+          fastuidraw::const_c_array<ImageRef> R(&m_image, 1);
+          return R;
+        }
+      else
+        {
+          return fastuidraw::const_c_array<ImageRef>();
+        }
+    }
+
+    virtual
     unsigned int
     data_size(unsigned int alignment) const
     {

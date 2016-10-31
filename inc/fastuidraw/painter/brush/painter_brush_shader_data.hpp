@@ -21,6 +21,8 @@
 
 #include <fastuidraw/util/c_array.hpp>
 #include <fastuidraw/util/util.hpp>
+#include <fastuidraw/image.hpp>
+#include <fastuidraw/colorstop_atlas.hpp>
 
 namespace fastuidraw
 {
@@ -49,6 +51,16 @@ namespace fastuidraw
     class DataBase
     {
     public:
+      /*!
+        Convenience typedef to avoid typing so much.
+       */
+      typedef reference_counted_ptr<const Image> ImageRef;
+
+      /*!
+        Convenience typedef to avoid typing so much.
+       */
+      typedef reference_counted_ptr<const ColorStopSequenceOnAtlas> ColorStopSequenceOnAtlasRef;
+
       virtual
       ~DataBase()
       {}
@@ -60,6 +72,32 @@ namespace fastuidraw
       virtual
       DataBase*
       copy(void) const = 0;
+
+      /*!
+        To be optionally implemented by a derived class
+        to return an array of references to those Image
+        objects used in shading. Default implementation
+        is to return an empty array.
+       */
+      virtual
+      const_c_array<ImageRef>
+      images(void) const
+      {
+        return const_c_array<ImageRef>();
+      }
+
+      /*!
+        To be optionally implemented by a derived class
+        to return an array of references to those
+        ColorStopSquenceOnAtlas objects used in shading.
+        Default implementation is to return an empty array.
+       */
+      virtual
+      const_c_array<ColorStopSequenceOnAtlasRef>
+      color_stops(void) const
+      {
+        return const_c_array<ColorStopSequenceOnAtlasRef>();
+      }
 
       /*!
         To be implemented by a derived class to return
