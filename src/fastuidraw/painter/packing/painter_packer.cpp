@@ -1019,7 +1019,7 @@ draw_generic(const reference_counted_ptr<PainterItemShader> &shader,
           ++d->m_stats[num_headers];
           allocate_header = false;
           header_loc = cmd.pack_header(d->m_header_size,
-                                       fetch_derived_value(draw.m_brush).m_shader,
+                                       fetch_derived_value(draw.m_brush).shader(),
                                        d->m_blend_shader,
                                        d->m_blend_mode,
                                        shader,
