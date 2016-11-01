@@ -74,13 +74,25 @@ namespace fastuidraw
     class derived_value_type
     {
     public:
-      derived_value_type(void):
-        m_shader(0u)
-      {}
+      derived_value_type(void);
+      derived_value_type(const derived_value_type &obj);
+      ~derived_value_type();
 
-      uint32_t m_shader;
-      reference_counted_ptr<const Image> m_image;
-      reference_counted_ptr<const ColorStopSequenceOnAtlas> m_color_stops;
+      derived_value_type&
+      operator=(const derived_value_type &rhs);
+
+      uint32_t
+      shader(void) const;
+
+      const reference_counted_ptr<const Image>&
+      image(void) const;
+
+      const reference_counted_ptr<const ColorStopSequenceOnAtlas>&
+      colorstops(void) const;
+
+    private:
+      friend class PainterBrush;
+      void *m_d;
     };
 
     /*!
@@ -234,11 +246,7 @@ namespace fastuidraw
       Reset the brush to initial conditions.
      */
     PainterBrush&
-    reset(void)
-    {
-      m_derived_value.m_shader = 0u;
-      return pen(1.0f, 1.0f, 1.0f, 1.0f);
-    }
+    reset(void);
 
     /*!
       Set the color to the pen, default value is (1.0, 1.0, 1.0, 1.0).
@@ -268,13 +276,7 @@ namespace fastuidraw
      */
     PainterBrush&
     image(const reference_counted_ptr<const Image> &im,
-          enum ImageParams::filter_t f = ImageParams::filter_nearest)
-    {
-      m_image.image(im, f);
-      m_derived_value.m_shader = apply_bit_flag(m_derived_value.m_shader, im, image_mask);
-      m_derived_value.m_image = im;
-      return *this;
-    }
+          enum ImageParams::filter_t f = ImageParams::filter_nearest);
 
     /*!
       Set the brush to source from a sub-rectangle of an image
@@ -286,13 +288,7 @@ namespace fastuidraw
      */
     PainterBrush&
     sub_image(const reference_counted_ptr<const Image> &im, uvec2 xy, uvec2 wh,
-              enum ImageParams::filter_t f = ImageParams::filter_nearest)
-    {
-      m_image.sub_image(im, xy, wh, f);
-      m_derived_value.m_shader = apply_bit_flag(m_derived_value.m_shader, im, image_mask);
-      m_derived_value.m_image = im;
-      return *this;
-    }
+              enum ImageParams::filter_t f = ImageParams::filter_nearest);
 
     /*!
       Sets the brush to not have an image.
@@ -314,23 +310,7 @@ namespace fastuidraw
      */
     PainterBrush&
     linear_gradient(const reference_counted_ptr<const ColorStopSequenceOnAtlas> &cs,
-                    const vec2 &start_p, const vec2 &end_p, bool repeat)
-    {
-      uint32_t flags;
-
-      flags = repeat ? uint32_t(LinearGradientParams::repeat_gradient_mask) : 0u;
-      m_linear_gradient
-        .start_pt(start_p)
-        .end_pt(end_p)
-        .color_stop_sequence(cs)
-        .flags(flags);
-      m_derived_value.m_shader = apply_bit_flag(m_derived_value.m_shader, cs, linear_gradient_mask);
-      m_derived_value.m_shader = apply_bit_flag(m_derived_value.m_shader, false, radial_gradient_mask);
-      m_derived_value.m_shader = apply_bit_flag(m_derived_value.m_shader, cs && repeat, repeat_gradient_mask);
-      m_derived_value.m_color_stops = cs;
-      return *this;
-    }
-
+                    const vec2 &start_p, const vec2 &end_p, bool repeat);
     /*!
       Sets the brush to have a radial gradient.
       \param cs color stops for gradient. If handle is invalid,
@@ -345,58 +325,27 @@ namespace fastuidraw
     PainterBrush&
     radial_gradient(const reference_counted_ptr<const ColorStopSequenceOnAtlas> &cs,
                     const vec2 &start_p, float start_r,
-                    const vec2 &end_p, float end_r, bool repeat)
-    {
-      uint32_t flags;
-
-      flags = repeat ? uint32_t(RadialGradientParams::repeat_gradient_mask) : 0u;
-      m_radial_gradient
-        .start_pt(start_p)
-        .start_r(start_r)
-        .end_pt(end_p)
-        .end_r(end_r)
-        .color_stop_sequence(cs)
-        .flags(flags);
-      m_derived_value.m_shader = apply_bit_flag(m_derived_value.m_shader, cs, radial_gradient_mask);
-      m_derived_value.m_shader = apply_bit_flag(m_derived_value.m_shader, false, linear_gradient_mask);
-      m_derived_value.m_shader = apply_bit_flag(m_derived_value.m_shader, cs && repeat, repeat_gradient_mask);
-      m_derived_value.m_color_stops = cs;
-      return *this;
-    }
+                    const vec2 &end_p, float end_r, bool repeat);
 
     /*!
       Sets the brush to not have a gradient.
      */
     PainterBrush&
-    no_gradient(void)
-    {
-      m_derived_value.m_shader &= ~(linear_gradient_mask | radial_gradient_mask | repeat_gradient_mask);
-      return *this;
-    }
+    no_gradient(void);
 
     /*!
       Sets the brush to have a translation in its transformation.
       \param p translation value for brush transformation
      */
     PainterBrush&
-    transformation_translate(const vec2 &p)
-    {
-      m_translation.pos(p);
-      m_derived_value.m_shader |= transformation_translation_mask;
-      return *this;
-    }
+    transformation_translate(const vec2 &p);
 
     /*!
       Sets the brush to have a matrix in its transformation.
       \param m matrix value for brush transformation
      */
     PainterBrush&
-    transformation_matrix(const float2x2 &m)
-    {
-      m_matrix.matrix(m);
-      m_derived_value.m_shader |= transformation_matrix_mask;
-      return *this;
-    }
+    transformation_matrix(const float2x2 &m);
 
     /*!
       Sets the brush to have a matrix and translation in its
@@ -416,21 +365,13 @@ namespace fastuidraw
       Sets the brush to have no translation in its transformation.
      */
     PainterBrush&
-    no_transformation_translation(void)
-    {
-      m_derived_value.m_shader &= ~transformation_translation_mask;
-      return *this;
-    }
+    no_transformation_translation(void);
 
     /*!
       Sets the brush to have no matrix in its transformation.
      */
     PainterBrush&
-    no_transformation_matrix(void)
-    {
-      m_derived_value.m_shader &= ~transformation_matrix_mask;
-      return *this;
-    }
+    no_transformation_matrix(void);
 
     /*!
       Sets the brush to have no transformation.
@@ -449,25 +390,13 @@ namespace fastuidraw
       \param size of repeat window
      */
     PainterBrush&
-    repeat_window(const vec2 &pos, const vec2 &size)
-    {
-      m_repeat_window
-        .pos(pos)
-        .size(size);
-
-      m_derived_value.m_shader |= repeat_window_mask;
-      return *this;
-    }
+    repeat_window(const vec2 &pos, const vec2 &size);
 
     /*!
       Sets the brush to not have a repeat window
      */
     PainterBrush&
-    no_repeat_window(void)
-    {
-      m_derived_value.m_shader &= ~repeat_window_mask;
-      return *this;
-    }
+    no_repeat_window(void);
 
     /*!
       Returns the length of the data needed to encode the brush.
@@ -516,10 +445,7 @@ namespace fastuidraw
         2x2 matrix is applied to the brush.
      */
     uint32_t
-    shader(void) const
-    {
-      return m_derived_value.m_shader;
-    }
+    shader(void) const;
 
     /*!
       Returns the derived values stored by PainterPackedValue<PainterBrush>
