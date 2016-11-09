@@ -588,6 +588,7 @@ stream_brush_shader_runner(ShaderSource &frag, unsigned int alignment)
       << "\tvec4 return_value;\n"
       << "\tuint shader_loc;\n"
       << "\tshader_loc = shader_data;\n"
+      << "\tshader_data = shaders_end;\n"
       << "\tp = vec2(fastuidraw_brush_p_x, fastuidraw_brush_p_y);\n"
       << "\treturn_value = vec4(1.0, 1.0, 1.0, 1.0);\n";
 

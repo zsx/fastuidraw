@@ -81,7 +81,7 @@ namespace
           r = 1.0f / static_cast<float>(d);
 
           dst[LinearGradientParams::color_stop_sequence_x_offset].f = r * static_cast<float>(m_color_stop_sequence->texel_location().x());
-          dst[LinearGradientParams::color_stop_sequence_y_offset].f = r * static_cast<float>(m_color_stop_sequence->texel_location().y());
+          dst[LinearGradientParams::color_stop_sequence_y_offset].f = static_cast<float>(m_color_stop_sequence->texel_location().y());
           dst[LinearGradientParams::color_stop_sequence_width_offset].f = r * static_cast<float>(m_color_stop_sequence->width());
         }
       else
