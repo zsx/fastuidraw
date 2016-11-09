@@ -16,6 +16,8 @@ fastuidraw_gl_brush_main(in uint sub_shader,
   c = dot(q, q) - radial_gradient.start_r * radial_gradient.start_r;
   b = 2.0 * (dot(q, delta_p) - radial_gradient.start_r * delta_r);
   a = dot(delta_p, delta_p) - delta_r * delta_r;
+
+  desc = b * b - 4.0 * a * c;
   if(desc < 0.0)
     {
       color = vec4(0.0, 0.0, 0.0, 0.0);
