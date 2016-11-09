@@ -1156,8 +1156,6 @@ draw_frame(void)
       st.width(2.0f);
 
       PainterBrush stroke_pen;
-      stroke_pen.pen(1.0f, 1.0f, 1.0f, 1.0f);
-
       m_painter->stroke_path(PainterData(&stroke_pen, &st),
                              m_grid_path,
                              false, PainterEnums::flat_caps, PainterEnums::no_joins,
@@ -1195,8 +1193,8 @@ draw_frame(void)
         }
 
       PainterBrush white;
-      white.pen(1.0f, 1.0f, 1.0f, 1.0f);
       PainterStrokeParams st;
+
       st.miter_limit(-1.0f);
       st.width(4.0f);
       m_painter->save();
@@ -1213,59 +1211,49 @@ draw_frame(void)
     {
       PainterBrush fill_brush;
 
-      fill_brush.pen(1.0f, 1.0f, 1.0f, 1.0f);
-      if(m_translate_brush)
-        {
-          fill_brush.transformation_translate(m_zoomer.transformation().translation());
-        }
-      else
-        {
-          fill_brush.no_transformation_translation();
-        }
-
       if(m_matrix_brush)
         {
+          TransformationMatrixParams tr;
           float2x2 m;
           m(0, 0) = m(1, 1) = m_zoomer.transformation().scale();
-          fill_brush.transformation_matrix(m);
+          tr.matrix(m);
+          fill_brush.add_brush_stage(tr);
         }
-      else
+
+      if(m_translate_brush)
         {
-          fill_brush.no_transformation_matrix();
+          TransformationTranslationParams tr;
+          tr.pos(m_zoomer.transformation().translation());
+          fill_brush.add_brush_stage(tr);
         }
 
       if(m_repeat_window)
         {
-          fill_brush.repeat_window(m_repeat_xy, m_repeat_wh);
-        }
-      else
-        {
-          fill_brush.no_repeat_window();
+          fill_brush.add_brush_stage(RepeatWindowParams()
+                                     .pos(m_repeat_xy)
+                                     .size(m_repeat_wh));
         }
 
       if(m_gradient_draw_mode == draw_linear_gradient)
         {
-          fill_brush.linear_gradient(m_color_stops[m_active_color_stop].second,
-                                     m_gradient_p0, m_gradient_p1, m_repeat_gradient);
+          fill_brush.add_brush_stage(LinearGradientParams()
+                                     .start_pt(m_gradient_p0)
+                                     .end_pt(m_gradient_p1)
+                                     .color_stop_sequence(m_color_stops[m_active_color_stop].second)
+                                     .flags(m_repeat_gradient ? LinearGradientParams::repeat_gradient_mask : 0u));
         }
       else if(m_gradient_draw_mode == draw_radial_gradient)
         {
-          fill_brush.radial_gradient(m_color_stops[m_active_color_stop].second,
-                                     m_gradient_p0, m_gradient_r0,
-                                     m_gradient_p1, m_gradient_r1,
-                                     m_repeat_gradient);
-        }
-      else
-        {
-          fill_brush.no_gradient();
+          fill_brush.add_brush_stage(RadialGradientParams()
+                                     .start_pt(m_gradient_p0)
+                                     .start_r(m_gradient_r0)
+                                     .end_pt(m_gradient_p1)
+                                     .end_r(m_gradient_r1)
+                                     .color_stop_sequence(m_color_stops[m_active_color_stop].second)
+                                     .flags(m_repeat_gradient ? RadialGradientParams::repeat_gradient_mask : 0u));
         }
 
-
-      if(!m_image || m_image_filter == no_image)
-        {
-          fill_brush.no_image();
-        }
-      else
+      if(m_image && m_image_filter != no_image)
         {
           enum ImageParams::filter_t f;
           switch(m_image_filter)
@@ -1283,7 +1271,8 @@ draw_frame(void)
               assert(!"Incorrect value for m_image_filter!");
               f = ImageParams::filter_nearest;
             }
-          fill_brush.sub_image(m_image, m_image_offset, m_image_size, f);
+          fill_brush.add_brush_stage(ImageParams()
+                                     .sub_image(m_image, m_image_offset, m_image_size, f));
         }
 
       if(m_fill_rule < PainterEnums::fill_rule_data_count)
@@ -1328,7 +1317,9 @@ draw_frame(void)
 
   if(!m_transparent_blue_pen)
     {
-      m_transparent_blue_pen = m_painter->packed_value_pool().create_packed_value(PainterBrush().pen(1.0f, 1.0f, 1.0f, 0.5f));
+      PainterBrush brush;
+      brush.add_brush_stage(PenParams().color(1.0f, 1.0f, 1.0f, 0.5f));
+      m_transparent_blue_pen = m_painter->packed_value_pool().create_packed_value(brush);
     }
 
   if(m_stroke_width > 0.0f)
@@ -1428,8 +1419,9 @@ draw_frame(void)
       if(!m_black_pen)
         {
           assert(!m_white_pen);
-          m_white_pen = m_painter->packed_value_pool().create_packed_value(PainterBrush().pen(1.0, 1.0, 1.0, 1.0));
-          m_black_pen = m_painter->packed_value_pool().create_packed_value(PainterBrush().pen(0.0, 0.0, 0.0, 1.0));
+          m_white_pen = m_painter->packed_value_pool().create_packed_value(PainterBrush());
+          m_black_pen = m_painter->packed_value_pool().create_packed_value(PainterBrush().
+                                                                           add_brush_stage(PenParams().color(0.0, 0.0, 0.0, 1.0)));
         }
 
       m_painter->draw_rect(PainterData(m_black_pen), p0 - vec2(r1) * 0.5, vec2(r1));
@@ -1453,7 +1445,7 @@ draw_frame(void)
            << "\n";
 
       PainterBrush brush;
-      brush.pen(0.0f, 1.0f, 1.0f, 1.0f);
+      brush.add_brush_stage(PenParams().color(0.0f, 1.0f, 1.0f, 1.0f));
       draw_text(ostr.str(), 32.0f, m_font, GlyphRender(curve_pair_glyph), PainterData(&brush));
     }
 
