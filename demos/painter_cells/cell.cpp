@@ -37,6 +37,7 @@ Cell(PainterWidget *p, const CellParams &params):
   m_first_frame(true),
   m_thousandths_degrees_rotation(0),
   m_thousandths_degrees_cell_rotation(0),
+  m_image_size(params.m_image_size),
   m_pixels_per_ms(params.m_pixels_per_ms),
   m_degrees_per_s(params.m_degrees_per_s),
   m_background_brush(params.m_background_brush),
@@ -146,18 +147,9 @@ paint_pre_children(const reference_counted_ptr<Painter> &painter)
 
   if(m_shared_state->m_draw_image)
     {
-      vec2 wh;
-      if(m_image_brush.derived_value().image())
-        {
-          wh = vec2(m_image_brush.derived_value().image()->dimensions());
-        }
-      else
-        {
-          wh = vec2(m_dimensions) * 0.25f;
-        }
-      painter->translate(-wh * 0.5f);
-      painter->draw_rect(PainterData(m_image_brush), vec2(0.0, 0.0), wh);
-      painter->translate(wh * 0.5f);
+      painter->translate(-m_image_size * 0.5f);
+      painter->draw_rect(PainterData(m_image_brush), vec2(0.0, 0.0), m_image_size);
+      painter->translate(m_image_size * 0.5f);
     }
 
   if(m_shared_state->m_draw_text)

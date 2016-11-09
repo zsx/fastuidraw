@@ -51,6 +51,7 @@ public:
   GlyphRender m_text_render;
   float m_pixel_size;
   vec2 m_size;
+  vec2 m_image_size;
   ivec2 m_table_pos;
   bool m_timer_based_animation;
   CellSharedState *m_state;
@@ -80,6 +81,7 @@ private:
   int m_thousandths_degrees_cell_rotation;
 
   vec2 m_table_pos;
+  vec2 m_image_size;
 
   vec2 m_pixels_per_ms;
   int m_degrees_per_s;
