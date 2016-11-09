@@ -631,6 +631,11 @@ stream_brush_shader_runner(ShaderSource &frag, unsigned int alignment)
 
       for(unsigned int i = 0; i < alignment; ++i)
         {
+          if(i != 0)
+            {
+              str << "\t\tif(shader_vec." << components[i] << " != 0u)\n"
+                  << "\t";
+            }
           str << "\t\tfastuidraw_run_brush_shader(shader_vec." << components[i]
               << ", shader_data, p, return_value);\n";
         }
