@@ -67,22 +67,6 @@ namespace fastuidraw
       operator=(const ConfigurationBase &obj);
 
       /*!
-        Bits that are up in brush_shader_mask(void) that change
-        in PainterBrush::shader() trigger a call to
-        PainterDraw::draw_break().
-      */
-      uint32_t
-      brush_shader_mask(void) const;
-
-      /*!
-        Specify the value returned by brush_shader_mask(void) const,
-        default value is 0
-        \param v value
-       */
-      ConfigurationBase&
-      brush_shader_mask(uint32_t v);
-
-      /*!
         Specifies the alignment in units of generic_data for
         packing of seperately accessible entries of generic data
         in PainterDraw::m_store.

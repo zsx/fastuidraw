@@ -20,6 +20,18 @@
 #include <fastuidraw/painter/brush/painter_brush_shader_data.hpp>
 #include <fastuidraw/util/fastuidraw_memory.hpp>
 
+////////////////////////////////////////////////////////
+// fastuidraw::PainterBrushShaderData::DataBase methods
+void
+fastuidraw::PainterBrushShaderData::DataBase::
+mark_dirty(void)
+{
+  if(m_dirty_ptr != NULL)
+    {
+      *m_dirty_ptr = true;
+    }
+}
+
 //////////////////////////////////////////////
 // fastuidraw::PainterBrushShaderData methods
 fastuidraw::PainterBrushShaderData::
@@ -87,4 +99,32 @@ data_size(unsigned int alignment) const
   return m_data ?
     m_data->data_size(alignment) :
     0;
+}
+
+fastuidraw::const_c_array<fastuidraw::PainterBrushShaderData::ImageRef>
+fastuidraw::PainterBrushShaderData::
+images(void) const
+{
+  return m_data ?
+    m_data->images() :
+    const_c_array<ImageRef>();
+}
+
+fastuidraw::const_c_array<fastuidraw::PainterBrushShaderData::ColorStopSequenceOnAtlasRef>
+fastuidraw::PainterBrushShaderData::
+color_stops(void) const
+{
+  return m_data ?
+    m_data->color_stops() :
+    const_c_array<ColorStopSequenceOnAtlasRef>();
+}
+
+void
+fastuidraw::PainterBrushShaderData::
+dirty_marker(bool *p)
+{
+  if(m_data != NULL)
+    {
+      m_data->m_dirty_ptr = p;
+    }
 }

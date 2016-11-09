@@ -582,10 +582,12 @@ stream_brush_shader_runner(ShaderSource &frag, unsigned int alignment)
 
   assert(1u <= alignment && alignment <= 4u);
   str << "vec4\n"
-      << "fastuidraw_compute_brush_color(in uint shader_loc, in uint shader_data)\n"
+      << "fastuidraw_compute_brush_color(in uint shader_data, in uint shaders_end)\n"
       << "{\n"
       << "\tvec2 p;\n"
       << "\tvec4 return_value;\n"
+      << "\tuint shader_loc;\n"
+      << "\tshader_loc = shader_data;\n"
       << "\tp = vec2(fastuidraw_brush_p_x, fastuidraw_brush_p_y);\n"
       << "\treturn_value = vec4(1.0, 1.0, 1.0, 1.0);\n";
 
@@ -593,7 +595,7 @@ stream_brush_shader_runner(ShaderSource &frag, unsigned int alignment)
     {
       str << "\tuint shader;\n"
           << "\tshader = fastuidraw_fetch_data(int(shader_loc)).x;\n"
-          << "\twhile(shader != 0u)\n"
+          << "\twhile(shader != 0u && shader_loc < shaders_end)\n"
           << "\t{\n"
           << "\t\tfastuidraw_run_brush_shader(shader, shader_data, p, return_value);\n"
           << "\t\t++shader_loc;\n"
@@ -623,7 +625,7 @@ stream_brush_shader_runner(ShaderSource &frag, unsigned int alignment)
 
       str << "\t" << uvec_type << " shader_vec;\n"
           << "\tshader_vec = fastuidraw_fetch_data(int(shader_loc))." << components << ";\n"
-          << "\twhile(shader_vec.x != 0u)\n"
+          << "\twhile(shader_vec.x != 0u && shader_loc < shaders_end)\n"
           << "\t{\n";
 
       for(unsigned int i = 0; i < alignment; ++i)

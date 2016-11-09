@@ -878,12 +878,13 @@ PainterPrivate(fastuidraw::reference_counted_ptr<fastuidraw::PainterBackend> bac
   m_resolution(1.0f, 1.0f),
   m_one_pixel_width(1.0f, 1.0f),
   m_curve_flatness(1.0f),
-  m_pool(backend->configuration_base().alignment())
+  m_pool(backend->default_shaders(),
+         backend->configuration_base().alignment())
 {
   m_core = FASTUIDRAWnew fastuidraw::PainterPacker(backend);
   m_reset_brush = m_pool.create_packed_value(fastuidraw::PainterBrush());
   m_black_brush = m_pool.create_packed_value(fastuidraw::PainterBrush()
-                                             .pen(0.0f, 0.0f, 0.0f, 0.0f));
+                                             .add_brush_stage(fastuidraw::PenParams().color(0.0f, 0.0f, 0.0f, 0.0f)));
   m_identiy_matrix = m_pool.create_packed_value(fastuidraw::PainterItemMatrix());
   m_current_z = 1;
 }

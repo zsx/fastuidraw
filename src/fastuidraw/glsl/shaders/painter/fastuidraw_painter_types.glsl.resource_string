@@ -7,7 +7,7 @@ struct fastuidraw_shader_header
   uint brush_shader_data_location;
   uint item_shader_data_location;
   uint blend_shader_data_location;
-  uint brush_shader;
+  uint brush_shaders_end;
   uint z;
   uint item_blend_shader_packed;
 

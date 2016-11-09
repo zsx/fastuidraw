@@ -3,6 +3,8 @@
   uint fastuidraw_frag_shader_data_location;
   uint fastuidraw_blend_shader;
   uint fastuidraw_blend_shader_data_location;
+  uint fastuidraw_brush_shader_data_location;
+  uint fastuidraw_brush_shaders_end;
 #endif
 
 #ifdef FASTUIDRAW_PAINTER_BLEND_DUAL_SRC_BLEND
@@ -73,16 +75,14 @@ main(void)
       fastuidraw_frag_shader_data_location = h.item_shader_data_location;
       fastuidraw_blend_shader = h.blend_shader;
       fastuidraw_blend_shader_data_location = h.blend_shader_data_location;
-
-      uint brush_data_loc;
-      brush_data_loc = h.brush_shader_data_location;
-      fastuidraw_painter_brush_unpack_values(h.brush_shader, brush_data_loc);
+      fastuidraw_brush_shader_data_location = h.brush_shader_data_location;
+      fastuidraw_brush_shaders_end = h.brush_shaders_end;
     }
   #endif
 
-  fastuidraw_brush_position = vec2(fastuidraw_brush_p_x, fastuidraw_brush_p_y);
   c = fastuidraw_run_frag_shader(fastuidraw_frag_shader, fastuidraw_frag_shader_data_location);
-  b = fastuidraw_compute_brush_color();
+  b = fastuidraw_compute_brush_color(fastuidraw_brush_shader_data_location,
+                                     fastuidraw_brush_shaders_end);
   v = b * c;
   v.rgb *= v.a;
 
