@@ -83,7 +83,7 @@ namespace
           r = 1.0f / static_cast<float>(d);
 
           dst[fastuidraw::RadialGradientParams::color_stop_sequence_x_offset].f = r * static_cast<float>(m_color_stop_sequence->texel_location().x());
-          dst[fastuidraw::RadialGradientParams::color_stop_sequence_y_offset].f = r * static_cast<float>(m_color_stop_sequence->texel_location().y());
+          dst[fastuidraw::RadialGradientParams::color_stop_sequence_y_offset].f = static_cast<float>(m_color_stop_sequence->texel_location().y());
           dst[fastuidraw::RadialGradientParams::color_stop_sequence_width_offset].f = r * static_cast<float>(m_color_stop_sequence->width());
         }
       else

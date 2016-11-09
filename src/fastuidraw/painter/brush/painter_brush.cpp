@@ -234,10 +234,6 @@ pack_data(const PainterBrushShaderSet &shader_set,
         }
       else
         {
-          /* TODO: gracefully handle if shader_set does
-             not have the named shader for the named
-             effect.
-           */
           dst_shaders[i].u = shader_set.shader(d->m_stages[i].m_effect)->ID();
         }
     }

@@ -114,7 +114,7 @@ ImageParams(void)
   m_data = FASTUIDRAWnew IParams();
 }
 
-void
+fastuidraw::ImageParams&
 fastuidraw::ImageParams::
 image(const reference_counted_ptr<const Image> &im, enum filter_t f)
 {
@@ -126,9 +126,10 @@ image(const reference_counted_ptr<const Image> &im, enum filter_t f)
     {
       sub_image(im, uvec2(0,0), uvec2(1u, 1u), f);
     }
+  return *this;
 }
 
-void
+fastuidraw::ImageParams&
 fastuidraw::ImageParams::
 sub_image(const reference_counted_ptr<const Image> &im,
           uvec2 xy, uvec2 wh, enum filter_t f)
@@ -140,16 +141,7 @@ sub_image(const reference_counted_ptr<const Image> &im,
   d->m_image_start = xy;
   d->m_image_size = wh;
   d->m_filter = f;
-}
-
-const fastuidraw::reference_counted_ptr<const fastuidraw::Image>&
-fastuidraw::ImageParams::
-image(void) const
-{
-  IParams *d;
-  assert(dynamic_cast<IParams*>(m_data) != NULL);
-  d = static_cast<IParams*>(m_data);
-  return d->m_image;
+  return *this;
 }
 
 enum fastuidraw::ImageParams::filter_t

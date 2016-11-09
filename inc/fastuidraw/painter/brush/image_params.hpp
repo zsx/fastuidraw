@@ -191,7 +191,7 @@ namespace fastuidraw
       \param f filter to apply to image, only has effect if im
                is non-NULL
      */
-    void
+    ImageParams&
     image(const reference_counted_ptr<const Image> &im, enum filter_t f = filter_nearest);
 
     /*!
@@ -202,16 +202,9 @@ namespace fastuidraw
       \param f filter to apply to image, only has effect if im
                is non-NULL
      */
-    void
+    ImageParams&
     sub_image(const reference_counted_ptr<const Image> &im, uvec2 xy, uvec2 wh,
               enum filter_t f = filter_nearest);
-
-    /*!
-      Returns the value of the handle to the
-      Image that the brush is set to use.
-     */
-    const reference_counted_ptr<const Image>&
-    image(void) const;
 
     /*!
       Returns true if and only if passed image can
