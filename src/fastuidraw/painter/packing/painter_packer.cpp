@@ -713,7 +713,7 @@ pack_header(unsigned int header_size,
   header.m_blend_shader_data_location = loc.m_blend_shader_data_loc;
   header.m_item_shader = item_shader->ID();
   header.m_brush_shaders_end = loc.m_brush_shader_data_loc
-    + fastuidraw::round_up_to_multiple(brush_shader_count, m_alignment);
+    + fastuidraw::round_up_to_multiple(brush_shader_count, m_alignment) / m_alignment;
   header.m_blend_shader = blend.m_ID;
   header.m_z = z;
   header.pack_data(m_alignment, dst);
