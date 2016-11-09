@@ -30,6 +30,7 @@ namespace fastuidraw
 {
   class PainterPackedValuePool;
   class PainterPacker;
+  class PainterShaderSet;
 
   template<typename T>
   class PainterPackedValue;
@@ -271,11 +272,14 @@ namespace fastuidraw
   public:
     /*!
       Ctor.
+      \param shaders default shaders to use when a stage of a PainterBrush
+                     is named by an enumeration instead of by specifying a
+                     shader.
       \param painter_alignment the alignment to create packed data, see
                                 PainterPacker::Configuration::alignment()
      */
     explicit
-    PainterPackedValuePool(int painter_alignment);
+    PainterPackedValuePool(const PainterShaderSet &shaders, int painter_alignment);
 
     ~PainterPackedValuePool();
 

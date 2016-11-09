@@ -26,6 +26,7 @@
 
 namespace fastuidraw
 {
+
 /*!\addtogroup Painter
   @{
  */
@@ -60,6 +61,22 @@ namespace fastuidraw
         Convenience typedef to avoid typing so much.
        */
       typedef reference_counted_ptr<const ColorStopSequenceOnAtlas> ColorStopSequenceOnAtlasRef;
+
+      /*!
+        Ctor.
+       */
+      DataBase(void):
+        m_dirty_ptr(NULL)
+      {}
+
+      /*!
+        Copy ctor
+       */
+      DataBase(const DataBase &obj):
+        m_dirty_ptr(NULL)
+      {
+        FASTUIDRAWunused(obj);
+      }
 
       virtual
       ~DataBase()
@@ -100,6 +117,13 @@ namespace fastuidraw
       }
 
       /*!
+        A derived clas must call this whenever the return value
+        to images() or color_stops() would change.
+       */
+      void
+      mark_dirty(void);
+
+      /*!
         To be implemented by a derived class to return
         the length of the data needed to encode the data.
         Data is padded to be multiple of alignment.
@@ -121,7 +145,21 @@ namespace fastuidraw
       virtual
       void
       pack_data(unsigned int alignment, c_array<generic_data> dst) const = 0;
+
+    private:
+      friend class PainterBrushShaderData;
+      bool *m_dirty_ptr;
     };
+
+    /*!
+      Convenience typedef to avoid typing so much.
+    */
+    typedef DataBase::ImageRef ImageRef;
+
+    /*!
+      Convenience typedef to avoid typing so much.
+    */
+    typedef DataBase::ColorStopSequenceOnAtlasRef ColorStopSequenceOnAtlasRef;
 
     /*!
       Ctor. A derived class from PainterBrushShaderData
@@ -144,6 +182,22 @@ namespace fastuidraw
     operator=(const PainterBrushShaderData &rhs);
 
     /*!
+      Returns an array of references to those Image
+      objects used in shading. Default implementation
+      is to return an empty array.
+     */
+    const_c_array<ImageRef>
+    images(void) const;
+
+    /*!
+      Returns an array of references to those
+      ColorStopSquenceOnAtlas objects used in shading.
+      Default implementation is to return an empty array.
+     */
+    const_c_array<ColorStopSequenceOnAtlasRef>
+    color_stops(void) const;
+
+    /*!
       Returns the length of the data needed to encode the data.
       Data is padded to be multiple of alignment.
       \param alignment alignment of the data store
@@ -162,6 +216,13 @@ namespace fastuidraw
     */
     void
     pack_data(unsigned int alignment, c_array<generic_data> dst) const;
+
+    /*!
+      Sets the pointer to the boolean to set if the underlying
+      DataBase object marks itself as dirty.
+     */
+    void
+    dirty_marker(bool *p);
 
     /*!
       Returns a pointer to the underlying object holding

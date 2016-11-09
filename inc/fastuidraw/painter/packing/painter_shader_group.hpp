@@ -49,13 +49,6 @@ namespace fastuidraw
     item_group(void) const;
 
     /*!
-      The shading ID as returned by PainterBrush::shader()
-      of the active brush.
-     */
-    uint32_t
-    brush(void) const;
-
-    /*!
       The BlendMode as packed by BlendMode::packed().
      */
     BlendMode::packed_value

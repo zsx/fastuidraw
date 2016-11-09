@@ -61,11 +61,14 @@ main(void)
       fastuidraw_frag_shader_data_location = h.item_shader_data_location;
       fastuidraw_blend_shader = h.blend_shader;
       fastuidraw_blend_shader_data_location = h.blend_shader_data_location;
+      fastuidraw_brush_shader_data_location = h.brush_shader_data_location;
+      fastuidraw_brush_shaders_end = h.brush_shaders_end;
     }
   #endif
 
   item_p_brush_p = fastuidraw_run_vert_shader(h, add_z);
-  fastuidraw_vert_brush_processing(item_p_brush_p.zw, h);
+  fastuidraw_brush_p_x = item_p_brush_p.z;
+  fastuidraw_brush_p_y = item_p_brush_p.w;
 
   clip_p = fastuidraw_item_matrix * vec3(item_p_brush_p.xy, 1.0);
   fastuidraw_apply_clipping(clip_p, clipping);

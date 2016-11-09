@@ -60,11 +60,9 @@ namespace
   {
   public:
     ConfigurationPrivate(void):
-      m_brush_shader_mask(0),
       m_alignment(4)
     {}
 
-    uint32_t m_brush_shader_mask;
     int m_alignment;
   };
 }
@@ -138,25 +136,6 @@ operator=(const ConfigurationBase &obj)
   d = reinterpret_cast<ConfigurationPrivate*>(m_d);
   obj_d = reinterpret_cast<ConfigurationPrivate*>(obj.m_d);
   *d = *obj_d;
-  return *this;
-}
-
-uint32_t
-fastuidraw::PainterBackend::ConfigurationBase::
-brush_shader_mask(void) const
-{
-  ConfigurationPrivate *d;
-  d = reinterpret_cast<ConfigurationPrivate*>(m_d);
-  return d->m_brush_shader_mask;
-}
-
-fastuidraw::PainterBackend::ConfigurationBase&
-fastuidraw::PainterBackend::ConfigurationBase::
-brush_shader_mask(uint32_t v)
-{
-  ConfigurationPrivate *d;
-  d = reinterpret_cast<ConfigurationPrivate*>(m_d);
-  d->m_brush_shader_mask = v;
   return *this;
 }
 

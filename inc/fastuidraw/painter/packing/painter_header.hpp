@@ -79,7 +79,7 @@ namespace fastuidraw
           according to item_blend_shader_encoding
          */
         item_blend_shader_offset,
-        brush_shader_offset, /*!< offset to \ref m_brush_shader */
+        brush_shaders_end_offset, /*!< offset to \ref m_brush_shaders_end */
         z_offset, /*!< offset to \ref m_z */
 
         header_size /*!< size of header */
@@ -115,8 +115,20 @@ namespace fastuidraw
       \code
       PainterDraw::m_store[m_brush_shader_data_location * PainterBackend::Configuration::alignment()]
       \endcode
+      The data is packed so that what shaders are given first followed
+      by the data of each all PainterShaderBrushData of all the stages
+      of the PainterBrush PainterShaderBrushData data. That data starts
+      at the alignment boundary. Values after the last shader ID is padded
+      with zeros.
      */
     uint32_t m_brush_shader_data_location;
+
+    /*!
+      The location at which the ID's for brush shaders end.
+      At this location is where the data for the individual
+      brush shader stages starts.
+     */
+    uint32_t m_brush_shaders_end;
 
     /*!
       The location, in units of PainterBackend::Configuration::alignment()
@@ -144,11 +156,6 @@ namespace fastuidraw
       The ID of the item shader (i.e. PainterItemShader::ID()).
      */
     uint32_t m_item_shader;
-
-    /*!
-      The brush shader, i.e. the value of PainterBrush::shader().
-     */
-    uint32_t m_brush_shader;
 
     /*!
       The ID of the blend shader (i.e. PainterBlendShader::ID()).
