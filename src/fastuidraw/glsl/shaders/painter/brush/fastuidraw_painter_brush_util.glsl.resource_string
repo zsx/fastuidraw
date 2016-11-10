@@ -73,6 +73,10 @@ fastuidraw_brush_linear_gradient(inout uint shader_data_offset,
     {
       t = fract(t);
     }
+  else
+    {
+      t = clamp(t, 0.0, 1.0);
+    }
   t = linear_gradient.color_stop_sequence_xy.x + t * linear_gradient.color_stop_sequence_width;
   color *= fastuidraw_colorStopFetch(t, linear_gradient.color_stop_sequence_xy.y);
 }
@@ -121,6 +125,10 @@ fastuidraw_brush_radial_gradient(inout uint shader_data_offset,
       if((radial_gradient.flags & uint(fastuidraw_radial_gradient_repeat_mask)) != 0u)
         {
           t = fract(t);
+        }
+      else
+        {
+          t = clamp(t, 0.0, 1.0);
         }
       t = radial_gradient.color_stop_sequence_xy.x + t * radial_gradient.color_stop_sequence_width;
       color *= fastuidraw_colorStopFetch(t, radial_gradient.color_stop_sequence_xy.y);

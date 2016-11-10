@@ -1,5 +1,6 @@
 void
 fastuidraw_gl_brush_main(in uint sub_shader,
+                         in uint shader_flags,
                          inout uint shader_data_offset,
                          inout vec2 brush_location,
                          inout vec4 color)

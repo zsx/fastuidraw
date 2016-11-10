@@ -128,3 +128,12 @@ dirty_marker(bool *p)
       m_data->m_dirty_ptr = p;
     }
 }
+
+uint16_t
+fastuidraw::PainterBrushShaderData::
+shader_flags(void) const
+{
+  return m_data ?
+    m_data->shader_flags() :
+    uint16_t(0u);
+}

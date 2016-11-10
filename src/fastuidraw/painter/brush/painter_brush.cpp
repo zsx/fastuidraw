@@ -223,19 +223,22 @@ pack_data(const PainterBrushShaderSet &shader_set,
   for(unsigned int i = 0, endi = d->m_stages.size(); i < endi; ++i)
     {
       unsigned int sz;
+      uint32_t sh_flags, sh;
 
       sz = d->m_stages[i].m_data.data_size(alignment);
       d->m_stages[i].m_data.pack_data(alignment, dst_data.sub_array(current, sz));
       current += sz;
 
+      sh_flags = d->m_stages[i].m_data.shader_flags();
       if(d->m_stages[i].m_shader)
         {
-          dst_shaders[i].u = d->m_stages[i].m_shader->ID();
+          sh = d->m_stages[i].m_shader->ID();
         }
       else
         {
-          dst_shaders[i].u = shader_set.shader(d->m_stages[i].m_effect)->ID();
+          sh = shader_set.shader(d->m_stages[i].m_effect)->ID();
         }
+      dst_shaders[i].u = sh | (sh_flags << 16u);
     }
   assert(current == dst_data.size());
 }

@@ -518,27 +518,6 @@ stream_uber_frag_shader(bool use_switch,
 }
 
 void
-stream_uber_brush_shader(bool use_switch, ShaderSource &frag,
-                         const_c_array<reference_counted_ptr<PainterBrushShaderGLSL> > brush_shaders)
-{
-  const char *uber_shader_declaration =
-    "fastuidraw_run_brush_shader(in uint brush_shader, "
-    "inout uint brush_shader_data_location, "
-    "inout vec2 brush_location, inout vec4 color)";
-
-  const char *invoke_additional_arguments =
-    ", brush_shader_data_location, "
-    "brush_location, color";
-
-  UberShaderStreamer<PainterBrushShaderGLSL>::stream_uber(use_switch, frag, brush_shaders,
-                                                          &PainterBrushShaderGLSL::brush_src,
-                                                          "void",  uber_shader_declaration,
-                                                          "fastuidraw_gl_brush_main",
-                                                          invoke_additional_arguments,
-                                                          "brush_shader");
-}
-
-void
 stream_uber_blend_shader(bool use_switch,
                          ShaderSource &frag,
                          const_c_array<reference_counted_ptr<PainterBlendShaderGLSL> > shaders,
@@ -576,6 +555,27 @@ stream_uber_blend_shader(bool use_switch,
 }
 
 void
+stream_uber_brush_shader(bool use_switch, ShaderSource &frag,
+                         const_c_array<reference_counted_ptr<PainterBrushShaderGLSL> > brush_shaders)
+{
+  const char *uber_shader_declaration =
+    "fastuidraw_run_brush_shader(in uint brush_shader, "
+    "in uint shader_flags, inout uint brush_shader_data_location, "
+    "inout vec2 brush_location, inout vec4 color)";
+
+  const char *invoke_additional_arguments =
+    ", shader_flags, brush_shader_data_location, "
+    "brush_location, color";
+
+  UberShaderStreamer<PainterBrushShaderGLSL>::stream_uber(use_switch, frag, brush_shaders,
+                                                          &PainterBrushShaderGLSL::brush_src,
+                                                          "void",  uber_shader_declaration,
+                                                          "fastuidraw_gl_brush_main",
+                                                          invoke_additional_arguments,
+                                                          "brush_shader");
+}
+
+void
 stream_brush_shader_runner(ShaderSource &frag, unsigned int alignment)
 {
   std::ostringstream str;
@@ -598,7 +598,7 @@ stream_brush_shader_runner(ShaderSource &frag, unsigned int alignment)
           << "\tshader = fastuidraw_fetch_data(int(shader_loc)).x;\n"
           << "\twhile(shader != 0u && shader_loc < shaders_end)\n"
           << "\t{\n"
-          << "\t\tfastuidraw_run_brush_shader(shader, shader_data, p, return_value);\n"
+          << "\t\tfastuidraw_run_brush_shader(shader & uint(0xFFFF), shader >> 16u, shader_data, p, return_value);\n"
           << "\t\t++shader_loc;\n"
           << "\t\tshader = fastuidraw_fetch_data(int(shader_loc)).x;\n"
           << "\t}\n";
@@ -637,7 +637,8 @@ stream_brush_shader_runner(ShaderSource &frag, unsigned int alignment)
                   << "\t";
             }
           str << "\t\tfastuidraw_run_brush_shader(shader_vec." << components[i]
-              << ", shader_data, p, return_value);\n";
+              << " & uint(0xFFFF), shader_vec." << components[i]
+              << " >> 16u, shader_data, p, return_value);\n";
         }
 
       str << "\t\t++shader_loc;\n"

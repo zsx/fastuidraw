@@ -117,6 +117,18 @@ namespace fastuidraw
       }
 
       /*!
+        To be optionally implemanted by a derived class
+        to return a 16-bit value to be passed to the
+        shader of PainterBrushShader. Typically used
+        to indicate flags to modify the behavior.
+       */
+      uint16_t
+      shader_flags(void) const
+      {
+        return 0u;
+      }
+
+      /*!
         A derived clas must call this whenever the return value
         to images() or color_stops() would change.
        */
@@ -216,6 +228,14 @@ namespace fastuidraw
     */
     void
     pack_data(unsigned int alignment, c_array<generic_data> dst) const;
+
+    /*!
+      Returns a 16-bit value to be passed to the
+      shader of PainterBrushShader. Typically used
+      to indicate flags to modify the behavior.
+     */
+    uint16_t
+    shader_flags(void) const;
 
     /*!
       Sets the pointer to the boolean to set if the underlying

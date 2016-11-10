@@ -1,39 +1,40 @@
 void
 fastuidraw_gl_brush_main(in uint shader,
+                         in uint shader_flags,
                          inout uint shader_data_offset,
                          inout vec2 brush_location,
                          inout vec4 color)
 {
-  if((shader & uint(fastuidraw_unified_brush_pen_mask)) != 0u)
+  if((shader_flags & uint(fastuidraw_unified_brush_pen_mask)) != 0u)
     {
       fastuidraw_brush_const_color(shader_data_offset, color);
     }
 
-  if((shader & uint(fastuidraw_unified_brush_transformation_matrix_mask)) != 0u)
+  if((shader_flags & uint(fastuidraw_unified_brush_transformation_matrix_mask)) != 0u)
     {
       fastuidraw_brush_transformation_matrix(shader_data_offset, brush_location);
     }
 
-  if((shader & uint(fastuidraw_unified_brush_transformation_translation_mask)) != 0u)
+  if((shader_flags & uint(fastuidraw_unified_brush_transformation_translation_mask)) != 0u)
     {
       fastuidraw_brush_transformation_translation(shader_data_offset, brush_location);
     }
 
-  if((shader & uint(fastuidraw_unified_brush_repeat_window_mask)) != 0u)
+  if((shader_flags & uint(fastuidraw_unified_brush_repeat_window_mask)) != 0u)
     {
       fastuidraw_brush_repeat_window(shader_data_offset, brush_location);
     }
 
-  if((shader & uint(fastuidraw_unified_brush_image_mask)) != 0u)
+  if((shader_flags & uint(fastuidraw_unified_brush_image_mask)) != 0u)
     {
       fastuidraw_brush_image(shader_data_offset, brush_location, color);
     }
 
-  if((shader & uint(fastuidraw_unified_brush_linear_gradient_mask)) != 0u)
+  if((shader_flags & uint(fastuidraw_unified_brush_linear_gradient_mask)) != 0u)
     {
       fastuidraw_brush_linear_gradient(shader_data_offset, brush_location, color);
     }
-  else if((shader & uint(fastuidraw_unified_brush_radial_gradient_mask)) != 0u)
+  else if((shader_flags & uint(fastuidraw_unified_brush_radial_gradient_mask)) != 0u)
     {
       fastuidraw_brush_radial_gradient(shader_data_offset, brush_location, color);
     }

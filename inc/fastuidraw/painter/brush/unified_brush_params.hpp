@@ -51,7 +51,7 @@ namespace fastuidraw
   public:
     /*!
       Enumeration describing the roles of the bits for
-      PainterShaderData::DataBase::uint_value().
+      PainterShaderData::DataBase::shader_flags().
      */
     enum active_bits_t
       {
@@ -98,7 +98,7 @@ namespace fastuidraw
 
     /*!
       Masks generated from shader_bits, use these masks on the
-      return value of PainterShaderData::DataBase::uint_value()
+      return value of PainterShaderData::DataBase::shader_flags()
       to get what features are active on the UnifiedBrushParams.
      */
     enum active_masks_t
