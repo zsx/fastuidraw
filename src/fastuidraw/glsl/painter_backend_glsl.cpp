@@ -33,6 +33,7 @@
 #include <fastuidraw/painter/brush/repeat_window_params.hpp>
 #include <fastuidraw/painter/brush/transformation_translation_params.hpp>
 #include <fastuidraw/painter/brush/transformation_matrix_params.hpp>
+#include <fastuidraw/painter/brush/unified_brush_params.hpp>
 #include <fastuidraw/painter/packing/painter_header.hpp>
 #include <fastuidraw/painter/packing/painter_item_matrix.hpp>
 #include <fastuidraw/painter/packing/painter_clip_equations.hpp>
@@ -284,16 +285,16 @@ PainterBackendGLSLPrivate(fastuidraw::glsl::PainterBackendGLSL *p,
                                                 m_p->image_atlas()->index_tile_size(),
                                                 m_p->image_atlas()->color_tile_size()))
     .add_source(code::curvepair_compute_pseudo_distance(m_p->glyph_atlas()->geometry_store()->alignment(),
-                                                                          "fastuidraw_curvepair_pseudo_distance",
-                                                                          "fastuidraw_fetch_glyph_data",
-                                                                          false))
+                                                        "fastuidraw_curvepair_pseudo_distance",
+                                                        "fastuidraw_fetch_glyph_data",
+                                                        false))
     .add_source(code::curvepair_compute_pseudo_distance(m_p->glyph_atlas()->geometry_store()->alignment(),
-                                                                          "fastuidraw_curvepair_pseudo_distance",
-                                                                          "fastuidraw_fetch_glyph_data",
-                                                                          true))
+                                                        "fastuidraw_curvepair_pseudo_distance",
+                                                        "fastuidraw_fetch_glyph_data",
+                                                        true))
     .add_source("fastuidraw_painter_brush_types.glsl.resource_string", ShaderSource::from_resource)
-    .add_source("fastuidraw_painter_brush_util.glsl.resource_string", ShaderSource::from_resource)
     .add_source("fastuidraw_painter_brush_read_data_forward_declares.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_brush_util.glsl.resource_string", ShaderSource::from_resource)
     .add_source("fastuidraw_painter_brush_read_data.glsl.resource_string", ShaderSource::from_resource);
 }
 
@@ -405,6 +406,16 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
                number_blocks(alignment, TransformationMatrixParams::data_size))
     .add_macro("fastuidraw_shader_transformation_translation_num_blocks",
                number_blocks(alignment, TransformationTranslationParams::data_size))
+
+    /* macros from unified brush
+     */
+    .add_macro("fastuidraw_unified_brush_pen_mask", UnifiedBrushParams::pen_mask)
+    .add_macro("fastuidraw_unified_brush_transformation_matrix_mask", UnifiedBrushParams::transformation_matrix_mask)
+    .add_macro("fastuidraw_unified_brush_transformation_translation_mask", UnifiedBrushParams::transformation_translation_mask)
+    .add_macro("fastuidraw_unified_brush_repeat_window_mask", UnifiedBrushParams::repeat_window_mask)
+    .add_macro("fastuidraw_unified_brush_image_mask", UnifiedBrushParams::image_mask)
+    .add_macro("fastuidraw_unified_brush_linear_gradient_mask", UnifiedBrushParams::linear_gradient_mask)
+    .add_macro("fastuidraw_unified_brush_radial_gradient_mask", UnifiedBrushParams::radial_gradient_mask)
 
     /* macros for dashed stroking
      */

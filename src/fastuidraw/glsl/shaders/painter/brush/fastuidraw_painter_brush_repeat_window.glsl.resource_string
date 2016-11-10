@@ -4,10 +4,5 @@ fastuidraw_gl_brush_main(in uint sub_shader,
                          inout vec2 brush_location,
                          inout vec4 color)
 {
-  fastuidraw_repeat_window wnd;
-
-  shader_data_offset = fastuidraw_read_repeat_window(shader_data_offset, wnd);
-  brush_location -= wnd.xy;
-  brush_location = mod(brush_location, wnd.wh);
-  brush_location += wnd.xy;
+  fastuidraw_brush_repeat_window(shader_data_offset, brush_location);
 }

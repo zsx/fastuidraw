@@ -19,12 +19,35 @@
 #include <fastuidraw/painter/paths/painter_stroke_params.hpp>
 #include <fastuidraw/painter/paths/painter_dashed_stroke_params.hpp>
 #include <fastuidraw/painter/paths/painter_attribute_data_filler_path_fill.hpp>
+#include <fastuidraw/painter/brush/unified_brush_params.hpp>
 #include "backend_shaders.hpp"
 
 #include <string>
 
 namespace
 {
+  void
+  brush_shader_set_from_uber_shader(fastuidraw::PainterBrushShaderSet &value,
+                                    const fastuidraw::reference_counted_ptr<fastuidraw::PainterBrushShader> &uber)
+  {
+    using namespace fastuidraw;
+    value
+      .shader(PainterBrushShaderSet::color,
+              FASTUIDRAWnew PainterBrushShader(UnifiedBrushParams::pen_mask, uber))
+      .shader(PainterBrushShaderSet::image,
+              FASTUIDRAWnew PainterBrushShader(UnifiedBrushParams::image_mask, uber))
+      .shader(PainterBrushShaderSet::linear_gradient,
+              FASTUIDRAWnew PainterBrushShader(UnifiedBrushParams::linear_gradient_mask, uber))
+      .shader(PainterBrushShaderSet::radial_gradient,
+              FASTUIDRAWnew PainterBrushShader(UnifiedBrushParams::radial_gradient_mask, uber))
+      .shader(PainterBrushShaderSet::repeat_window,
+              FASTUIDRAWnew PainterBrushShader(UnifiedBrushParams::repeat_window_mask, uber))
+      .shader(PainterBrushShaderSet::transformation_translation,
+              FASTUIDRAWnew PainterBrushShader(UnifiedBrushParams::transformation_translation_mask, uber))
+      .shader(PainterBrushShaderSet::transformation_matrix,
+              FASTUIDRAWnew PainterBrushShader(UnifiedBrushParams::transformation_matrix_mask, uber));
+  }
+
   fastuidraw::glsl::PainterBrushShaderGLSL*
   create_brush_shader_from_file(const char *src)
   {
@@ -287,6 +310,14 @@ ShaderSetCreator(enum PainterBlendShader::shader_type tp,
                                         .add_uint_varying("fastuidraw_stroking_dash_bits"),
                                         num_dashed_sub_shaders
                                         );
+
+  unsigned int number_brush_shaders;
+  number_brush_shaders = (1u << UnifiedBrushParams::number_bits);
+  m_uber_brush_shader =
+    FASTUIDRAWnew PainterBrushShaderGLSL(ShaderSource()
+                                         .add_source("fastuidraw_painter_brush_unified.glsl.resource_string",
+                                                     ShaderSource::from_resource),
+                                         number_brush_shaders);
 }
 
 reference_counted_ptr<PainterItemShader>
@@ -448,13 +479,13 @@ create_brush_shader_set(void)
   brush_shader_set
     .shader(PainterBrushShaderSet::color,
             create_brush_shader_from_file("fastuidraw_painter_brush_const_color.glsl.resource_string"))
+    .shader(PainterBrushShaderSet::image,
+            create_brush_shader_from_file("fastuidraw_painter_brush_image.glsl.resource_string"))
     .shader(PainterBrushShaderSet::linear_gradient,
             create_brush_shader_from_file("fastuidraw_painter_brush_linear_gradient.glsl.resource_string"))
     .shader(PainterBrushShaderSet::radial_gradient,
             create_brush_shader_from_file("fastuidraw_painter_brush_radial_gradient.glsl.resource_string"))
-    .shader(PainterBrushShaderSet::image,
-            create_brush_shader_from_file("fastuidraw_painter_brush_image.glsl.resource_string"))
-    .shader(PainterBrushShaderSet::repeat_window,
+     .shader(PainterBrushShaderSet::repeat_window,
             create_brush_shader_from_file("fastuidraw_painter_brush_repeat_window.glsl.resource_string"))
     .shader(PainterBrushShaderSet::transformation_translation,
             create_brush_shader_from_file("fastuidraw_painter_brush_transformation_translation.glsl.resource_string"))

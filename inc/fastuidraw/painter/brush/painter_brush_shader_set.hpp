@@ -42,39 +42,53 @@ namespace fastuidraw
     enum effect_t
       {
         /*!
-          Modulate by a constant color value
+          Modulate by a constant color value,
+          specified by \ref PenParams.
          */
         color,
 
         /*!
-          Modulate by a linear gradient
+          Modulate by a linear gradient,
+          specified by \ref LinearGradientParams.
          */
         linear_gradient,
 
         /*!
-          Modulate by a radial gradient
+          Modulate by a radial gradient,
+          specified by \ref RadialGradientParams.
          */
         radial_gradient,
 
         /*!
-          Modulate by an image
+          Modulate by an image,
+          specified by \ref ImageParams.
          */
         image,
 
         /*!
-          Apply a repeat window to the brush position
+          Apply a repeat window to the brush position,
+          specified by \ref RepeateWindowParams.
          */
         repeat_window,
 
         /*!
-          Apply a translation to the brush position
+          Apply a translation to the brush position,
+          specified by \ref TransformationTranslationParams.
          */
         transformation_translation,
 
         /*!
-          Apply a matrix to the brush position
+          Apply a matrix to the brush position,
+          specified by \ref TransformationMatrixParams.
          */
         transformation_matrix,
+
+        /*!
+          Apply many effect via a singe stage (usually
+          gives better performance), specified by a
+          UnifiedBrushParams.
+         */
+        unified_brush,
       };
 
     /*!
