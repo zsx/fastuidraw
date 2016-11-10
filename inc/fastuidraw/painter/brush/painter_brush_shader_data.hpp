@@ -122,6 +122,7 @@ namespace fastuidraw
         shader of PainterBrushShader. Typically used
         to indicate flags to modify the behavior.
        */
+      virtual
       uint16_t
       shader_flags(void) const
       {

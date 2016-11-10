@@ -422,6 +422,25 @@ add_brush_stage(const TransformationMatrixParams &data, unsigned int *out_stage)
   return *this;
 }
 
+fastuidraw::PainterBrush&
+fastuidraw::PainterBrush::
+add_brush_stage(const UnifiedBrushParams &data, unsigned int *out_stage)
+{
+  PainterBrushPrivate *d;
+  d = reinterpret_cast<PainterBrushPrivate*>(m_d);
+
+  unsigned int slot(d->m_stages.size());
+  d->m_stages.push_back(BrushStage());
+  d->m_stages.back().set(PainterBrushShaderSet::unified_brush,
+                         data, &d->m_derived_value_dirty);
+  d->m_derived_value_dirty = true;
+  if(out_stage != NULL)
+    {
+      *out_stage = slot;
+    }
+  return *this;
+}
+
 fastuidraw::PainterBrushShaderData&
 fastuidraw::PainterBrush::
 stage_data_base(unsigned int stage)

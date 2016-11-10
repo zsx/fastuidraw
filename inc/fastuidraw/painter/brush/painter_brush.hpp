@@ -34,6 +34,7 @@
 #include <fastuidraw/painter/brush/repeat_window_params.hpp>
 #include <fastuidraw/painter/brush/transformation_translation_params.hpp>
 #include <fastuidraw/painter/brush/transformation_matrix_params.hpp>
+#include <fastuidraw/painter/brush/unified_brush_params.hpp>
 
 namespace fastuidraw
 {
@@ -208,6 +209,16 @@ namespace fastuidraw
     PainterBrush&
     add_brush_stage(const TransformationMatrixParams &matrix,
                     unsigned int *out_stage = NULL);
+
+    /*!
+      Add a brush stage to unified brush stage
+      \param unified provides a unified brush
+      \param out_stage if non-NULL, the index to feed stage_data()
+                       and stage_data_base() to get the instance of
+                       the data of the added stage.
+     */
+    PainterBrush&
+    add_brush_stage(const UnifiedBrushParams &unified, unsigned int *out_stage = NULL);
 
     /*!
       Returns the number of stages for the PainterBrush.

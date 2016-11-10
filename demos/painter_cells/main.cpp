@@ -561,7 +561,7 @@ draw_frame(void)
       if(!m_text_brush)
         {
           PainterBrush brush;
-          brush.add_brush_stage(PenParams().color(0.0f, 1.0f, 1.0f, 1.0f));
+          brush.add_brush_stage(UnifiedBrushParams().pen(0.0f, 1.0f, 1.0f, 1.0f));
           m_text_brush = m_painter->packed_value_pool().create_packed_value(brush);
         }
       draw_text(ostr.str(), m_fps_pixel_size.m_value,

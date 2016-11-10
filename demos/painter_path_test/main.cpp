@@ -1209,48 +1209,38 @@ draw_frame(void)
 
   if(m_draw_fill)
     {
+      UnifiedBrushParams fill_brush_params;
       PainterBrush fill_brush;
 
       if(m_matrix_brush)
         {
-          TransformationMatrixParams tr;
           float2x2 m;
           m(0, 0) = m(1, 1) = m_zoomer.transformation().scale();
-          tr.matrix(m);
-          fill_brush.add_brush_stage(tr);
+          fill_brush_params.transformation_matrix(m);
         }
 
       if(m_translate_brush)
         {
-          TransformationTranslationParams tr;
-          tr.pos(m_zoomer.transformation().translation());
-          fill_brush.add_brush_stage(tr);
+          fill_brush_params.transformation_translate(m_zoomer.transformation().translation());
         }
 
       if(m_repeat_window)
         {
-          fill_brush.add_brush_stage(RepeatWindowParams()
-                                     .pos(m_repeat_xy)
-                                     .size(m_repeat_wh));
+          fill_brush_params.repeat_window(m_repeat_xy, m_repeat_wh);
         }
 
       if(m_gradient_draw_mode == draw_linear_gradient)
         {
-          fill_brush.add_brush_stage(LinearGradientParams()
-                                     .start_pt(m_gradient_p0)
-                                     .end_pt(m_gradient_p1)
-                                     .color_stop_sequence(m_color_stops[m_active_color_stop].second)
-                                     .flags(m_repeat_gradient ? LinearGradientParams::repeat_gradient_mask : 0u));
+          fill_brush_params.linear_gradient(m_color_stops[m_active_color_stop].second,
+                                     m_gradient_p0, m_gradient_p1,
+                                     m_repeat_gradient);
         }
       else if(m_gradient_draw_mode == draw_radial_gradient)
         {
-          fill_brush.add_brush_stage(RadialGradientParams()
-                                     .start_pt(m_gradient_p0)
-                                     .start_r(m_gradient_r0)
-                                     .end_pt(m_gradient_p1)
-                                     .end_r(m_gradient_r1)
-                                     .color_stop_sequence(m_color_stops[m_active_color_stop].second)
-                                     .flags(m_repeat_gradient ? RadialGradientParams::repeat_gradient_mask : 0u));
+          fill_brush_params.radial_gradient(m_color_stops[m_active_color_stop].second,
+                                     m_gradient_p0, m_gradient_r0,
+                                     m_gradient_p1, m_gradient_r1,
+                                     m_repeat_gradient);
         }
 
       if(m_image && m_image_filter != no_image)
@@ -1271,9 +1261,9 @@ draw_frame(void)
               assert(!"Incorrect value for m_image_filter!");
               f = ImageParams::filter_nearest;
             }
-          fill_brush.add_brush_stage(ImageParams()
-                                     .sub_image(m_image, m_image_offset, m_image_size, f));
+          fill_brush_params.sub_image(m_image, m_image_offset, m_image_size, f);
         }
+      fill_brush.add_brush_stage(fill_brush_params);
 
       if(m_fill_rule < PainterEnums::fill_rule_data_count)
         {

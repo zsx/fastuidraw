@@ -119,14 +119,14 @@ generate_children_in_group(const reference_counted_ptr<Painter> &painter,
               if(!txt[txtJ])
                 {
                   PainterBrush brush;
-                  brush.add_brush_stage(PenParams().color(m_params.m_text_colors[txtJ]));
+                  brush.add_brush_stage(UnifiedBrushParams().pen(m_params.m_text_colors[txtJ]));
                   txt[txtJ] = painter->packed_value_pool().create_packed_value(brush);
                 }
 
               if(!bg[bgJ])
                 {
                   PainterBrush brush;
-                  brush.add_brush_stage(PenParams().color(m_params.m_background_colors[bgJ]));
+                  brush.add_brush_stage(UnifiedBrushParams().pen(m_params.m_background_colors[bgJ]));
                   bg[bgJ] = painter->packed_value_pool().create_packed_value(brush);
                 }
 
@@ -135,11 +135,11 @@ generate_children_in_group(const reference_counted_ptr<Painter> &painter,
                   PainterBrush brush;
                   if(m_params.m_images[imJ].first)
                     {
-                      brush.add_brush_stage(ImageParams().image(m_params.m_images[imJ].first));
+                      brush.add_brush_stage(UnifiedBrushParams().image(m_params.m_images[imJ].first));
                     }
                   else
                     {
-                      brush.add_brush_stage(PenParams().color(0.2f, 0.7f, 0.7f, 0.6f));
+                      brush.add_brush_stage(UnifiedBrushParams().pen(0.2f, 0.7f, 0.7f, 0.6f));
                     }
                   im[imJ] = painter->packed_value_pool().create_packed_value(brush);
                 }
@@ -231,7 +231,7 @@ paint_pre_children(const reference_counted_ptr<Painter> &painter)
         }
 
       PainterBrush brush;
-      brush.add_brush_stage(PenParams().color(m_params.m_line_color));
+      brush.add_brush_stage(UnifiedBrushParams().pen(m_params.m_line_color));
       m_line_brush = painter->packed_value_pool().create_packed_value(brush);
 
       J = 0;

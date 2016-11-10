@@ -24,7 +24,13 @@
 #include <fastuidraw/image.hpp>
 #include <fastuidraw/colorstop_atlas.hpp>
 #include <fastuidraw/painter/brush/painter_brush_shader_data.hpp>
+#include <fastuidraw/painter/brush/pen_params.hpp>
 #include <fastuidraw/painter/brush/image_params.hpp>
+#include <fastuidraw/painter/brush/linear_gradient_params.hpp>
+#include <fastuidraw/painter/brush/radial_gradient_params.hpp>
+#include <fastuidraw/painter/brush/repeat_window_params.hpp>
+#include <fastuidraw/painter/brush/transformation_translation_params.hpp>
+#include <fastuidraw/painter/brush/transformation_matrix_params.hpp>
 
 namespace fastuidraw
 {
@@ -165,11 +171,6 @@ namespace fastuidraw
         gradient_packing,
 
         /*!
-          repeat window packing via \ref RepeatWindowParams
-         */
-        repeat_window_packing,
-
-        /*!
           transformation translation via \ref
           TransformationTranslationParams.
          */
@@ -180,6 +181,11 @@ namespace fastuidraw
           TransformationMatrixParams.
          */
         transformation_matrix_packing,
+
+        /*!
+          repeat window packing via \ref RepeatWindowParams
+         */
+        repeat_window_packing,
       };
 
     /*!
@@ -193,14 +199,6 @@ namespace fastuidraw
      */
     UnifiedBrushParams&
     reset(void);
-
-    /*!
-      Returns the pen color to apply to the brush,
-      if no pen is active returns
-      vec4(1.0, 1.0, 1.0, 1.0);
-     */
-    const vec4&
-    pen(void) const;
 
     /*!
       Set to use a pen and the color of the pen.

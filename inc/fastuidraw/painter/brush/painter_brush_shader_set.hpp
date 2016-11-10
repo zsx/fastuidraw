@@ -41,6 +41,14 @@ namespace fastuidraw
      */
     enum effect_t
       {
+
+        /*!
+          Apply many effect via a singe stage (usually
+          gives better performance), specified by a
+          UnifiedBrushParams.
+         */
+        unified_brush,
+
         /*!
           Modulate by a constant color value,
           specified by \ref PenParams.
@@ -82,13 +90,6 @@ namespace fastuidraw
           specified by \ref TransformationMatrixParams.
          */
         transformation_matrix,
-
-        /*!
-          Apply many effect via a singe stage (usually
-          gives better performance), specified by a
-          UnifiedBrushParams.
-         */
-        unified_brush,
       };
 
     /*!

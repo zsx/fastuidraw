@@ -11,7 +11,8 @@ LIBRARY_SOURCES += $(call filelist, \
 	pen_params.cpp image_params.cpp \
 	repeat_window_params.cpp \
 	transformation_translation_params.cpp \
-	transformation_matrix_params.cpp)
+	transformation_matrix_params.cpp \
+	unified_brush_params.cpp)
 
 # Begin standard footer
 d		:= $(dirstack_$(sp))
