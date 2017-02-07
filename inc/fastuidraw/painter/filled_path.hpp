@@ -58,7 +58,6 @@ public:
   {
   public:
     /*!
-      Returns the PainterAttributeData for the Subset
       Returns the PainterAttributeData for the portion of the
       FilledPath the Subset represents. The attribute data is
       packed as follows:
@@ -71,7 +70,7 @@ public:
     painter_data(void) const;
 
     /*!
-      Returns an array listing what winding number values
+      Return a sorted array listing what winding number values
       there are triangle in this Subset. To get the indices
       for those triangle with winding number N, use the chunk
       computed from chunk_from_winding_number(N). The same attribute
@@ -83,8 +82,7 @@ public:
     /*!
       Returns what chunk to pass PainterAttributeData::index_chunks()
       called on the PainterAttributeData returned by painter_data()
-      to get the triangles of a specified winding number. The same
-      attribute chunk, 0, is used regardless of which winding number.
+      to get the triangles of a specified winding number.
      */
     static
     unsigned int
@@ -137,9 +135,16 @@ public:
   {
   public:
     DataWriter(void);
+    DataWriter(const DataWriter &obj);
 
     virtual
     ~DataWriter();
+
+    const DataWriter&
+    operator=(const DataWriter &rhs);
+
+    void
+    swap(DataWriter &obj);
 
     virtual
     unsigned int
@@ -212,7 +217,7 @@ public:
     \param max_index_cnt only allow those SubSet objects for which
                          Subset::painter_data() have no more than
                          max_index_cnt attributes.
-    \param[out] dst location to which to write the what SubSets
+    \param dst[output] location to which to write what SubSets
     \returns the number of chunks that intersect the clipping region,
              that number is guarnanteed to be no more than number_subsets().
 
@@ -246,6 +251,33 @@ public:
   void
   compute_writer(ScratchSpace &scratch_space,
                  const CustomFillRuleBase &fill_rule,
+                 const_c_array<vec3> clip_equations,
+                 const float3x3 &clip_matrix_local,
+                 unsigned int max_attribute_cnt,
+                 unsigned int max_index_cnt,
+                 DataWriter &dst) const;
+
+  /*!
+    Compute a DataWriter value for the purposes of filling
+    a path against a fill rule WITH anti-aliasing applied.
+    \param scratch_space scratch space for computations.
+    \param fill_rule fill rule to apply to path
+    \param clip_equations array of clip equations
+    \param clip_matrix_local 3x3 transformation from local (x, y, 1)
+                             coordinates to clip coordinates.
+    \param max_attribute_cnt make so that the returned DataWriter
+                             written to dst has that each attribute
+                             chunk has no more than max_attribute_cnt
+                             attributes.
+    \param max_index_cnt make so that the returned DataWriter
+                         written to dst has that each index
+                         chunk has no more than max_index_cnt
+                         indices.
+    \param dst[output] location to which to write the DataWriter value
+   */
+  void
+  compute_writer(ScratchSpace &scratch_space,
+                 enum PainterEnums::fill_rule_t fill_rule,
                  const_c_array<vec3> clip_equations,
                  const float3x3 &clip_matrix_local,
                  unsigned int max_attribute_cnt,
