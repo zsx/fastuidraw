@@ -746,7 +746,7 @@ namespace
       fastuidraw::PainterAttribute dst;
 
       dst.m_attrib0 = fastuidraw::pack_vec4(src.x(), src.y(), 0.0f, 0.0f);
-      dst.m_attrib1 = fastuidraw::uvec4(0u, 0u, 0u, 0u);
+      dst.m_attrib1 = fastuidraw::pack_vec4(1.0f, 1.0f, 1.0f, 0.0f);
       dst.m_attrib2 = fastuidraw::uvec4(0u, 0u, 0u, 0u);
 
       return dst;
@@ -854,6 +854,10 @@ namespace
   class DataWriterPrivate
   {
   public:
+    DataWriterPrivate(void):
+      m_with_anti_aliasing(false)
+    {}
+
     class per_index_chunk
     {
     public:
@@ -882,6 +886,7 @@ namespace
     std::vector<unsigned int> m_subset_selector;
     std::vector<per_attrib_chunk> m_attribute_chunks;
     std::vector<per_index_chunk> m_index_chunks;
+    bool m_with_anti_aliasing;
   };
 
   class FilledPathPrivate
@@ -2737,6 +2742,7 @@ select_subsets(ScratchSpace &work_room,
 void
 fastuidraw::FilledPath::
 compute_writer(ScratchSpace &scratch_space,
+               bool with_anti_aliasing,
                const CustomFillRuleBase &fill_rule,
                const_c_array<vec3> clip_equations,
                const float3x3 &clip_matrix_local,
@@ -2751,6 +2757,7 @@ compute_writer(ScratchSpace &scratch_space,
 
   dst_d->m_attribute_chunks.clear();
   dst_d->m_index_chunks.clear();
+  dst_d->m_with_anti_aliasing = with_anti_aliasing;
 
   dst_d->m_subset_selector.resize(number_subsets());
   num = select_subsets(scratch_space, clip_equations, clip_matrix_local,
@@ -2804,6 +2811,7 @@ compute_writer(ScratchSpace &scratch_space,
 void
 fastuidraw::FilledPath::
 compute_writer(ScratchSpace &scratch_space,
+               bool with_anti_aliasing,
                enum PainterEnums::fill_rule_t fill_rule,
                const_c_array<vec3> clip_equations,
                const float3x3 &clip_matrix_local,
@@ -2811,7 +2819,7 @@ compute_writer(ScratchSpace &scratch_space,
                unsigned int max_index_cnt,
                DataWriter &dst) const
 {
-  compute_writer(scratch_space,
+  compute_writer(scratch_space, with_anti_aliasing,
                  CustomFillRuleFunction(fill_rule),
                  clip_equations, clip_matrix_local,
                  max_attribute_cnt, max_index_cnt, dst);

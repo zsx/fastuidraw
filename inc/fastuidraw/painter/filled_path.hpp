@@ -231,8 +231,10 @@ public:
 
   /*!
     Compute a DataWriter value for the purposes of filling
-    a path against a fill rule WITH anti-aliasing applied.
-    \param scratch_space scratch space for computations.
+    a path against a fill rule.
+    \param scratch_space scratch space for computations
+    \param with_anti_aliasing if true, the DataWriter will emit attribute data
+                              for an anti-aliasing fill shader
     \param fill_rule custom fill rule to apply to path
     \param clip_equations array of clip equations
     \param clip_matrix_local 3x3 transformation from local (x, y, 1)
@@ -249,6 +251,7 @@ public:
    */
   void
   compute_writer(ScratchSpace &scratch_space,
+                 bool with_anti_aliasing,
                  const CustomFillRuleBase &fill_rule,
                  const_c_array<vec3> clip_equations,
                  const float3x3 &clip_matrix_local,
@@ -258,8 +261,10 @@ public:
 
   /*!
     Compute a DataWriter value for the purposes of filling
-    a path against a fill rule WITH anti-aliasing applied.
-    \param scratch_space scratch space for computations.
+    a path against a fill rule.
+    \param scratch_space scratch space for computations
+    \param with_anti_aliasing if true, the DataWriter will emit attribute data
+                              for an anti-aliasing fill shader
     \param fill_rule fill rule to apply to path
     \param clip_equations array of clip equations
     \param clip_matrix_local 3x3 transformation from local (x, y, 1)
@@ -276,6 +281,7 @@ public:
    */
   void
   compute_writer(ScratchSpace &scratch_space,
+                 bool with_anti_aliasing,
                  enum PainterEnums::fill_rule_t fill_rule,
                  const_c_array<vec3> clip_equations,
                  const float3x3 &clip_matrix_local,
