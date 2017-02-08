@@ -126,8 +126,7 @@ public:
     anti-aliasing. The attribute data filled by a
     DataWriter is packed as follows:
       - PainterAttribute::m_attrib0 .xy -> position of point in local coordinate (float)
-      - PainterAttribute::m_attrib0 .z -> 0 if vertex is on boundary of fill, 1 if it is on interior
-      - PainterAttribute::m_attrib0 .w -> 0 (free)
+      - PainterAttribute::m_attrib0 .zw -> 0 (free)
       - PainterAttribute::m_attrib1 .xyzw -> 0 (free)
       - PainterAttribute::m_attrib2 .xyzw -> 0 (free)
    */
@@ -217,7 +216,7 @@ public:
     \param max_index_cnt only allow those SubSet objects for which
                          Subset::painter_data() have no more than
                          max_index_cnt attributes.
-    \param dst[output] location to which to write what SubSets
+    \param[out] dst location to which to write what SubSets
     \returns the number of chunks that intersect the clipping region,
              that number is guarnanteed to be no more than number_subsets().
 
@@ -246,7 +245,7 @@ public:
                          written to dst has that each index
                          chunk has no more than max_index_cnt
                          indices.
-    \param dst[output] location to which to write the DataWriter value
+    \param dst[out] location to which to write the DataWriter value
    */
   void
   compute_writer(ScratchSpace &scratch_space,
@@ -273,7 +272,7 @@ public:
                          written to dst has that each index
                          chunk has no more than max_index_cnt
                          indices.
-    \param dst[output] location to which to write the DataWriter value
+    \param dst[out] location to which to write the DataWriter value
    */
   void
   compute_writer(ScratchSpace &scratch_space,

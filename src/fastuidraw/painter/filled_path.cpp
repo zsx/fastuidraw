@@ -789,8 +789,8 @@ namespace
       return fastuidraw::make_c_array(m_winding_numbers);
     }
 
-    const fastuidraw::PainterAttributeData &
-    painter_data(void)
+    const fastuidraw::PainterAttributeData&
+    painter_data(void) const
     {
       assert(m_painter_data != NULL);
       return *m_painter_data;
@@ -849,6 +849,39 @@ namespace
      */
     SubPath *m_sub_path;
     fastuidraw::vecN<SubsetPrivate*, 2> m_children;
+  };
+
+  class DataWriterPrivate
+  {
+  public:
+    class per_index_chunk
+    {
+    public:
+      explicit
+      per_index_chunk(fastuidraw::const_c_array<fastuidraw::PainterIndex> indices,
+                      unsigned int attrib_chunk):
+        m_indices(indices),
+        m_attrib_chunk(attrib_chunk)
+      {}
+
+      fastuidraw::const_c_array<fastuidraw::PainterIndex> m_indices;
+      unsigned int m_attrib_chunk;
+    };
+
+    class per_attrib_chunk
+    {
+    public:
+      explicit
+      per_attrib_chunk(const SubsetPrivate *d):
+        m_attribs(d->painter_data().attribute_data_chunk(0))
+      {}
+
+      fastuidraw::const_c_array<fastuidraw::PainterAttribute> m_attribs;
+    };
+
+    std::vector<unsigned int> m_subset_selector;
+    std::vector<per_attrib_chunk> m_attribute_chunks;
+    std::vector<per_index_chunk> m_index_chunks;
   };
 
   class FilledPathPrivate
@@ -2432,6 +2465,138 @@ fastuidraw::FilledPath::ScratchSpace::
   m_d = NULL;
 }
 
+//////////////////////////////////////////////
+// fastuidraw::FilledPath::DataWriter methods
+fastuidraw::FilledPath::DataWriter::
+DataWriter(void)
+{
+  m_d = FASTUIDRAWnew DataWriterPrivate();
+}
+
+fastuidraw::FilledPath::DataWriter::
+DataWriter(const DataWriter &obj)
+{
+  DataWriterPrivate *obj_d;
+  obj_d = static_cast<DataWriterPrivate*>(obj.m_d);
+  m_d = FASTUIDRAWnew DataWriterPrivate(*obj_d);
+}
+
+fastuidraw::FilledPath::DataWriter::
+~DataWriter()
+{
+  DataWriterPrivate *d;
+  d = static_cast<DataWriterPrivate*>(m_d);
+  FASTUIDRAWdelete(d);
+  m_d = NULL;
+}
+
+void
+fastuidraw::FilledPath::DataWriter::
+swap(DataWriter &obj)
+{
+  std::swap(obj.m_d, m_d);
+}
+
+const fastuidraw::FilledPath::DataWriter&
+fastuidraw::FilledPath::DataWriter::
+operator=(const DataWriter &rhs)
+{
+  if(&rhs != this)
+    {
+      DataWriter tmp(rhs);
+      swap(tmp);
+    }
+  return *this;
+}
+
+unsigned int
+fastuidraw::FilledPath::DataWriter::
+number_attribute_chunks(void) const
+{
+  DataWriterPrivate *d;
+  d = reinterpret_cast<DataWriterPrivate*>(m_d);
+  return d->m_attribute_chunks.size();
+}
+
+unsigned int
+fastuidraw::FilledPath::DataWriter::
+number_attributes(unsigned int attribute_chunk) const
+{
+  DataWriterPrivate *d;
+  d = reinterpret_cast<DataWriterPrivate*>(m_d);
+  assert(attribute_chunk < d->m_attribute_chunks.size());
+  return d->m_attribute_chunks[attribute_chunk].m_attribs.size();
+}
+
+unsigned int
+fastuidraw::FilledPath::DataWriter::
+number_index_chunks(void) const
+{
+  DataWriterPrivate *d;
+  d = reinterpret_cast<DataWriterPrivate*>(m_d);
+  return d->m_index_chunks.size();
+}
+
+unsigned int
+fastuidraw::FilledPath::DataWriter::
+number_indices(unsigned int index_chunk) const
+{
+  DataWriterPrivate *d;
+  d = reinterpret_cast<DataWriterPrivate*>(m_d);
+  assert(index_chunk < d->m_index_chunks.size());
+  return d->m_index_chunks[index_chunk].m_indices.size();
+}
+
+unsigned int
+fastuidraw::FilledPath::DataWriter::
+attribute_chunk_selection(unsigned int index_chunk) const
+{
+  DataWriterPrivate *d;
+  d = reinterpret_cast<DataWriterPrivate*>(m_d);
+  assert(index_chunk < d->m_index_chunks.size());
+  return d->m_index_chunks[index_chunk].m_attrib_chunk;
+}
+
+void
+fastuidraw::FilledPath::DataWriter::
+write_indices(c_array<PainterIndex> dst,
+              unsigned int index_offset_value,
+              unsigned int index_chunk) const
+{
+  const_c_array<PainterIndex> src;
+  DataWriterPrivate *d;
+  d = reinterpret_cast<DataWriterPrivate*>(m_d);
+
+  assert(index_chunk < d->m_index_chunks.size());
+  src = d->m_index_chunks[index_chunk].m_indices;
+
+  assert(dst.size() == src.size());
+  for(unsigned int i = 0; i < dst.size(); ++i)
+    {
+      dst[i] = src[i] + index_offset_value;
+    }
+}
+
+void
+fastuidraw::FilledPath::DataWriter::
+write_attributes(c_array<PainterAttribute> dst,
+                 unsigned int attribute_chunk) const
+{
+  const_c_array<PainterAttribute> src;
+  DataWriterPrivate *d;
+
+  d = reinterpret_cast<DataWriterPrivate*>(m_d);
+
+  assert(attribute_chunk < d->m_attribute_chunks.size());
+  src = d->m_attribute_chunks[attribute_chunk].m_attribs;
+
+  assert(dst.size() == src.size());
+  /* TODO: if doing anti-aliasing apply bit-pattern
+     logic to attributes.
+   */
+  std::copy(src.begin(), src.end(), dst.begin());
+}
+
 /////////////////////////////////
 // fastuidraw::FilledPath::Subset methods
 fastuidraw::FilledPath::Subset::
@@ -2567,4 +2732,87 @@ select_subsets(ScratchSpace &work_room,
                                           max_attribute_cnt, max_index_cnt, dst);
 
   return return_value;
+}
+
+void
+fastuidraw::FilledPath::
+compute_writer(ScratchSpace &scratch_space,
+               const CustomFillRuleBase &fill_rule,
+               const_c_array<vec3> clip_equations,
+               const float3x3 &clip_matrix_local,
+               unsigned int max_attribute_cnt,
+               unsigned int max_index_cnt,
+               DataWriter &dst) const
+{
+  DataWriterPrivate *dst_d;
+  unsigned int num;
+
+  dst_d = reinterpret_cast<DataWriterPrivate*>(dst.m_d);
+
+  dst_d->m_attribute_chunks.clear();
+  dst_d->m_index_chunks.clear();
+
+  dst_d->m_subset_selector.resize(number_subsets());
+  num = select_subsets(scratch_space, clip_equations, clip_matrix_local,
+                       max_attribute_cnt, max_index_cnt,
+                       make_c_array(dst_d->m_subset_selector));
+
+  if(num == 0)
+    {
+      return;
+    }
+
+  dst_d->m_attribute_chunks.reserve(num);
+  dst_d->m_index_chunks.reserve(num);
+  for(unsigned int i = 0; i < num; ++i)
+    {
+      Subset S(subset(dst_d->m_subset_selector[i]));
+      SubsetPrivate *sd;
+      const_c_array<int> windings;
+      const unsigned int ATTRIB_CHUNK_NOT_TAKEN = ~0u;
+      unsigned int attrib_chunk;
+
+      sd = reinterpret_cast<SubsetPrivate*>(S.m_d);
+      windings = sd->winding_numbers();
+      attrib_chunk = ATTRIB_CHUNK_NOT_TAKEN;
+
+      for(unsigned int i = 0; i < windings.size(); ++i)
+        {
+          int w;
+
+          w = windings[i];
+          if(fill_rule(w))
+            {
+              unsigned int index_chunk;
+              const_c_array<PainterIndex> indices;
+
+              if(attrib_chunk == ATTRIB_CHUNK_NOT_TAKEN)
+                {
+                  attrib_chunk = dst_d->m_attribute_chunks.size();
+                  dst_d->m_attribute_chunks.push_back(DataWriterPrivate::per_attrib_chunk(sd));
+                }
+
+              index_chunk = Subset::chunk_from_winding_number(w);
+              indices = sd->painter_data().index_data_chunk(index_chunk);
+
+              dst_d->m_index_chunks.push_back(DataWriterPrivate::per_index_chunk(indices, attrib_chunk));
+            }
+        }
+    }
+}
+
+void
+fastuidraw::FilledPath::
+compute_writer(ScratchSpace &scratch_space,
+               enum PainterEnums::fill_rule_t fill_rule,
+               const_c_array<vec3> clip_equations,
+               const float3x3 &clip_matrix_local,
+               unsigned int max_attribute_cnt,
+               unsigned int max_index_cnt,
+               DataWriter &dst) const
+{
+  compute_writer(scratch_space,
+                 CustomFillRuleFunction(fill_rule),
+                 clip_equations, clip_matrix_local,
+                 max_attribute_cnt, max_index_cnt, dst);
 }

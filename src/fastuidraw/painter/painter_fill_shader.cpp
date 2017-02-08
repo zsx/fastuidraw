@@ -67,6 +67,15 @@ operator=(const PainterFillShader &rhs)
   return *this;
 }
 
+const fastuidraw::reference_counted_ptr<fastuidraw::PainterItemShader>&
+fastuidraw::PainterFillShader::
+shader(bool with_aa) const
+{
+  return (with_aa) ?
+    aa_shader() :
+    non_aa_shader();
+}
+
 #define setget_implement(type, name)                                \
   fastuidraw::PainterFillShader&                                    \
   fastuidraw::PainterFillShader::                                   \

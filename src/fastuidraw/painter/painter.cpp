@@ -549,6 +549,7 @@ namespace
     std::vector<int> m_stroke_index_adjusts;
     fastuidraw::StrokedPath::ScratchSpace m_stroked_path_scratch;
     fastuidraw::FilledPath::ScratchSpace m_filled_path_scratch;
+    fastuidraw::FilledPath::DataWriter m_aa_fill_data_writer;
   };
 
   class PainterPrivate
@@ -574,6 +575,13 @@ namespace
                  fastuidraw::const_c_array<fastuidraw::const_c_array<fastuidraw::PainterIndex> > index_chunks,
                  fastuidraw::const_c_array<int> index_adjusts,
                  fastuidraw::const_c_array<unsigned int> attrib_chunk_selector,
+                 unsigned int z,
+                 const fastuidraw::reference_counted_ptr<fastuidraw::PainterPacker::DataCallBack> &call_back);
+
+    void
+    draw_generic(const fastuidraw::reference_counted_ptr<fastuidraw::PainterItemShader> &shader,
+                 const fastuidraw::PainterData &draw,
+                 const fastuidraw::PainterPacker::DataWriter &src,
                  unsigned int z,
                  const fastuidraw::reference_counted_ptr<fastuidraw::PainterPacker::DataCallBack> &call_back);
 
@@ -1161,6 +1169,20 @@ draw_generic(const fastuidraw::reference_counted_ptr<fastuidraw::PainterItemShad
 
 void
 PainterPrivate::
+draw_generic(const fastuidraw::reference_counted_ptr<fastuidraw::PainterItemShader> &shader,
+             const fastuidraw::PainterData &draw,
+             const fastuidraw::PainterPacker::DataWriter &src,
+             unsigned int z,
+             const fastuidraw::reference_counted_ptr<fastuidraw::PainterPacker::DataCallBack> &call_back)
+{
+  fastuidraw::PainterPackerData p(draw);
+  p.m_clip = m_clip_rect_state.clip_equations_state(m_pool);
+  p.m_matrix = m_clip_rect_state.current_item_marix_state(m_pool);
+  m_core->draw_generic(shader, p, src, z, call_back);
+}
+
+void
+PainterPrivate::
 draw_generic_check(const fastuidraw::reference_counted_ptr<fastuidraw::PainterItemShader> &shader,
                    const fastuidraw::PainterData &draw,
                    fastuidraw::const_c_array<fastuidraw::const_c_array<fastuidraw::PainterAttribute> > attrib_chunks,
@@ -1289,6 +1311,17 @@ draw_generic(const reference_counted_ptr<PainterItemShader> &shader, const Paint
 
 void
 fastuidraw::Painter::
+draw_generic(const reference_counted_ptr<PainterItemShader> &shader, const PainterData &draw,
+             const PainterPacker::DataWriter &src,
+             const reference_counted_ptr<PainterPacker::DataCallBack> &call_back)
+{
+  PainterPrivate *d;
+  d = static_cast<PainterPrivate*>(m_d);
+  d->draw_generic(shader, draw, src, current_z(), call_back);
+}
+
+void
+fastuidraw::Painter::
 draw_convex_polygon(const PainterFillShader &shader,
                     const PainterData &draw, const_c_array<vec2> pts,
                     bool with_anti_aliasing,
@@ -1314,33 +1347,46 @@ draw_convex_polygon(const PainterFillShader &shader,
         }
     }
 
-  /* Draw a triangle fan centered at pts[0]
-     TODO: change to draw triangle fan centered at average of points
-     with all boundary edges marked as exterior edges.
-   */
-  d->m_work_room.m_attribs.resize(pts.size());
-  for(unsigned int i = 0; i < pts.size(); ++i)
+  if(with_anti_aliasing)
     {
-      d->m_work_room.m_attribs[i].m_attrib0 = fastuidraw::pack_vec4(pts[i].x(), pts[i].y(), 0.0f, 0.0f);
-      d->m_work_room.m_attribs[i].m_attrib1 = uvec4(0u, 0u, 0u, 0u);
-      d->m_work_room.m_attribs[i].m_attrib2 = uvec4(0u, 0u, 0u, 0u);
+      vec2 center(0.0f, 0.0f);
+      d->m_work_room.m_attribs.resize(pts.size() + 1);
+      for(unsigned int i = 0; i < pts.size(); ++i)
+        {
+          d->m_work_room.m_attribs[i + 1].m_attrib0 = fastuidraw::pack_vec4(pts[i].x(), pts[i].y(), 0.0f, 0.0f);
+          d->m_work_room.m_attribs[i + 1].m_attrib1 = uvec4(0u, 0u, 0u, 0u);
+          d->m_work_room.m_attribs[i + 1].m_attrib2 = uvec4(0u, 0u, 0u, 0u);
+          center += pts[i];
+        }
+      center /= static_cast<float>(pts.size());
+      d->m_work_room.m_attribs[0].m_attrib0 = fastuidraw::pack_vec4(center.x(), center.y(), 1.0f, 0.0f);
+      d->m_work_room.m_attribs[0].m_attrib1 = uvec4(1u, 1u, 1u, 0u);
+      d->m_work_room.m_attribs[0].m_attrib2 = uvec4(0u, 0u, 0u, 0u);
+    }
+  else
+    {
+      d->m_work_room.m_attribs.resize(pts.size());
+      for(unsigned int i = 0; i < pts.size(); ++i)
+        {
+          d->m_work_room.m_attribs[i].m_attrib0 = fastuidraw::pack_vec4(pts[i].x(), pts[i].y(), 0.0f, 0.0f);
+          d->m_work_room.m_attribs[i].m_attrib1 = uvec4(1u, 1u, 1u, 0u);
+          d->m_work_room.m_attribs[i].m_attrib2 = uvec4(0u, 0u, 0u, 0u);
+        }
     }
 
   d->m_work_room.m_indices.clear();
-  d->m_work_room.m_indices.reserve((pts.size() - 2) * 3);
-  for(unsigned int i = 2; i < pts.size(); ++i)
+  d->m_work_room.m_indices.reserve((d->m_work_room.m_attribs.size() - 2) * 3);
+  for(unsigned int i = 2; i < d->m_work_room.m_attribs.size(); ++i)
     {
       d->m_work_room.m_indices.push_back(0);
       d->m_work_room.m_indices.push_back(i - 1);
       d->m_work_room.m_indices.push_back(i);
     }
-  draw_generic(shader.non_aa_shader(), draw,
+  draw_generic(shader.shader(with_anti_aliasing), draw,
                make_c_array(d->m_work_room.m_attribs),
                make_c_array(d->m_work_room.m_indices),
                0,
                call_back);
-  assert(!with_anti_aliasing);
-  FASTUIDRAWunused(with_anti_aliasing);
 }
 
 void
@@ -1365,7 +1411,8 @@ draw_quad(const PainterFillShader &shader,
   pts[1] = p1;
   pts[2] = p2;
   pts[3] = p3;
-  draw_convex_polygon(shader, draw, const_c_array<vec2>(&pts[0], pts.size()),
+  draw_convex_polygon(shader, draw,
+                      const_c_array<vec2>(&pts[0], pts.size()),
                       with_anti_aliasing, call_back);
 }
 
@@ -1375,8 +1422,8 @@ draw_quad(const PainterData &draw, const vec2 &p0, const vec2 &p1, const vec2 &p
           bool with_anti_aliasing,
           const reference_counted_ptr<PainterPacker::DataCallBack> &call_back)
 {
-  draw_quad(default_shaders().fill_shader(), draw, p0, p1, p2, p3,
-            with_anti_aliasing, call_back);
+  draw_quad(default_shaders().fill_shader(), draw,
+            p0, p1, p2, p3, with_anti_aliasing, call_back);
 }
 
 void
@@ -1386,7 +1433,8 @@ draw_rect(const PainterFillShader &shader,
           bool with_anti_aliasing,
           const reference_counted_ptr<PainterPacker::DataCallBack> &call_back)
 {
-  draw_quad(shader, draw, p, p + vec2(0.0f, wh.y()),
+  draw_quad(shader, draw,
+            p, p + vec2(0.0f, wh.y()),
             p + wh, p + vec2(wh.x(), 0.0f),
             with_anti_aliasing, call_back);
 }
@@ -1854,29 +1902,45 @@ fill_path(const PainterFillShader &shader, const PainterData &draw,
       return;
     }
 
-  idx_chunk = FilledPath::Subset::chunk_from_fill_rule(fill_rule);
-  atr_chunk = 0;
-
-  d->m_work_room.m_subset_selector.resize(filled_path.number_subsets());
-  num_subsets = filled_path.select_subsets(d->m_work_room.m_filled_path_scratch,
-                                           d->m_clip_store.current(),
-                                           d->m_clip_rect_state.item_matrix(),
-                                           d->m_max_attribs_per_block,
-                                           d->m_max_indices_per_block,
-                                           make_c_array(d->m_work_room.m_subset_selector));
-  for(unsigned int i = 0; i < num_subsets; ++i)
+  if(with_anti_aliasing)
     {
-      unsigned int s(d->m_work_room.m_subset_selector[i]);
-      FilledPath::Subset subset(filled_path.subset(s));
-      const PainterAttributeData &data(subset.painter_data());
+      filled_path.compute_writer(d->m_work_room.m_filled_path_scratch,
+                                 fill_rule,
+                                 d->m_clip_store.current(),
+                                 d->m_clip_rect_state.item_matrix(),
+                                 d->m_max_attribs_per_block,
+                                 d->m_max_indices_per_block,
+                                 d->m_work_room.m_aa_fill_data_writer);
 
-      draw_generic(shader.non_aa_shader(), draw,
-                   data.attribute_data_chunk(atr_chunk),
-                   data.index_data_chunk(idx_chunk),
-                   data.index_adjust_chunk(idx_chunk),
+      draw_generic(shader.aa_shader(), draw,
+                   d->m_work_room.m_aa_fill_data_writer,
                    call_back);
     }
-  FASTUIDRAWunused(with_anti_aliasing);
+  else
+    {
+      idx_chunk = FilledPath::Subset::chunk_from_fill_rule(fill_rule);
+      atr_chunk = 0;
+
+      d->m_work_room.m_subset_selector.resize(filled_path.number_subsets());
+      num_subsets = filled_path.select_subsets(d->m_work_room.m_filled_path_scratch,
+                                               d->m_clip_store.current(),
+                                               d->m_clip_rect_state.item_matrix(),
+                                               d->m_max_attribs_per_block,
+                                               d->m_max_indices_per_block,
+                                               make_c_array(d->m_work_room.m_subset_selector));
+      for(unsigned int i = 0; i < num_subsets; ++i)
+        {
+          unsigned int s(d->m_work_room.m_subset_selector[i]);
+          FilledPath::Subset subset(filled_path.subset(s));
+          const PainterAttributeData &data(subset.painter_data());
+
+          draw_generic(shader.non_aa_shader(), draw,
+                       data.attribute_data_chunk(atr_chunk),
+                       data.index_data_chunk(idx_chunk),
+                       data.index_adjust_chunk(idx_chunk),
+                       call_back);
+        }
+    }
 }
 
 void
@@ -1891,8 +1955,7 @@ fill_path(const PainterFillShader &shader, const PainterData &draw,
 
   d = static_cast<PainterPrivate*>(m_d);
   thresh = d->select_path_thresh(path);
-  fill_path(shader, draw, *path.tessellation(thresh)->filled(), fill_rule,
-            with_anti_aliasing, call_back);
+  fill_path(shader, draw, *path.tessellation(thresh)->filled(), fill_rule, with_anti_aliasing, call_back);
 }
 
 void
@@ -1901,8 +1964,7 @@ fill_path(const PainterData &draw, const Path &path, enum PainterEnums::fill_rul
           bool with_anti_aliasing,
           const reference_counted_ptr<PainterPacker::DataCallBack> &call_back)
 {
-  fill_path(default_shaders().fill_shader(), draw, path, fill_rule,
-            with_anti_aliasing, call_back);
+  fill_path(default_shaders().fill_shader(), draw, path, fill_rule, with_anti_aliasing, call_back);
 }
 
 void
@@ -1921,66 +1983,82 @@ fill_path(const PainterFillShader &shader, const PainterData &draw,
       return;
     }
 
-  d->m_work_room.m_subset_selector.resize(filled_path.number_subsets());
-  num_subsets = filled_path.select_subsets(d->m_work_room.m_filled_path_scratch,
-                                           d->m_clip_store.current(),
-                                           d->m_clip_rect_state.item_matrix(),
-                                           d->m_max_attribs_per_block,
-                                           d->m_max_indices_per_block,
-                                           make_c_array(d->m_work_room.m_subset_selector));
-
-  d->m_work_room.m_attrib_chunks.clear();
-  d->m_work_room.m_index_chunks.clear();
-  d->m_work_room.m_index_adjusts.clear();
-  d->m_work_room.m_selector.clear();
-
-  for(unsigned int i = 0; i < num_subsets; ++i)
+  if(with_anti_aliasing)
     {
-      unsigned int s(d->m_work_room.m_subset_selector[i]);
-      FilledPath::Subset subset(filled_path.subset(s));
-      const PainterAttributeData &data(subset.painter_data());
-      const_c_array<fastuidraw::PainterAttribute> attrib_chunk;
-      unsigned int attrib_selector_value;
-      bool added_chunk;
+      filled_path.compute_writer(d->m_work_room.m_filled_path_scratch,
+                                 fill_rule,
+                                 d->m_clip_store.current(),
+                                 d->m_clip_rect_state.item_matrix(),
+                                 d->m_max_attribs_per_block,
+                                 d->m_max_indices_per_block,
+                                 d->m_work_room.m_aa_fill_data_writer);
 
-      added_chunk = false;
-      attrib_selector_value = d->m_work_room.m_attrib_chunks.size();
+      draw_generic(shader.aa_shader(), draw,
+                   d->m_work_room.m_aa_fill_data_writer,
+                   call_back);
+    }
+  else
+    {
+      d->m_work_room.m_subset_selector.resize(filled_path.number_subsets());
+      num_subsets = filled_path.select_subsets(d->m_work_room.m_filled_path_scratch,
+                                               d->m_clip_store.current(),
+                                               d->m_clip_rect_state.item_matrix(),
+                                               d->m_max_attribs_per_block,
+                                               d->m_max_indices_per_block,
+                                               make_c_array(d->m_work_room.m_subset_selector));
 
-      for(const_c_array<int>::iterator iter = subset.winding_numbers().begin(),
-            end = subset.winding_numbers().end(); iter != end; ++iter)
+      d->m_work_room.m_attrib_chunks.clear();
+      d->m_work_room.m_index_chunks.clear();
+      d->m_work_room.m_index_adjusts.clear();
+      d->m_work_room.m_selector.clear();
+
+      for(unsigned int i = 0; i < num_subsets; ++i)
         {
-          int winding_number(*iter);
-          int chunk;
-          const_c_array<PainterIndex> index_chunk;
+          unsigned int s(d->m_work_room.m_subset_selector[i]);
+          FilledPath::Subset subset(filled_path.subset(s));
+          const PainterAttributeData &data(subset.painter_data());
+          const_c_array<fastuidraw::PainterAttribute> attrib_chunk;
+          unsigned int attrib_selector_value;
+          bool added_chunk;
 
-          chunk = FilledPath::Subset::chunk_from_winding_number(winding_number);
-          index_chunk = data.index_data_chunk(chunk);
-          if(!index_chunk.empty() && fill_rule(winding_number))
+          added_chunk = false;
+          attrib_selector_value = d->m_work_room.m_attrib_chunks.size();
+
+          for(const_c_array<int>::iterator iter = subset.winding_numbers().begin(),
+                end = subset.winding_numbers().end(); iter != end; ++iter)
             {
-              d->m_work_room.m_selector.push_back(attrib_selector_value);
-              d->m_work_room.m_index_chunks.push_back(index_chunk);
-              d->m_work_room.m_index_adjusts.push_back(data.index_adjust_chunk(chunk));
-              added_chunk = true;
+              int winding_number(*iter);
+              int chunk;
+              const_c_array<PainterIndex> index_chunk;
+
+              chunk = FilledPath::Subset::chunk_from_winding_number(winding_number);
+              index_chunk = data.index_data_chunk(chunk);
+              if(!index_chunk.empty() && fill_rule(winding_number))
+                {
+                  d->m_work_room.m_selector.push_back(attrib_selector_value);
+                  d->m_work_room.m_index_chunks.push_back(index_chunk);
+                  d->m_work_room.m_index_adjusts.push_back(data.index_adjust_chunk(chunk));
+                  added_chunk = true;
+                }
+            }
+
+          if(added_chunk)
+            {
+              attrib_chunk = data.attribute_data_chunk(0);
+              d->m_work_room.m_attrib_chunks.push_back(attrib_chunk);
             }
         }
 
-      if(added_chunk)
+      if(!d->m_work_room.m_index_chunks.empty())
         {
-          attrib_chunk = data.attribute_data_chunk(0);
-          d->m_work_room.m_attrib_chunks.push_back(attrib_chunk);
+          draw_generic(shader.non_aa_shader(), draw,
+                       make_c_array(d->m_work_room.m_attrib_chunks),
+                       make_c_array(d->m_work_room.m_index_chunks),
+                       make_c_array(d->m_work_room.m_index_adjusts),
+                       make_c_array(d->m_work_room.m_selector),
+                       call_back);
         }
     }
-
-  if(!d->m_work_room.m_index_chunks.empty())
-    {
-      draw_generic(shader.non_aa_shader(), draw,
-                   make_c_array(d->m_work_room.m_attrib_chunks),
-                   make_c_array(d->m_work_room.m_index_chunks),
-                   make_c_array(d->m_work_room.m_index_adjusts),
-                   make_c_array(d->m_work_room.m_selector),
-                   call_back);
-    }
-  FASTUIDRAWunused(with_anti_aliasing);
 }
 
 void
@@ -1995,8 +2073,7 @@ fill_path(const PainterFillShader &shader,
 
   d = static_cast<PainterPrivate*>(m_d);
   thresh = d->select_path_thresh(path);
-  fill_path(shader, draw, *path.tessellation(thresh)->filled(), fill_rule,
-            with_anti_aliasing, call_back);
+  fill_path(shader, draw, *path.tessellation(thresh)->filled(), fill_rule, with_anti_aliasing, call_back);
 }
 
 void
@@ -2005,8 +2082,7 @@ fill_path(const PainterData &draw, const Path &path, const CustomFillRuleBase &f
           bool with_anti_aliasing,
           const reference_counted_ptr<PainterPacker::DataCallBack> &call_back)
 {
-  fill_path(default_shaders().fill_shader(), draw, path, fill_rule,
-            with_anti_aliasing, call_back);
+  fill_path(default_shaders().fill_shader(), draw, path, fill_rule, with_anti_aliasing, call_back);
 }
 
 void
