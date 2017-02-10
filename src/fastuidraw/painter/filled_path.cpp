@@ -171,6 +171,7 @@ namespace CoordinateConverterConstants
 
 namespace
 {
+
   class per_winding_data:
     public fastuidraw::reference_counted<per_winding_data>::non_concurrent
   {
@@ -456,6 +457,13 @@ namespace
       return m_pts[v];
     }
 
+    const fastuidraw::ivec2&
+    ipt(unsigned int v) const
+    {
+      assert(v < m_ipts.size());
+      return m_ipts[v];
+    }
+
     const CoordinateConverter&
     converter(void) const
     {
@@ -478,6 +486,7 @@ namespace
 
     CoordinateConverter m_converter;
     std::map<fastuidraw::ivec2, unsigned int> m_map;
+    std::vector<fastuidraw::ivec2> m_ipts;
     std::vector<fastuidraw::vec2> &m_pts;
   };
 
@@ -1281,6 +1290,8 @@ fetch(const fastuidraw::vec2 &pt)
   fastuidraw::ivec2 ipt;
   unsigned int return_value;
 
+  assert(m_pts.size() == m_ipts.size());
+
   ipt = m_converter.iapply(pt);
   iter = m_map.find(ipt);
   if(iter != m_map.end())
@@ -1291,6 +1302,7 @@ fetch(const fastuidraw::vec2 &pt)
     {
       return_value = m_pts.size();
       m_pts.push_back(pt);
+      m_ipts.push_back(ipt);
       m_map[ipt] = return_value;
     }
   return return_value;
@@ -1634,24 +1646,23 @@ temp_verts_non_degenerate_triangle(void)
       return false;
     }
 
-  fastuidraw::vec2 p0(m_points[m_temp_verts[0]]);
-  fastuidraw::vec2 p1(m_points[m_temp_verts[1]]);
-  fastuidraw::vec2 p2(m_points[m_temp_verts[2]]);
+  fastuidraw::i64vec2 p0(m_points.ipt(m_temp_verts[0]));
+  fastuidraw::i64vec2 p1(m_points.ipt(m_temp_verts[1]));
+  fastuidraw::i64vec2 p2(m_points.ipt(m_temp_verts[2]));
 
   if(p0 == p1 || p0 == p2 || p1 == p2)
     {
       return false;
     }
 
-  fastuidraw::vec2 v(p1 - p0), w(p2 - p0);
-  float area;
+  fastuidraw::i64vec2 v(p1 - p0), w(p2 - p0);
+  int64_t area;
   bool return_value;
 
-  /* we only reject a triangle if its area to floating
-     point arithematic is zero.
+  /* we only reject a triangle if its area is zero.
    */
   area = fastuidraw::t_abs(v.x() * w.y() - v.y() * w.x());
-  return_value = (area > 0.0f);
+  return_value = (area > 0);
   return return_value;
 }
 
