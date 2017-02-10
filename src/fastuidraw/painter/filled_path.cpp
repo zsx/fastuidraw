@@ -172,6 +172,62 @@ namespace CoordinateConverterConstants
 namespace
 {
 
+  class winding_set
+  {
+  public:
+    winding_set(void):
+      m_min_value(1),
+      m_max_value(0)
+    {}
+
+    bool
+    operator()(int V) const
+    {
+      return m_values[compute_index(V)] != 0;
+    }
+
+    void
+    clear(void)
+    {
+      m_values.clear();
+    }
+
+    void
+    fill(int min_value, int max_value,
+         const fastuidraw::CustomFillRuleBase &fill_rule)
+    {
+      m_values.clear();
+      m_min_value = min_value;
+      m_max_value = max_value;
+      m_values.resize(fastuidraw::t_max(1 + m_max_value - m_min_value, 0), 0);
+      for(int w = min_value; w <= max_value; ++w)
+        {
+          m_values[compute_index(w)] = fill_rule(w) ? 1u : 0u;
+        }
+    }
+
+  private:
+
+    unsigned int
+    compute_index(int v) const
+    {
+      #ifdef FASTUIDRAW_VECTOR_BOUND_CHECK
+      assert(v >= m_min_value && v <= m_max_value);
+      #endif
+      return v - m_min_value;
+    }
+
+    /* NOTE:
+        we use an array of uint32_t's that although takes
+        more storage, has faster element access (because
+        to access an element does not require any bit-logic)
+        and a winding_set is used as a cache for output to
+        a custom fill rule.
+     */
+    int m_min_value, m_max_value;
+    std::vector<uint32_t> m_values;
+  };
+
   class per_winding_data:
     public fastuidraw::reference_counted<per_winding_data>::non_concurrent
   {
