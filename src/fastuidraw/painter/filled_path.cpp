@@ -163,7 +163,7 @@ namespace CoordinateConverterConstants
 {
   enum
     {
-      log2_box_dim = 24,
+      log2_box_dim = 16,
       negative_log2_fudge = 20,
       box_dim = (1 << log2_box_dim),
     };
@@ -305,15 +305,17 @@ namespace
       return r;
     }
 
-    fastuidraw::ivec2
+    fastuidraw::uvec2
     iapply(const fastuidraw::vec2 &pt) const
     {
       fastuidraw::vec2 r;
-      fastuidraw::ivec2 return_value;
+      fastuidraw::uvec2 return_value;
 
       r = m_scale_f * (pt - m_translate_f);
-      return_value.x() = static_cast<int>(r.x());
-      return_value.y() = static_cast<int>(r.y());
+
+      return_value.x() = fastuidraw::t_max(0, static_cast<int>(r.x()));
+      return_value.y() = fastuidraw::t_max(0, static_cast<int>(r.y()));
+
       return return_value;
     }
 
@@ -482,6 +484,27 @@ namespace
     std::vector<SubContour> m_contours;
     int m_winding_start;
   };
+  /* vertices in anti-aliased data are NOT shared
+     between different triangles;
+   */
+  class AntiAliasedPoint
+  {
+  public:
+    fastuidraw::vec2 m_position;
+
+    /* edges coming from subset boundaries
+       are ALWAYS internal edges
+     */
+    bool m_edge_opposite_always_internal;
+
+    /* the winding number of the triangle
+       that shares the edge -opposite-
+       to this vertex.
+     */
+    int m_winding_opposite;
+  };
+
+  typedef fastuidraw::vecN<AntiAliasedPoint, 3> AntiAliasedTriangle;
 
   class PointHoard:fastuidraw::noncopyable
   {
@@ -513,7 +536,7 @@ namespace
       return m_pts[v];
     }
 
-    const fastuidraw::ivec2&
+    const fastuidraw::uvec2&
     ipt(unsigned int v) const
     {
       assert(v < m_ipts.size());
@@ -541,9 +564,112 @@ namespace
                      BoundingBoxes &bounding_boxes);
 
     CoordinateConverter m_converter;
-    std::map<fastuidraw::ivec2, unsigned int> m_map;
-    std::vector<fastuidraw::ivec2> m_ipts;
+    std::map<fastuidraw::uvec2, unsigned int> m_map;
+    std::vector<fastuidraw::uvec2> m_ipts;
     std::vector<fastuidraw::vec2> &m_pts;
+  };
+
+  class AntiAliasedTrianglesHoard:fastuidraw::noncopyable
+  {
+  public:
+    ~AntiAliasedTrianglesHoard(void);
+
+    void
+    absorb(const AntiAliasedTrianglesHoard &obj);
+
+    std::vector<AntiAliasedTriangle>&
+    anti_aliased_triangles_writeable(int w);
+
+    fastuidraw::const_c_array<AntiAliasedTriangle>
+    anti_aliased_triangles(int w) const;
+
+  private:
+    /* anti-aliasing of data requires a seperate store for attribute
+       and there is NO vertex sharing. The triangles for triangles
+       with winding value W are in m_aa_painter_data[I] where
+       I = FilledPath::chunk_from_winding_number(W)
+     */
+    std::vector<std::vector<AntiAliasedTriangle>* > m_data;
+  };
+
+  class Edge:public fastuidraw::uvec2
+  {
+  public:
+    Edge(unsigned int a, unsigned int b):
+      fastuidraw::uvec2(fastuidraw::t_min(a, b), fastuidraw::t_max(a, b))
+    {}
+  };
+
+  class EdgeData
+  {
+  public:
+    EdgeData(void):
+      m_sorted(false)
+    {}
+
+    void
+    add_winding(uint64_t area, int w, unsigned int v);
+
+    /* Giving a vertex v, return the winding
+       number of the triangle that shares the
+       edge. If there are multiple choices
+       for what vertex to choose that is not v,
+       choose the vertex that:
+        a) is on the opposite side of the edge
+        b) maximizes area
+     */
+    int
+    opposite_winding(int w, unsigned int v);
+
+    class per_entry
+    {
+    public:
+      uint64_t m_area;
+      int m_winding;
+      unsigned int m_vertex;
+
+      /* NOTE: reverse sorted by AREA
+       */
+      bool
+      operator<(const per_entry &rhs) const
+      {
+        return m_area > rhs.m_area;
+      }
+
+      bool
+      canidate(int w, unsigned int v) const
+      {
+        return v != m_vertex || w != m_winding;
+      }
+    };
+
+    std::vector<per_entry> m_entries;
+    bool m_sorted;
+  };
+
+  /* class purpose is to track what triangle(s)
+     and edge is used. Thse values are then used
+     to compute AntiAliasedPoint::m_winding_opposite
+   */
+  class OppositeEdgeTracker:fastuidraw::noncopyable
+  {
+  public:
+    explicit
+    OppositeEdgeTracker(const PointHoard &points):
+      m_points(points)
+    {}
+
+    void
+    add_triangle(int w, uint64_t area,
+                 unsigned int v0, unsigned int v1, unsigned int v2);
+
+    void
+    fill_aa_triangles(AntiAliasedTrianglesHoard &a,
+                      const winding_index_hoard &raw_tris);
+
+  private:
+    std::map<Edge, EdgeData> m_data;
+    const PointHoard &m_points;
   };
 
   class tesser:fastuidraw::noncopyable
@@ -576,9 +702,15 @@ namespace
       return m_triangulation_failed;
     }
 
+  private:
+
     virtual
     void
     on_begin_polygon(int winding_number) = 0;
+
+    virtual
+    void
+    on_add_triangle(uint64_t area, unsigned int v0, unsigned int v1, unsigned int v2) = 0;
 
     virtual
     void
@@ -587,8 +719,6 @@ namespace
     virtual
     FASTUIDRAW_GLUboolean
     fill_region(int winding_number) = 0;
-
-  private:
 
     void
     add_contour(const PointHoard::Contour &C);
@@ -618,7 +748,7 @@ namespace
     add_point_to_store(const fastuidraw::vec2 &p);
 
     bool
-    temp_verts_non_degenerate_triangle(void);
+    temp_verts_non_degenerate_triangle(uint64_t &area);
 
     unsigned int m_point_count;
     fastuidraw_GLUtesselator *m_tess;
@@ -637,9 +767,10 @@ namespace
                  const PointHoard::Path &P,
                  const PointHoard::BoundingBoxes &boxes,
                  const SubPath &path,
-                 winding_index_hoard &hoard)
+                 winding_index_hoard &hoard,
+                 OppositeEdgeTracker &opposite_edge_tracker)
     {
-      non_zero_tesser NZ(points, P, boxes, path, hoard);
+      non_zero_tesser NZ(points, P, boxes, path, hoard, opposite_edge_tracker);
       return NZ.triangulation_failed();
     }
 
@@ -648,7 +779,8 @@ namespace
                     const PointHoard::Path &P,
                     const PointHoard::BoundingBoxes &boxes,
                     const SubPath &path,
-                    winding_index_hoard &hoard);
+                    winding_index_hoard &hoard,
+                    OppositeEdgeTracker &opposite_edge_tracker);
 
     virtual
     void
@@ -662,8 +794,13 @@ namespace
     FASTUIDRAW_GLUboolean
     fill_region(int winding_number);
 
+    virtual
+    void
+    on_add_triangle(uint64_t area, unsigned int v0, unsigned int v1, unsigned int v2);
+
     int m_winding_start;
     winding_index_hoard &m_hoard;
+    OppositeEdgeTracker &m_opposite_edge_tracker;
     int m_current_winding;
     fastuidraw::reference_counted_ptr<per_winding_data> m_current_indices;
   };
@@ -677,9 +814,10 @@ namespace
                  const PointHoard::Path &P,
                  const PointHoard::BoundingBoxes &boxes,
                  const SubPath &path,
-                 winding_index_hoard &hoard)
+                 winding_index_hoard &hoard,
+                 OppositeEdgeTracker &opposite_edge_tracker)
     {
-      zero_tesser Z(points, P, boxes, path, hoard);
+      zero_tesser Z(points, P, boxes, path, hoard, opposite_edge_tracker);
       return Z.triangulation_failed();
     }
 
@@ -689,7 +827,8 @@ namespace
                 const PointHoard::Path &P,
                 const PointHoard::BoundingBoxes &boxes,
                 const SubPath &path,
-                winding_index_hoard &hoard);
+                winding_index_hoard &hoard,
+                OppositeEdgeTracker &opposite_edge_tracker);
 
     virtual
     void
@@ -703,14 +842,20 @@ namespace
     FASTUIDRAW_GLUboolean
     fill_region(int winding_number);
 
+    virtual
+    void
+    on_add_triangle(uint64_t area, unsigned int v0, unsigned int v1, unsigned int v2);
+
     fastuidraw::reference_counted_ptr<per_winding_data> &m_indices;
+    OppositeEdgeTracker &m_opposite_edge_tracker;
   };
 
   class builder:fastuidraw::noncopyable
   {
   public:
     explicit
-    builder(const SubPath &P, std::vector<fastuidraw::vec2> &pts);
+    builder(const SubPath &P, std::vector<fastuidraw::vec2> &pts,
+            AntiAliasedTrianglesHoard &aa_triangles);
 
     ~builder();
 
@@ -902,6 +1047,7 @@ namespace
      */
     fastuidraw::PainterAttributeData *m_painter_data;
     std::vector<int> m_winding_numbers;
+    AntiAliasedTrianglesHoard m_aa_triangles;;
 
     bool m_sizes_ready;
     unsigned int m_num_attributes;
@@ -1342,8 +1488,8 @@ unsigned int
 PointHoard::
 fetch(const fastuidraw::vec2 &pt)
 {
-  std::map<fastuidraw::ivec2, unsigned int>::iterator iter;
-  fastuidraw::ivec2 ipt;
+  std::map<fastuidraw::uvec2, unsigned int>::iterator iter;
+  fastuidraw::uvec2 ipt;
   unsigned int return_value;
 
   assert(m_pts.size() == m_ipts.size());
@@ -1693,7 +1839,7 @@ add_point_to_store(const fastuidraw::vec2 &p)
 
 bool
 tesser::
-temp_verts_non_degenerate_triangle(void)
+temp_verts_non_degenerate_triangle(uint64_t &area)
 {
   if(m_temp_verts[0] == m_temp_verts[1]
      || m_temp_verts[0] == m_temp_verts[2]
@@ -1712,7 +1858,6 @@ temp_verts_non_degenerate_triangle(void)
     }
 
   fastuidraw::i64vec2 v(p1 - p0), w(p2 - p0);
-  int64_t area;
   bool return_value;
 
   /* we only reject a triangle if its area is zero.
@@ -1749,25 +1894,27 @@ vertex_callBack(unsigned int vertex_id, void *tess)
 
   /* Cache adds vertices in groups of 3 (triangles),
      then if all vertices are NOT FASTUIDRAW_GLU_NULL_CLIENT_ID,
-     then add them.
+     and triangle is not degenerate, then add the triangle.
    */
   p->m_temp_verts[p->m_temp_vert_count] = vertex_id;
   p->m_temp_vert_count++;
   if(p->m_temp_vert_count == 3)
     {
+      uint64_t area(0u);
       p->m_temp_vert_count = 0;
       /*
-        if vertex_id is FASTUIDRAW_GLU_NULL_CLIENT_ID, that means
+        if a vertex_id is FASTUIDRAW_GLU_NULL_CLIENT_ID, that means
         the triangle is junked.
       */
       if(p->m_temp_verts[0] != FASTUIDRAW_GLU_NULL_CLIENT_ID
          && p->m_temp_verts[1] != FASTUIDRAW_GLU_NULL_CLIENT_ID
          && p->m_temp_verts[2] != FASTUIDRAW_GLU_NULL_CLIENT_ID
-         && p->temp_verts_non_degenerate_triangle())
+         && p->temp_verts_non_degenerate_triangle(area))
         {
           p->add_vertex_to_polygon(p->m_temp_verts[0]);
           p->add_vertex_to_polygon(p->m_temp_verts[1]);
           p->add_vertex_to_polygon(p->m_temp_verts[2]);
+          p->on_add_triangle(area, p->m_temp_verts[0], p->m_temp_verts[1], p->m_temp_verts[2]);
         }
     }
 }
@@ -1816,10 +1963,12 @@ non_zero_tesser(PointHoard &points,
                 const PointHoard::Path &P,
                 const PointHoard::BoundingBoxes &boxes,
                 const SubPath &path,
-                winding_index_hoard &hoard):
+                winding_index_hoard &hoard,
+                OppositeEdgeTracker &opposite_edge_tracker):
   tesser(points),
   m_winding_start(path.winding_start()),
   m_hoard(hoard),
+  m_opposite_edge_tracker(opposite_edge_tracker),
   m_current_winding(0)
 {
   start();
@@ -1847,6 +1996,13 @@ on_begin_polygon(int winding_number)
 
 void
 non_zero_tesser::
+on_add_triangle(uint64_t area, unsigned int v0, unsigned int v1, unsigned int v2)
+{
+  m_opposite_edge_tracker.add_triangle(m_current_winding, area, v0, v1, v2);
+}
+
+void
+non_zero_tesser::
 add_vertex_to_polygon(unsigned int vertex)
 {
   m_current_indices->add_index(vertex);
@@ -1869,9 +2025,11 @@ zero_tesser(PointHoard &points,
             const PointHoard::Path &P,
             const PointHoard::BoundingBoxes &boxes,
             const SubPath &path,
-            winding_index_hoard &hoard):
+            winding_index_hoard &hoard,
+            OppositeEdgeTracker &opposite_edge_tracker):
   tesser(points),
-  m_indices(hoard[path.winding_start()])
+  m_indices(hoard[path.winding_start()]),
+  m_opposite_edge_tracker(opposite_edge_tracker)
 {
   if(!m_indices)
     {
@@ -1895,6 +2053,13 @@ on_begin_polygon(int winding_number)
 
 void
 zero_tesser::
+on_add_triangle(uint64_t area, unsigned int v0, unsigned int v1, unsigned int v2)
+{
+  m_opposite_edge_tracker.add_triangle(0, area, v0, v1, v2);
+}
+
+void
+zero_tesser::
 add_vertex_to_polygon(unsigned int vertex)
 {
   m_indices->add_index(vertex);
@@ -1912,17 +2077,20 @@ fill_region(int winding_number)
 /////////////////////////////////////////
 // builder methods
 builder::
-builder(const SubPath &P, std::vector<fastuidraw::vec2> &points):
+builder(const SubPath &P, std::vector<fastuidraw::vec2> &points,
+        AntiAliasedTrianglesHoard &aa_triangles):
   m_points(P.bounds(), points)
 {
   bool failZ, failNZ;
   PointHoard::Path path;
   PointHoard::BoundingBoxes path_bounding_boxes;
+  OppositeEdgeTracker oet(m_points);
 
   m_points.generate_path(P, path, path_bounding_boxes);
-  failNZ = non_zero_tesser::execute_path(m_points, path, path_bounding_boxes, P, m_hoard);
-  failZ = zero_tesser::execute_path(m_points, path, path_bounding_boxes, P, m_hoard);
-  m_failed= failNZ || failZ;
+  failNZ = non_zero_tesser::execute_path(m_points, path, path_bounding_boxes, P, m_hoard, oet);
+  failZ = zero_tesser::execute_path(m_points, path, path_bounding_boxes, P, m_hoard, oet);
+  oet.fill_aa_triangles(aa_triangles, m_hoard);
+  m_failed = failNZ || failZ;
 }
 
 builder::
@@ -2007,7 +2175,6 @@ fill_indices(std::vector<unsigned int> &indices,
 
   even_non_zero_start = num_odd;
   zero_start = current_odd + num_even_non_zero;
-
 }
 
 ////////////////////////////////
@@ -2219,6 +2386,175 @@ fill_data(fastuidraw::c_array<fastuidraw::PainterAttribute> attributes,
 
           index_chunks[idx] = dst;
           current += dst.size();
+        }
+    }
+}
+
+///////////////////////////////////
+// AntiAliasedTrianglesHoard methods
+AntiAliasedTrianglesHoard::
+~AntiAliasedTrianglesHoard(void)
+{
+  for(unsigned int i = 0, endi = m_data.size(); i < endi; ++i)
+    {
+      FASTUIDRAWdelete(m_data[i]);
+    }
+}
+
+std::vector<AntiAliasedTriangle>&
+AntiAliasedTrianglesHoard::
+anti_aliased_triangles_writeable(int w)
+{
+  unsigned int I;
+  I = fastuidraw::FilledPath::Subset::chunk_from_winding_number(w);
+  if(I < m_data.size())
+    {
+      unsigned int oldSize;
+      oldSize = m_data.size();
+      m_data.resize(I + 1, NULL);
+      for(unsigned int i = oldSize; i < I; ++i)
+        {
+          m_data[i] = FASTUIDRAWnew std::vector<AntiAliasedTriangle>();
+        }
+    }
+  return *m_data[I];
+}
+
+fastuidraw::const_c_array<AntiAliasedTriangle>
+AntiAliasedTrianglesHoard::
+anti_aliased_triangles(int w) const
+{
+  unsigned int I;
+
+  I = fastuidraw::FilledPath::Subset::chunk_from_winding_number(w);
+  return I < m_data.size() ?
+    fastuidraw::make_c_array(*m_data[w]) :
+    fastuidraw::const_c_array<AntiAliasedTriangle>();
+}
+
+void
+AntiAliasedTrianglesHoard::
+absorb(const AntiAliasedTrianglesHoard &obj)
+{
+  unsigned int sz;
+  sz = obj.m_data.size();
+
+  if(sz > m_data.size())
+    {
+      unsigned int oldSz(sz);
+
+      m_data.resize(sz, NULL);
+      for(unsigned int i = oldSz; i < sz; ++i)
+        {
+          m_data[i] = FASTUIDRAWnew std::vector<AntiAliasedTriangle>();
+        }
+    }
+
+  for(unsigned int i = 0; i < sz; ++i)
+    {
+      m_data[i]->reserve(m_data[i]->size() + obj.m_data[i]->size());
+      m_data[i]->insert(m_data[i]->end(),
+                        obj.m_data[i]->begin(),
+                        obj.m_data[i]->end());
+    }
+}
+
+////////////////////////////////
+// EdgeData methods
+void
+EdgeData::
+add_winding(uint64_t area, int w, unsigned int v)
+{
+  per_entry p;
+
+  p.m_area = area;
+  p.m_winding = w;
+  p.m_vertex = v;
+  m_entries.push_back(p);
+}
+
+int
+EdgeData::
+opposite_winding(int w, unsigned int v)
+{
+  if(m_entries.size() < 2)
+    {
+      /*
+        edge with only one triangle, this edge is then
+        made either from
+          a) an external edge to the entire path (i.e. winding 0)
+          b) a created edge from SubPath localization.
+        In either case, we will return the same winding value w,
+        to indicate that it is an internal edge.
+      */
+      return w;
+    }
+
+  if(m_entries.size() == 2)
+    {
+      return m_entries[0].canidate(w, v) ?
+        m_entries[0].m_winding :
+        m_entries[1].m_winding;
+    }
+
+  if(!m_sorted)
+    {
+      m_sorted = true;
+      std::sort(m_entries.begin(), m_entries.end());
+    }
+
+  /* take first entry that is different vertex.
+   */
+  for(unsigned int i = 0, endi = m_entries.size(); i < endi; ++i)
+    {
+      if(m_entries[i].m_vertex != v)
+        {
+          return m_entries[i].m_winding;
+        }
+    }
+  /* all vertices are same, this can happen from the discretization
+     of the data. We punt and assume an internal edge.
+   */
+  return w;
+}
+
+////////////////////////////////
+// OppositeEdgeTracker methods
+void
+OppositeEdgeTracker::
+add_triangle(int w, uint64_t area,
+             unsigned int v0, unsigned int v1, unsigned int v2)
+{
+  m_data[Edge(v0, v1)].add_winding(area, w, v2);
+  m_data[Edge(v0, v2)].add_winding(area, w, v1);
+  m_data[Edge(v1, v2)].add_winding(area, w, v0);
+}
+
+void
+OppositeEdgeTracker::
+fill_aa_triangles(AntiAliasedTrianglesHoard &a,
+                  const winding_index_hoard &raw_tris)
+{
+  for(std::map<Edge, EdgeData>::const_iterator iter = m_data.begin(),
+        end = m_data.end(); iter != end; ++iter)
+    {
+      const Edge &edge(iter->first);
+      const EdgeData &data(iter->second);
+      if(data.m_entries.size() > 2)
+        {
+          std::cout << "Too many points on Edge [" << m_points[edge[0]]
+                    << m_points.ipt(edge[0]) << ", "
+                    << m_points[edge[1]]
+                    << m_points.ipt(edge[1]) << "]\n";
+          for(unsigned int i = 0, endi = data.m_entries.size(); i < endi; ++i)
+            {
+              const EdgeData::per_entry &p(data.m_entries[i]);
+              std::cout << "\t" << m_points[p.m_vertex]
+                        << m_points.ipt(p.m_vertex)
+                        << ":" << "area = " << p.m_area
+                        << ", w = " << p.m_winding
+                        << "\n";
+            }
         }
     }
 }
@@ -2438,6 +2774,8 @@ make_ready_from_children(void)
       m_num_attributes = m_children[0]->m_num_attributes + m_children[1]->m_num_attributes;
       m_largest_index_block = m_children[0]->m_largest_index_block + m_children[1]->m_largest_index_block;
     }
+  m_aa_triangles.absorb(m_children[0]->m_aa_triangles);
+  m_aa_triangles.absorb(m_children[1]->m_aa_triangles);
 }
 
 void
@@ -2451,11 +2789,12 @@ make_ready_from_sub_path(void)
   assert(!m_sizes_ready);
 
   AttributeDataFiller filler;
-  builder B(*m_sub_path, filler.m_points);
+  builder B(*m_sub_path, filler.m_points, m_aa_triangles);
   unsigned int even_non_zero_start, zero_start;
   unsigned int m1, m2;
 
-  B.fill_indices(filler.m_indices, filler.m_per_fill, even_non_zero_start, zero_start);
+  B.fill_indices(filler.m_indices, filler.m_per_fill,
+                 even_non_zero_start, zero_start);
 
   fastuidraw::const_c_array<unsigned int> indices_ptr;
   indices_ptr = fastuidraw::make_c_array(filler.m_indices);
