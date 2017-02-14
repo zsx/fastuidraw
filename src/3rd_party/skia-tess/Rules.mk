@@ -4,12 +4,7 @@ dirstack_$(sp)	:= $(d)
 d		:= $(dir)
 # End standard header
 
-dir := $(d)/glu-tess
-include $(dir)/Rules.mk
-
-dir := $(d)/skia-tess
-include $(dir)/Rules.mk
-
+LIBRARY_PRIVATE_SOURCES += $(call filelist, GrTessellator.cpp)
 
 # Begin standard footer
 d		:= $(dirstack_$(sp))
