@@ -4,7 +4,7 @@ dirstack_$(sp)	:= $(d)
 d		:= $(dir)
 # End standard header
 
-LIBRARY_PRIVATE_SOURCES += $(call filelist, GrTessellator.cpp)
+LIBRARY_PRIVATE_SOURCES += $(call filelist, skia-tess.cpp)
 
 # Begin standard footer
 d		:= $(dirstack_$(sp))

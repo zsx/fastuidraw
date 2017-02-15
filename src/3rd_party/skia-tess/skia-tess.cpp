@@ -1,16 +1,50 @@
 /*
- * Copyright 2015 Google Inc.
+ * Heavily based upon src/gpu/GrTessellator.cpp from SKIA whose license is
  *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
+ * Copyright 2015 Google Inc.
+ * Copyright (c) 2011 Google Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *    * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *    * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Changes added:
+ *  - Change of SkPoint to fastuidraw::Tessellator::point
+ *  - Anti-aliasing tessellation removed
+ *  - Wireframe option removed
+ *  - Change SkBlockAlloc to Allocator
+ *  - Class interface fastuidraw::Tessellator, in doing so remove SkPath
+ *  - Related changes to new interface fastuidraw::Tessellator for emit_triangles
  */
 
-#include "GrTessellator.h"
-
-#include <fastuidraw/util/fastuidraw_memory.hpp>
 #include <vector>
 #include <stdint.h>
 #include <stdio.h>
+#include <fastuidraw/util/fastuidraw_memory.hpp>
+
+#include "skia-tess.hpp"
 
 /*
  * There are six stages to the basic algorithm:
@@ -862,7 +896,7 @@ Edge* connect(Vertex* prev, Vertex* next, Allocator& alloc, Comparator c,
     return edge;
 }
 
-void merge_vertices(Vertex* src, Vertex* dst, Vertex** head, Comparator& c, Allocator& alloc) {
+void merge_vertices(Vertex* src, Vertex* dst, Vertex** head, Comparator& c) {
     LOG("found coincident verts at %g, %g; merging %g into %g\n", src->fPoint.fX, src->fPoint.fY,
         src->fID, dst->fID);
     for (Edge* edge = src->fFirstEdgeAbove; edge;) {
@@ -957,13 +991,13 @@ void sanitize_contours(Vertex** contours, int contourCnt) {
     }
 }
 
-void merge_coincident_vertices(Vertex** vertices, Comparator& c, Allocator& alloc) {
+void merge_coincident_vertices(Vertex** vertices, Comparator& c) {
     for (Vertex* v = (*vertices)->fNext; v != nullptr; v = v->fNext) {
         if (c.sweep_lt(v->fPoint, v->fPrev->fPoint)) {
             v->fPoint = v->fPrev->fPoint;
         }
         if (coincident(v->fPrev->fPoint, v->fPoint)) {
-            merge_vertices(v->fPrev, v, vertices, c, alloc);
+            merge_vertices(v->fPrev, v, vertices, c);
         }
     }
 }
@@ -1250,7 +1284,7 @@ Poly* mesh_to_polys(Vertex** vertices, Comparator& c, Allocator& alloc) {
 
     // Sort vertices in Y (secondarily in X).
     merge_sort(vertices, c);
-    merge_coincident_vertices(vertices, c, alloc);
+    merge_coincident_vertices(vertices, c);
 #if LOGGING_ENABLED
     for (Vertex* v = *vertices; v != nullptr; v = v->fNext) {
         static float gID = 0.0f;
@@ -1282,8 +1316,12 @@ Poly* contours_to_polys(Vertex** contours, int contourCnt,
   {
   public:
     explicit
-    TessellatorPrivate(fastuidraw::Tessellator *p):
-      m_p(p)
+    TessellatorPrivate(fastuidraw::Tessellator *p,
+                       const fastuidraw::dvec2 &min_bb,
+                       const fastuidraw::dvec2 &max_bb):
+      m_p(p),
+      m_min_bb(min_bb),
+      m_max_bb(max_bb)
     {}
 
     void
@@ -1315,6 +1353,7 @@ Poly* contours_to_polys(Vertex** contours, int contourCnt,
 
     Builder m_builder;
     Allocator m_alloc;
+    fastuidraw::dvec2 m_min_bb, m_max_bb;
   };
 
 } // namespace
@@ -1325,14 +1364,11 @@ void
 TessellatorPrivate::
 generate_triangles(void)
 {
-  //Stage 1: convert the input path to a set of linear contours (linked list of Vertices).
-  m_p->add_contours();
-
   //to polygons
   Poly *poly;
   poly = contours_to_polys(&m_builder.m_contours[0],
                            m_builder.m_contours.size(),
-                           m_p->max_bounds() - m_p->min_bounds(), m_alloc);
+                           m_max_bb - m_min_bb, m_alloc);
   for(; poly; poly = poly->fNext)
     {
       poly->emit(m_p);
@@ -1368,9 +1404,10 @@ add_vertex(const fastuidraw::Tessellator::point &v)
 //////////////////////////////////////////////////
 // fastuidraw::Tessellator methods
 fastuidraw::Tessellator::
-Tessellator(void)
+Tessellator(const dvec2 &min_bb,
+            const dvec2 &max_bb)
 {
-  m_d = FASTUIDRAWnew TessellatorPrivate(this);
+  m_d = FASTUIDRAWnew TessellatorPrivate(this, min_bb, max_bb);
 }
 
 fastuidraw::Tessellator::
