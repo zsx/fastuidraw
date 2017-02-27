@@ -88,59 +88,6 @@ namespace SubsetConstants
   const float size_max_ratio = 4.0f;
 }
 
-/* Values to decide how to create guiding boxes around
-   contours within a Subset for the purpose of improving
-   triangulation, see PointHoard methods.
-
-   The total number of boxes, B, from N points
-   satisfies:
-
-   N / pts_per_box <= B <= N * L / pts_per_box
-
-   where L = boxes_per_box / (boxes_per_box - 1)
-
-   The cost of each guiding box is 4 edges.
-   We need to make sure that we do not add too
-   many boxes where too many of the added edges
-   are from the guiding boxes.
-
-   TODO: the main purpose is to decrease (or
-   eliminate) long skinny triangles. Another
-   way to decrease such triangle is to add a
-   post-process step that identifies triangles
-   fans coming from a single point, decide if
-   the triangles are long and skinny and if so
-   to run GLU-tess on that fan with a collection
-   of guiding edges to improve the triangulation
-   quality.
- */
-namespace PointHoardConstants
-{
-  enum
-    {
-      points_per_guiding_box = 16,
-      min_points_per_guiding_box = 4,
-      guiding_boxes_per_guiding_box = 8
-    };
-
-  /* set to false to disable using guiding boxes.
-     A guiding box adds a contour that does not
-     affect the winding values for the purpose
-     of localizing triangles made by GLU-tess
-     even more. The localizing usually makes
-     GLU-tess run SLOWER, but improves triangulation,
-     i.e. reduces the number and scope of long
-     skinny triangles.
-   */
-  const bool enable_guiding_boxes = false;
-
-  /* if true, guiding boxes are made per PathContour::interpolator_base
-     from the original Path. If false, guiding boxes are made from
-     the SubPath::SubContour fed to PointHoard::generate_path()
-   */
-  const bool guiding_boxes_per_interpolator = true;
-}
-
 /* Constants for CoordinateConverter.
    CoordinateConverter's purpose is to remap
    the bounding box of a fastuidraw::TessellatedPath
@@ -232,6 +179,8 @@ namespace
     public fastuidraw::reference_counted<per_winding_data>::non_concurrent
   {
   public:
+    typedef std::list<unsigned int> index_list;
+
     per_winding_data(void):
       m_count(0)
     {}
@@ -241,6 +190,12 @@ namespace
     {
       m_indices.push_back(idx);
       ++m_count;
+    }
+
+    const index_list&
+    indices(void) const
+    {
+      return m_indices;
     }
 
     unsigned int
@@ -261,7 +216,7 @@ namespace
     }
 
   private:
-    std::list<unsigned int> m_indices;
+    index_list m_indices;
     unsigned int m_count;
   };
 
@@ -341,82 +296,10 @@ namespace
       box_max_x_min_y = box_max_x_flag,
     };
 
-  unsigned int
-  box_next_neighbor(unsigned int v)
-  {
-    const unsigned int values[4]=
-    {
-      /* 0 is box_min_x_min_y */ box_min_x_max_y,
-      /* 1 is box_max_x_min_y */ box_min_x_min_y,
-      /* 2 is box_min_x_max_y */ box_max_x_max_y,
-      /* 3 is box_max_x_max_y */ box_max_x_min_y,
-    };
-    assert(v <= 3);
-    return values[v];
-  }
-
   class SubPath
   {
   public:
-    class SubContourPoint
-    {
-    public:
-      enum on_boundary_t
-        {
-          on_min_boundary,
-          on_max_boundary,
-          not_on_boundary
-        };
-
-      explicit
-      SubContourPoint(const fastuidraw::vec2 &p = fastuidraw::vec2(),
-                      bool start = false):
-        m_pt(p),
-        m_start_tessellated_edge(start),
-        m_boundary_type(not_on_boundary, not_on_boundary),
-        m_corner_point_type(4)
-      {}
-
-      SubContourPoint(const SubContourPoint &a,
-                      const SubContourPoint &b,
-                      const fastuidraw::vec2 &pt,
-                      int split_coordinate,
-                      enum on_boundary_t tp);
-
-      const fastuidraw::vec2&
-      pt(void) const
-      {
-        return m_pt;
-      }
-
-      bool
-      start_tessellated_edge(void) const
-      {
-        return m_start_tessellated_edge;
-      }
-
-      bool
-      is_corner_point(void) const
-      {
-        return m_boundary_type[0] != not_on_boundary
-          && m_boundary_type[1] != not_on_boundary;
-      }
-
-      uint32_t
-      corner_point_type(void) const
-      {
-        assert(is_corner_point());
-        assert(m_corner_point_type <= 3);
-        return m_corner_point_type;
-      }
-
-    private:
-      fastuidraw::vec2 m_pt;
-      bool m_start_tessellated_edge;
-      fastuidraw::vecN<enum on_boundary_t, 2> m_boundary_type;
-      int m_corner_point_type;
-    };
-
+    typedef fastuidraw::vec2 SubContourPoint;
     typedef std::vector<SubContourPoint> SubContour;
 
     explicit
@@ -440,19 +323,12 @@ namespace
       return m_total_points;
     }
 
-    int
-    winding_start(void) const
-    {
-      return m_winding_start;
-    }
-
     fastuidraw::vecN<SubPath*, 2>
     split(void) const;
 
   private:
     SubPath(const fastuidraw::BoundingBox &bb,
-            std::vector<SubContour> &contours,
-            int winding_start);
+            std::vector<SubContour> &contours);
 
     int
     choose_splitting_coordinate(fastuidraw::vec2 mid_pt) const;
@@ -466,12 +342,7 @@ namespace
     void
     split_contour(const SubContour &src,
                   int splitting_coordinate, float spitting_value,
-                  SubContour &minC, SubContour &maxC,
-                  int &C0_winding_start, int &C1_winding_start);
-
-    static
-    int
-    post_process_sub_contour(SubContour &C);
+                  SubContour &minC, SubContour &maxC);
 
     static
     fastuidraw::vec2
@@ -482,7 +353,6 @@ namespace
     unsigned int m_total_points;
     fastuidraw::BoundingBox m_bounds;
     std::vector<SubContour> m_contours;
-    int m_winding_start;
   };
   /* vertices in anti-aliased data are NOT shared
      between different triangles;
@@ -491,11 +361,6 @@ namespace
   {
   public:
     fastuidraw::vec2 m_position;
-
-    /* edges coming from subset boundaries
-       are ALWAYS internal edges
-     */
-    bool m_edge_opposite_always_internal;
 
     /* the winding number of the triangle
        that shares the edge -opposite-
@@ -511,7 +376,6 @@ namespace
   public:
     typedef std::vector<unsigned int> Contour;
     typedef std::list<Contour> Path;
-    typedef std::vector<fastuidraw::uvec4> BoundingBoxes;
 
     explicit
     PointHoard(const fastuidraw::BoundingBox &bounds,
@@ -526,8 +390,7 @@ namespace
     fetch(const fastuidraw::vec2 &pt);
 
     void
-    generate_path(const SubPath &input, Path &output,
-                  BoundingBoxes &bounding_boxes);
+    generate_path(const SubPath &input, Path &output);
 
     const fastuidraw::vec2&
     operator[](unsigned int v) const
@@ -551,17 +414,7 @@ namespace
 
   private:
     void
-    pre_process_boxes(std::vector<fastuidraw::BoundingBox> &boxes,
-                      unsigned int cnt);
-
-    void
-    process_bounding_boxes(const std::vector<fastuidraw::BoundingBox> &boxes,
-                           BoundingBoxes &bounding_boxes);
-
-    void
-    generate_contour(const SubPath::SubContour &input,
-                     Contour &output,
-                     BoundingBoxes &bounding_boxes);
+    generate_contour(const SubPath::SubContour &input, Contour &output);
 
     CoordinateConverter m_converter;
     std::map<fastuidraw::uvec2, unsigned int> m_map;
@@ -668,6 +521,11 @@ namespace
                       const winding_index_hoard &raw_tris);
 
   private:
+    void
+    add_aa_triangle(std::vector<AntiAliasedTriangle> &dst,
+                    int winding,
+                    const fastuidraw::vecN<unsigned int, 3> &T);
+
     std::map<Edge, EdgeData> m_data;
     const PointHoard &m_points;
   };
@@ -692,9 +550,6 @@ namespace
 
     void
     add_path_boundary(const SubPath &P);
-
-    void
-    add_bounding_box_path(const PointHoard::BoundingBoxes &P);
 
     bool
     triangulation_failed(void)
@@ -722,9 +577,6 @@ namespace
 
     void
     add_contour(const PointHoard::Contour &C);
-
-    void
-    add_bounding_box_path_element(const fastuidraw::uvec4 &box);
 
     static
     void
@@ -765,19 +617,17 @@ namespace
     bool
     execute_path(PointHoard &points,
                  const PointHoard::Path &P,
-                 const PointHoard::BoundingBoxes &boxes,
                  const SubPath &path,
                  winding_index_hoard &hoard,
                  OppositeEdgeTracker &opposite_edge_tracker)
     {
-      non_zero_tesser NZ(points, P, boxes, path, hoard, opposite_edge_tracker);
+      non_zero_tesser NZ(points, P, path, hoard, opposite_edge_tracker);
       return NZ.triangulation_failed();
     }
 
   private:
     non_zero_tesser(PointHoard &points,
                     const PointHoard::Path &P,
-                    const PointHoard::BoundingBoxes &boxes,
                     const SubPath &path,
                     winding_index_hoard &hoard,
                     OppositeEdgeTracker &opposite_edge_tracker);
@@ -798,7 +648,6 @@ namespace
     void
     on_add_triangle(uint64_t area, unsigned int v0, unsigned int v1, unsigned int v2);
 
-    int m_winding_start;
     winding_index_hoard &m_hoard;
     OppositeEdgeTracker &m_opposite_edge_tracker;
     int m_current_winding;
@@ -812,12 +661,11 @@ namespace
     bool
     execute_path(PointHoard &points,
                  const PointHoard::Path &P,
-                 const PointHoard::BoundingBoxes &boxes,
                  const SubPath &path,
                  winding_index_hoard &hoard,
                  OppositeEdgeTracker &opposite_edge_tracker)
     {
-      zero_tesser Z(points, P, boxes, path, hoard, opposite_edge_tracker);
+      zero_tesser Z(points, P, path, hoard, opposite_edge_tracker);
       return Z.triangulation_failed();
     }
 
@@ -825,7 +673,6 @@ namespace
 
     zero_tesser(PointHoard &points,
                 const PointHoard::Path &P,
-                const PointHoard::BoundingBoxes &boxes,
                 const SubPath &path,
                 winding_index_hoard &hoard,
                 OppositeEdgeTracker &opposite_edge_tracker);
@@ -1113,58 +960,13 @@ namespace
   };
 }
 
-////////////////////////////////////////
-// SubPath::SubContourPoint methods
-SubPath::SubContourPoint::
-SubContourPoint(const SubContourPoint &a,
-                const SubContourPoint &b,
-                const fastuidraw::vec2 &pt,
-                int split_coordinate,
-                enum on_boundary_t tp):
-  m_pt(pt),
-  m_start_tessellated_edge(true)
-{
-  int unsplit_coordinate(1 - split_coordinate);
-  if(a.m_boundary_type[unsplit_coordinate] == b.m_boundary_type[unsplit_coordinate])
-    {
-      m_boundary_type[unsplit_coordinate] = a.m_boundary_type[unsplit_coordinate];
-    }
-  else
-    {
-      m_boundary_type[unsplit_coordinate] = not_on_boundary;
-    }
-  m_boundary_type[split_coordinate] = tp;
-
-  if(is_corner_point())
-    {
-      m_corner_point_type = 0;
-      if(m_boundary_type.x() == on_max_boundary)
-        {
-          m_corner_point_type |= box_max_x_flag;
-        }
-
-      if(m_boundary_type.y() == on_max_boundary)
-        {
-          m_corner_point_type |= box_max_y_flag;
-        }
-    }
-  else
-    {
-      m_corner_point_type = 4;
-    }
-}
-
-
-
 /////////////////////////////////////
 // SubPath methods
 SubPath::
 SubPath(const fastuidraw::BoundingBox &bb,
-        std::vector<SubContour> &contours,
-        int winding_start):
+        std::vector<SubContour> &contours):
   m_total_points(0),
-  m_bounds(bb),
-  m_winding_start(winding_start)
+  m_bounds(bb)
 {
   m_contours.swap(contours);
   for(std::vector<SubContour>::const_iterator c_iter = m_contours.begin(),
@@ -1179,8 +981,7 @@ SubPath(const fastuidraw::TessellatedPath &P):
   m_total_points(0),
   m_bounds(P.bounding_box_min(),
            P.bounding_box_max()),
-  m_contours(P.number_contours()),
-  m_winding_start(0)
+  m_contours(P.number_contours())
 {
   for(unsigned int c = 0, endc = m_contours.size(); c < endc; ++c)
     {
@@ -1199,11 +1000,9 @@ copy_contour(SubContour &dst,
       fastuidraw::range_type<unsigned int> R;
 
       R = src.edge_range(C, e);
-      dst.push_back(SubContourPoint(src.point_data()[R.m_begin].m_p, true));
-      for(unsigned int v = R.m_begin + 1; v + 1 < R.m_end; ++v)
+      for(unsigned int v = R.m_begin; v + 1 < R.m_end; ++v)
         {
-          SubContourPoint pt(src.point_data()[v].m_p);
-          dst.push_back(pt);
+          dst.push_back(src.point_data()[v].m_p);
         }
     }
 }
@@ -1242,11 +1041,11 @@ choose_splitting_coordinate(fastuidraw::vec2 mid_pt) const
   for(std::vector<SubContour>::const_iterator c_iter = m_contours.begin(),
         c_end = m_contours.end(); c_iter != c_end; ++c_iter)
     {
-      fastuidraw::vec2 prev_pt(c_iter->back().pt());
+      fastuidraw::vec2 prev_pt(c_iter->back());
       for(SubContour::const_iterator iter = c_iter->begin(),
             end = c_iter->end(); iter != end; ++iter)
         {
-          fastuidraw::vec2 pt(iter->pt());
+          fastuidraw::vec2 pt(*iter);
           for(int i = 0; i < 2; ++i)
             {
               bool prev_b, b;
@@ -1313,8 +1112,7 @@ void
 SubPath::
 split_contour(const SubContour &src,
               int splitting_coordinate, float splitting_value,
-              SubContour &C0, SubContour &C1,
-              int &C0_winding_start, int &C1_winding_start)
+              SubContour &C0, SubContour &C1)
 {
   SubContourPoint prev_pt(src.back());
   for(SubContour::const_iterator iter = src.begin(),
@@ -1325,22 +1123,21 @@ split_contour(const SubContour &src,
       fastuidraw::vec2 split_pt;
       const SubContourPoint &pt(*iter);
 
-      prev_b0 = prev_pt.pt()[splitting_coordinate] <= splitting_value;
-      b0 = pt.pt()[splitting_coordinate] <= splitting_value;
+      prev_b0 = prev_pt[splitting_coordinate] <= splitting_value;
+      b0 = pt[splitting_coordinate] <= splitting_value;
 
-      prev_b1 = prev_pt.pt()[splitting_coordinate] >= splitting_value;
-      b1 = pt.pt()[splitting_coordinate] >= splitting_value;
+      prev_b1 = prev_pt[splitting_coordinate] >= splitting_value;
+      b1 = pt[splitting_coordinate] >= splitting_value;
 
       if(prev_b0 != b0 || prev_b1 != b1)
         {
-          split_pt = compute_spit_point(prev_pt.pt(), pt.pt(),
+          split_pt = compute_spit_point(prev_pt, pt,
                                         splitting_coordinate, splitting_value);
         }
 
       if(prev_b0 != b0)
         {
-          SubContourPoint s(prev_pt, pt, split_pt, splitting_coordinate, SubContourPoint::on_max_boundary);
-          C0.push_back(s);
+          C0.push_back(split_pt);
         }
 
       if(b0)
@@ -1350,8 +1147,7 @@ split_contour(const SubContour &src,
 
       if(prev_b1 != b1)
         {
-          SubContourPoint s(prev_pt, pt, split_pt, splitting_coordinate, SubContourPoint::on_min_boundary);
-          C1.push_back(s);
+          C1.push_back(split_pt);
         }
 
       if(b1)
@@ -1361,72 +1157,7 @@ split_contour(const SubContour &src,
 
       prev_pt = pt;
     }
-
-  C0_winding_start += post_process_sub_contour(C0);
-  C1_winding_start += post_process_sub_contour(C1);
 }
-
-
-int
-SubPath::
-post_process_sub_contour(SubContour &C)
-{
-  /* if all edges of C are along the boundary,
-     collapse C to nothing and return the number
-     of times C wraps around the box.
-   */
-  unsigned int prev_corner_type;
-  int forwards_counter(0), backwards_counter(0);
-
-  if(C.empty() || !C.back().is_corner_point())
-    {
-      return 0;
-    }
-
-  /* IDEA: going to a next neighbor from prev_corner_type
-     increments counter, going to a previous neighbor
-     decrements the counter. The counter % 4 gives us
-     the number of times the contour went around the
-     box.
-   */
-  prev_corner_type = C.back().corner_point_type();
-  for(SubContour::const_iterator iter = C.begin(),
-        end = C.end(); iter != end; ++iter)
-    {
-      unsigned int corner_type;
-
-      if(!iter->is_corner_point())
-        {
-          return 0;
-        }
-
-      corner_type = iter->corner_point_type();
-      if(corner_type == box_next_neighbor(prev_corner_type))
-        {
-          ++forwards_counter;
-        }
-      else if(prev_corner_type == box_next_neighbor(corner_type))
-        {
-          ++backwards_counter;
-        }
-      else
-        {
-          return 0;
-        }
-      prev_corner_type = corner_type;
-    }
-
-  int counter;
-  counter = backwards_counter - forwards_counter;
-  if(counter % 4 == 0)
-    {
-      C.clear();
-      return counter / 4;
-    }
-
-  return 0;
-}
-
 
 fastuidraw::vecN<SubPath*, 2>
 SubPath::
@@ -1451,7 +1182,6 @@ split(void) const
   fastuidraw::BoundingBox B0(m_bounds.min_point(), B0_max);
   fastuidraw::BoundingBox B1(B1_min, m_bounds.max_point());
   std::vector<SubContour> C0, C1;
-  int C0_winding_start(0), C1_winding_start(0);
 
   C0.reserve(m_contours.size());
   C1.reserve(m_contours.size());
@@ -1462,8 +1192,7 @@ split(void) const
       C1.push_back(SubContour());
       split_contour(*c_iter, splitting_coordinate,
                     mid_pt[splitting_coordinate],
-                    C0.back(), C1.back(),
-                    C0_winding_start, C1_winding_start);
+                    C0.back(), C1.back());
 
       if(C0.back().empty())
         {
@@ -1476,8 +1205,8 @@ split(void) const
         }
     }
 
-  return_value[0] = FASTUIDRAWnew SubPath(B0, C0, C0_winding_start + m_winding_start);
-  return_value[1] = FASTUIDRAWnew SubPath(B1, C1, C1_winding_start + m_winding_start);
+  return_value[0] = FASTUIDRAWnew SubPath(B0, C0);
+  return_value[1] = FASTUIDRAWnew SubPath(B1, C1);
 
   return return_value;
 }
@@ -1512,8 +1241,7 @@ fetch(const fastuidraw::vec2 &pt)
 
 void
 PointHoard::
-generate_path(const SubPath &input, Path &output,
-              BoundingBoxes &bounding_box_path)
+generate_path(const SubPath &input, Path &output)
 {
   output.clear();
   const std::vector<SubPath::SubContour> &contours(input.contours());
@@ -1522,125 +1250,19 @@ generate_path(const SubPath &input, Path &output,
     {
       const SubPath::SubContour &C(*iter);
       output.push_back(Contour());
-      generate_contour(C, output.back(), bounding_box_path);
+      generate_contour(C, output.back());
     }
 }
 
 void
 PointHoard::
-generate_contour(const SubPath::SubContour &C, Contour &output,
-                 BoundingBoxes &bounding_box_path)
+generate_contour(const SubPath::SubContour &C, Contour &output)
 {
-  std::vector<fastuidraw::BoundingBox> boxes(1);
   unsigned int total_cnt(0), cnt(0);
 
   for(unsigned int v = 0, endv = C.size(); v < endv; ++v,  ++cnt, ++total_cnt)
     {
-      /* starting a tessellated edge means that we
-         restart our current building boxes.
-       */
-      if(PointHoardConstants::guiding_boxes_per_interpolator
-         && PointHoardConstants::enable_guiding_boxes
-         && v != 0 && C[v].start_tessellated_edge())
-        {
-          pre_process_boxes(boxes, cnt);
-          if(total_cnt >= PointHoardConstants::min_points_per_guiding_box)
-            {
-              process_bounding_boxes(boxes, bounding_box_path);
-            }
-          boxes.clear();
-          boxes.resize(1);
-          cnt = 0;
-          total_cnt = 0;
-        }
-
-      output.push_back(fetch(C[v].pt()));
-      boxes.back().union_point(C[v].pt());
-      if(cnt == PointHoardConstants::points_per_guiding_box)
-        {
-          cnt = 0;
-          boxes.push_back(fastuidraw::BoundingBox());
-        }
-    }
-
-  if(PointHoardConstants::enable_guiding_boxes)
-    {
-      pre_process_boxes(boxes, cnt);
-      if(total_cnt >= PointHoardConstants::min_points_per_guiding_box)
-        {
-          process_bounding_boxes(boxes, bounding_box_path);
-        }
-    }
-}
-
-void
-PointHoard::
-pre_process_boxes(std::vector<fastuidraw::BoundingBox> &boxes, unsigned int cnt)
-{
-  if(cnt <= 4 && boxes.size() > 1)
-    {
-      fastuidraw::BoundingBox B;
-      B = boxes.back();
-      boxes.pop_back();
-      boxes.back().union_box(B);
-    }
-  else if(boxes.size() == 1 && cnt <= 2)
-    {
-      boxes.pop_back();
-    }
-}
-
-void
-PointHoard::
-process_bounding_boxes(const std::vector<fastuidraw::BoundingBox> &in_boxes,
-                       BoundingBoxes &bounding_box_path)
-{
-  std::vector<fastuidraw::BoundingBox> boxes_of_boxes(1);
-  unsigned int total_cnt(0), cnt(0);
-
-  for(unsigned int i = 0, endi = in_boxes.size(); i < endi; ++i, ++cnt, ++total_cnt)
-    {
-      fastuidraw::vec2 sz;
-      assert(!in_boxes[i].empty());
-
-      /* get/save the positions of the box*/
-      bounding_box_path.push_back(fastuidraw::uvec4());
-      for(unsigned int k = 0; k < 4; ++k)
-        {
-          fastuidraw::vec2 pt;
-
-          if(k & box_max_x_flag)
-            {
-              pt.x() = in_boxes[i].max_point().x();
-            }
-          else
-            {
-              pt.x() = in_boxes[i].min_point().x();
-            }
-
-          if(k & box_max_y_flag)
-            {
-              pt.y() = in_boxes[i].max_point().y();
-            }
-          else
-            {
-              pt.y() = in_boxes[i].min_point().y();
-            }
-          bounding_box_path.back()[k] = fetch(pt);
-        }
-
-      boxes_of_boxes.back().union_box(in_boxes[i]);
-      if(cnt == PointHoardConstants::guiding_boxes_per_guiding_box)
-        {
-          cnt = 0;
-          boxes_of_boxes.push_back(fastuidraw::BoundingBox());
-        }
-    }
-
-  pre_process_boxes(boxes_of_boxes, cnt);
-  if(total_cnt >= PointHoardConstants::guiding_boxes_per_guiding_box)
-    {
-      process_bounding_boxes(boxes_of_boxes, bounding_box_path);
+      output.push_back(fetch(C[v]));
     }
 }
 
@@ -1763,67 +1385,6 @@ add_path_boundary(const SubPath &P)
           p.y() = pmin.y();
         }
       fastuidraw_gluTessVertex(m_tess, x, y, m_points.fetch(p));
-    }
-  fastuidraw_gluTessEndContour(m_tess);
-}
-
-void
-tesser::
-add_bounding_box_path(const PointHoard::BoundingBoxes &P)
-{
-  for(PointHoard::BoundingBoxes::const_iterator iter = P.begin(),
-        end = P.end(); iter != end; ++iter, ++m_point_count)
-    {
-      add_bounding_box_path_element(*iter);
-    }
-}
-
-void
-tesser::
-add_bounding_box_path_element(const fastuidraw::uvec4 &box)
-{
-  const unsigned int indices[4] =
-    {
-      box_min_x_min_y,
-      box_min_x_max_y,
-      box_max_x_max_y,
-      box_max_x_min_y,
-    };
-
-  /* we add the box but tell GLU-tess that the edge does
-     not affect winding counts.
-     - for each coordinate seperately, for max side: add m_fudge
-     - for each coordinate seperately, for max side: subtract m_fudge
-  */
-  fastuidraw_gluTessBeginContour(m_tess, FASTUIDRAW_GLU_FALSE);
-  for(unsigned int i = 0; i < 4; ++i)
-    {
-      unsigned int k;
-      fastuidraw::vecN<double, 2> p;
-      double slack;
-
-      k = indices[i];
-      p = m_points.converter().apply(m_points[box[k]], 0u);
-      slack = static_cast<double>(m_point_count) * m_points.converter().fudge_delta();
-
-      if(k & box_max_x_flag)
-        {
-          p.x() += slack;
-        }
-      else
-        {
-          p.x() -= slack;
-        }
-
-      if(k & box_max_y_flag)
-        {
-          p.y() += slack;
-        }
-      else
-        {
-          p.y() -= slack;
-        }
-      fastuidraw_gluTessVertex(m_tess, p.x(), p.y(), box[k]);
     }
   fastuidraw_gluTessEndContour(m_tess);
 }
@@ -1961,19 +1522,17 @@ winding_callBack(int winding_number, void *tess)
 non_zero_tesser::
 non_zero_tesser(PointHoard &points,
                 const PointHoard::Path &P,
-                const PointHoard::BoundingBoxes &boxes,
                 const SubPath &path,
                 winding_index_hoard &hoard,
                 OppositeEdgeTracker &opposite_edge_tracker):
   tesser(points),
-  m_winding_start(path.winding_start()),
   m_hoard(hoard),
   m_opposite_edge_tracker(opposite_edge_tracker),
   m_current_winding(0)
 {
+  FASTUIDRAWunused(path);
   start();
   add_path(P);
-  add_bounding_box_path(boxes);
   stop();
 }
 
@@ -1981,7 +1540,6 @@ void
 non_zero_tesser::
 on_begin_polygon(int winding_number)
 {
-  winding_number += m_winding_start;
   if(!m_current_indices || m_current_winding != winding_number)
     {
       fastuidraw::reference_counted_ptr<per_winding_data> &h(m_hoard[winding_number]);
@@ -2023,12 +1581,11 @@ fill_region(int winding_number)
 zero_tesser::
 zero_tesser(PointHoard &points,
             const PointHoard::Path &P,
-            const PointHoard::BoundingBoxes &boxes,
             const SubPath &path,
             winding_index_hoard &hoard,
             OppositeEdgeTracker &opposite_edge_tracker):
   tesser(points),
-  m_indices(hoard[path.winding_start()]),
+  m_indices(hoard[0]),
   m_opposite_edge_tracker(opposite_edge_tracker)
 {
   if(!m_indices)
@@ -2038,7 +1595,6 @@ zero_tesser(PointHoard &points,
 
   start();
   add_path(P);
-  add_bounding_box_path(boxes);
   add_path_boundary(path);
   stop();
 }
@@ -2083,12 +1639,11 @@ builder(const SubPath &P, std::vector<fastuidraw::vec2> &points,
 {
   bool failZ, failNZ;
   PointHoard::Path path;
-  PointHoard::BoundingBoxes path_bounding_boxes;
   OppositeEdgeTracker oet(m_points);
 
-  m_points.generate_path(P, path, path_bounding_boxes);
-  failNZ = non_zero_tesser::execute_path(m_points, path, path_bounding_boxes, P, m_hoard, oet);
-  failZ = zero_tesser::execute_path(m_points, path, path_bounding_boxes, P, m_hoard, oet);
+  m_points.generate_path(P, path);
+  failNZ = non_zero_tesser::execute_path(m_points, path, P, m_hoard, oet);
+  failZ = zero_tesser::execute_path(m_points, path, P, m_hoard, oet);
   oet.fill_aa_triangles(aa_triangles, m_hoard);
   m_failed = failNZ || failZ;
 }
@@ -2407,16 +1962,17 @@ anti_aliased_triangles_writeable(int w)
 {
   unsigned int I;
   I = fastuidraw::FilledPath::Subset::chunk_from_winding_number(w);
-  if(I < m_data.size())
+  if(I >= m_data.size())
     {
       unsigned int oldSize;
       oldSize = m_data.size();
       m_data.resize(I + 1, NULL);
-      for(unsigned int i = oldSize; i < I; ++i)
+      for(unsigned int i = oldSize; i <= I; ++i)
         {
           m_data[i] = FASTUIDRAWnew std::vector<AntiAliasedTriangle>();
         }
     }
+  assert(I < m_data.size() && m_data[I] != NULL);
   return *m_data[I];
 }
 
@@ -2441,7 +1997,7 @@ absorb(const AntiAliasedTrianglesHoard &obj)
 
   if(sz > m_data.size())
     {
-      unsigned int oldSz(sz);
+      unsigned int oldSz(m_data.size());
 
       m_data.resize(sz, NULL);
       for(unsigned int i = oldSz; i < sz; ++i)
@@ -2452,6 +2008,7 @@ absorb(const AntiAliasedTrianglesHoard &obj)
 
   for(unsigned int i = 0; i < sz; ++i)
     {
+      assert(i < m_data.size() && m_data[i] != NULL);
       m_data[i]->reserve(m_data[i]->size() + obj.m_data[i]->size());
       m_data[i]->insert(m_data[i]->end(),
                         obj.m_data[i]->begin(),
@@ -2503,7 +2060,9 @@ opposite_winding(int w, unsigned int v)
       std::sort(m_entries.begin(), m_entries.end());
     }
 
-  /* take first entry that is different vertex.
+  /* The entries are sorted in descending order by area,
+     so the best canindate is then the first vertex that
+     is different.
    */
   for(unsigned int i = 0, endi = m_entries.size(); i < endi; ++i)
     {
@@ -2532,9 +2091,60 @@ add_triangle(int w, uint64_t area,
 
 void
 OppositeEdgeTracker::
+add_aa_triangle(std::vector<AntiAliasedTriangle> &dst,
+                int winding,
+                const fastuidraw::vecN<unsigned int, 3> &tri)
+{
+  /* for each edge of T, get the winding number of the
+     triangle that shares the edge with T.
+   */
+  AntiAliasedTriangle aa_tri;
+  aa_tri[0].m_position = m_points[tri[0]];
+  assert(m_data.find(Edge(tri[1], tri[2])) != m_data.end());
+  aa_tri[0].m_winding_opposite = m_data[Edge(tri[1], tri[2])].opposite_winding(winding, tri[0]);
+
+  aa_tri[1].m_position = m_points[tri[1]];
+  assert(m_data.find(Edge(tri[0], tri[2])) != m_data.end());
+  aa_tri[1].m_winding_opposite = m_data[Edge(tri[0], tri[2])].opposite_winding(winding, tri[1]);
+
+  aa_tri[2].m_position = m_points[tri[2]];
+  assert(m_data.find(Edge(tri[0], tri[1])) != m_data.end());
+  aa_tri[2].m_winding_opposite = m_data[Edge(tri[0], tri[1])].opposite_winding(winding, tri[2]);
+
+  dst.push_back(aa_tri);
+}
+
+void
+OppositeEdgeTracker::
 fill_aa_triangles(AntiAliasedTrianglesHoard &a,
                   const winding_index_hoard &raw_tris)
 {
+  for(winding_index_hoard::const_iterator iter = raw_tris.begin(),
+        end = raw_tris.end(); iter != end; ++iter)
+    {
+      int winding_number(iter->first);
+      fastuidraw::reference_counted_ptr<per_winding_data> tris(iter->second);
+      if(tris)
+        {
+          std::vector<AntiAliasedTriangle> &dst(a.anti_aliased_triangles_writeable(winding_number));
+          /* the index data for the triangle's is indices into m_points.
+           */
+          for(per_winding_data::index_list::const_iterator i = tris->indices().begin(),
+                e = tris->indices().end(); i != e; /*nothing to increment */)
+            {
+              fastuidraw::vecN<unsigned int, 3> T;
+              unsigned int k;
+
+              for(k = 0; k < 3 && i != e; ++k, ++i)
+                {
+                  T[k] = *i;
+                }
+              assert(k == 3);
+              add_aa_triangle(dst, winding_number, T);
+            }
+        }
+    }
+
   for(std::map<Edge, EdgeData>::const_iterator iter = m_data.begin(),
         end = m_data.end(); iter != end; ++iter)
     {
