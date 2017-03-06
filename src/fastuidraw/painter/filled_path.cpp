@@ -122,6 +122,9 @@ namespace
   class winding_set
   {
   public:
+    typedef fastuidraw::vecN<fastuidraw::PainterAttribute, 3> DstTriangle;
+    typedef fastuidraw::FilledPath::TriangleWithOppositeEdgeData SrcTriangle;
+
     winding_set(void):
       m_min_value(1),
       m_max_value(0)
@@ -153,14 +156,28 @@ namespace
         }
     }
 
+    DstTriangle
+    operator()(const SrcTriangle &src) const
+    {
+      DstTriangle dst;
+
+      for(int i = 0; i < 3; ++i)
+        {
+          dst[i].m_attrib0 = fastuidraw::pack_vec4(src[i].m_position.x(), src[i].m_position.y(), 0.0f, 0.0f);
+          /* TODO: look at src.m_winding_opposite and do something.
+           */
+          dst[i].m_attrib1 = fastuidraw::pack_vec4(1.0f, 1.0f, 1.0f, 0.0f);
+          dst[i].m_attrib2 = fastuidraw::uvec4(0u, 0u, 0u, 0u);
+        }
+      return dst;
+    }
+
   private:
 
     unsigned int
     compute_index(int v) const
     {
-      #ifdef FASTUIDRAW_VECTOR_BOUND_CHECK
       assert(v >= m_min_value && v <= m_max_value);
-      #endif
       return v - m_min_value;
     }
 
@@ -955,6 +972,8 @@ namespace
     std::vector<unsigned int> m_subset_selector;
     std::vector<per_attrib_chunk> m_attribute_chunks;
     std::vector<per_index_chunk> m_index_chunks;
+    std::vector<fastuidraw::const_c_array<AntiAliasedTriangle> > m_anti_aliased_tris;
+    winding_set m_WS;
     bool m_with_anti_aliasing;
   };
 
@@ -2569,7 +2588,9 @@ number_attribute_chunks(void) const
 {
   DataWriterPrivate *d;
   d = reinterpret_cast<DataWriterPrivate*>(m_d);
-  return d->m_attribute_chunks.size();
+  return d->m_with_anti_aliasing ?
+    d->m_anti_aliased_tris.size() :
+    d->m_attribute_chunks.size();
 }
 
 unsigned int
@@ -2578,8 +2599,10 @@ number_attributes(unsigned int attribute_chunk) const
 {
   DataWriterPrivate *d;
   d = reinterpret_cast<DataWriterPrivate*>(m_d);
-  assert(attribute_chunk < d->m_attribute_chunks.size());
-  return d->m_attribute_chunks[attribute_chunk].m_attribs.size();
+  assert(attribute_chunk < number_attribute_chunks());
+  return d->m_with_anti_aliasing ?
+    3 * d->m_anti_aliased_tris[attribute_chunk].size() :
+    d->m_attribute_chunks[attribute_chunk].m_attribs.size();
 }
 
 unsigned int
@@ -2588,7 +2611,9 @@ number_index_chunks(void) const
 {
   DataWriterPrivate *d;
   d = reinterpret_cast<DataWriterPrivate*>(m_d);
-  return d->m_index_chunks.size();
+  return d->m_with_anti_aliasing ?
+    d->m_anti_aliased_tris.size() :
+    d->m_index_chunks.size();
 }
 
 unsigned int
@@ -2597,8 +2622,10 @@ number_indices(unsigned int index_chunk) const
 {
   DataWriterPrivate *d;
   d = reinterpret_cast<DataWriterPrivate*>(m_d);
-  assert(index_chunk < d->m_index_chunks.size());
-  return d->m_index_chunks[index_chunk].m_indices.size();
+  assert(index_chunk < number_index_chunks());
+  return d->m_with_anti_aliasing ?
+    3 * d->m_anti_aliased_tris[index_chunk].size() :
+    d->m_index_chunks[index_chunk].m_indices.size();
 }
 
 unsigned int
@@ -2607,8 +2634,10 @@ attribute_chunk_selection(unsigned int index_chunk) const
 {
   DataWriterPrivate *d;
   d = reinterpret_cast<DataWriterPrivate*>(m_d);
-  assert(index_chunk < d->m_index_chunks.size());
-  return d->m_index_chunks[index_chunk].m_attrib_chunk;
+  assert(index_chunk < number_index_chunks());
+  return d->m_with_anti_aliasing ?
+    index_chunk :
+    d->m_index_chunks[index_chunk].m_attrib_chunk;
 }
 
 void
@@ -2617,17 +2646,29 @@ write_indices(c_array<PainterIndex> dst,
               unsigned int index_offset_value,
               unsigned int index_chunk) const
 {
-  const_c_array<PainterIndex> src;
   DataWriterPrivate *d;
   d = reinterpret_cast<DataWriterPrivate*>(m_d);
 
-  assert(index_chunk < d->m_index_chunks.size());
-  src = d->m_index_chunks[index_chunk].m_indices;
-
-  assert(dst.size() == src.size());
-  for(unsigned int i = 0; i < dst.size(); ++i)
+  if(d->m_with_anti_aliasing)
     {
-      dst[i] = src[i] + index_offset_value;
+      assert(dst.size() == number_indices(index_chunk));
+      for(unsigned int i = 0; i < dst.size(); ++i)
+        {
+          dst[i] = index_offset_value + i;
+        }
+    }
+  else
+    {
+      const_c_array<PainterIndex> src;
+
+      assert(index_chunk < d->m_index_chunks.size());
+      src = d->m_index_chunks[index_chunk].m_indices;
+      assert(dst.size() == src.size());
+
+      for(unsigned int i = 0; i < dst.size(); ++i)
+        {
+          dst[i] = src[i] + index_offset_value;
+        }
     }
 }
 
@@ -2636,19 +2677,33 @@ fastuidraw::FilledPath::DataWriter::
 write_attributes(c_array<PainterAttribute> dst,
                  unsigned int attribute_chunk) const
 {
-  const_c_array<PainterAttribute> src;
   DataWriterPrivate *d;
 
   d = reinterpret_cast<DataWriterPrivate*>(m_d);
 
-  assert(attribute_chunk < d->m_attribute_chunks.size());
-  src = d->m_attribute_chunks[attribute_chunk].m_attribs;
+  if(d->m_with_anti_aliasing)
+    {
+      assert(attribute_chunk < d->m_anti_aliased_tris.size());
+      assert(dst.size() == 3 * d->m_anti_aliased_tris[attribute_chunk].size());
 
-  assert(dst.size() == src.size());
-  /* TODO: if doing anti-aliasing apply bit-pattern
-     logic to attributes.
-   */
-  std::copy(src.begin(), src.end(), dst.begin());
+
+      std::transform(d->m_anti_aliased_tris[attribute_chunk].begin(),
+                     d->m_anti_aliased_tris[attribute_chunk].end(),
+                     dst.reinterpret_pointer<vecN<PainterAttribute, 3> >().begin(),
+                     d->m_WS);
+    }
+  else
+    {
+      const_c_array<PainterAttribute> src;
+      assert(attribute_chunk < d->m_attribute_chunks.size());
+      src = d->m_attribute_chunks[attribute_chunk].m_attribs;
+
+      assert(dst.size() == src.size());
+      /* TODO: if doing anti-aliasing apply bit-pattern
+         logic to attributes.
+      */
+      std::copy(src.begin(), src.end(), dst.begin());
+    }
 }
 
 /////////////////////////////////
@@ -2817,6 +2872,7 @@ compute_writer(ScratchSpace &scratch_space,
 
   dst_d->m_attribute_chunks.clear();
   dst_d->m_index_chunks.clear();
+  dst_d->m_anti_aliased_tris.clear();
   dst_d->m_with_anti_aliasing = with_anti_aliasing;
 
   dst_d->m_subset_selector.resize(number_subsets());
@@ -2832,6 +2888,21 @@ compute_writer(ScratchSpace &scratch_space,
 
   dst_d->m_attribute_chunks.reserve(num);
   dst_d->m_index_chunks.reserve(num);
+
+  int min_winding, max_winding;
+  assert(!subset(dst_d->m_subset_selector[0]).winding_numbers().empty());
+  min_winding = subset(dst_d->m_subset_selector[0]).winding_numbers().front();
+  max_winding = subset(dst_d->m_subset_selector[0]).winding_numbers().back();
+  for(unsigned int i = 1; i < num; ++i)
+    {
+      Subset S(subset(dst_d->m_subset_selector[i]));
+      assert(!S.winding_numbers().empty());
+      min_winding = t_min(min_winding, S.winding_numbers().front());
+      max_winding = t_max(max_winding, S.winding_numbers().back());
+    }
+
+  dst_d->m_WS.fill(min_winding, max_winding, fill_rule);
+
   for(unsigned int i = 0; i < num; ++i)
     {
       Subset S(subset(dst_d->m_subset_selector[i]));
@@ -2849,21 +2920,32 @@ compute_writer(ScratchSpace &scratch_space,
           int w;
 
           w = windings[i];
-          if(fill_rule(w))
+          assert(dst_d->m_WS(w) == fill_rule(w));
+          if(dst_d->m_WS(w))
             {
-              unsigned int index_chunk;
-              const_c_array<PainterIndex> indices;
-
-              if(attrib_chunk == ATTRIB_CHUNK_NOT_TAKEN)
+              if(!with_anti_aliasing)
                 {
-                  attrib_chunk = dst_d->m_attribute_chunks.size();
-                  dst_d->m_attribute_chunks.push_back(DataWriterPrivate::per_attrib_chunk(sd));
+                  unsigned int index_chunk;
+                  const_c_array<PainterIndex> indices;
+
+                  if(attrib_chunk == ATTRIB_CHUNK_NOT_TAKEN)
+                    {
+                      attrib_chunk = dst_d->m_attribute_chunks.size();
+                      dst_d->m_attribute_chunks.push_back(DataWriterPrivate::per_attrib_chunk(sd));
+                    }
+                  index_chunk = Subset::chunk_from_winding_number(w);
+                  indices = sd->painter_data().index_data_chunk(index_chunk);
+                  dst_d->m_index_chunks.push_back(DataWriterPrivate::per_index_chunk(indices, attrib_chunk));
                 }
-
-              index_chunk = Subset::chunk_from_winding_number(w);
-              indices = sd->painter_data().index_data_chunk(index_chunk);
-
-              dst_d->m_index_chunks.push_back(DataWriterPrivate::per_index_chunk(indices, attrib_chunk));
+              else
+                {
+                  fastuidraw::const_c_array<AntiAliasedTriangle> aa_tris;
+                  aa_tris = sd->aa_triangles().anti_aliased_triangles(w);
+                  if(!aa_tris.empty())
+                    {
+                      dst_d->m_anti_aliased_tris.push_back(aa_tris);
+                    }
+                }
             }
         }
     }
