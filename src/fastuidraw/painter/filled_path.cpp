@@ -163,10 +163,22 @@ namespace
 
       for(int i = 0; i < 3; ++i)
         {
+          fastuidraw::vec3 a1;
+          float v;
+
           dst[i].m_attrib0 = fastuidraw::pack_vec4(src[i].m_position.x(), src[i].m_position.y(), 0.0f, 0.0f);
-          /* TODO: look at src.m_winding_opposite and do something.
+
+          /* IDEA:
+              dst[i].m_attrib1[j] =
+                  1 : if i == j otherwise
+                  m_values[compute_index(src[i].m_winding_opposite)]
            */
-          dst[i].m_attrib1 = fastuidraw::pack_vec4(1.0f, 1.0f, 1.0f, 0.0f);
+          v = operator()(src[i].m_winding_opposite) ? 1.0f : 0.0f;
+
+          a1[i] = 1.0f;
+          a1[(i + 1) % 3] = a1[(i + 2) % 3] = v;
+
+          dst[i].m_attrib1 = fastuidraw::pack_vec4(a1.x(), a1.y(), a1.z(), 0.0f);
           dst[i].m_attrib2 = fastuidraw::uvec4(0u, 0u, 0u, 0u);
         }
       return dst;
