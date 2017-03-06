@@ -164,7 +164,8 @@ namespace
       for(int i = 0; i < 3; ++i)
         {
           fastuidraw::vec3 a1;
-          float v;
+          unsigned int i1, i2;
+          float v1, v2;
 
           dst[i].m_attrib0 = fastuidraw::pack_vec4(src[i].m_position.x(), src[i].m_position.y(), 0.0f, 0.0f);
 
@@ -173,10 +174,14 @@ namespace
                   1 : if i == j otherwise
                   m_values[compute_index(src[i].m_winding_opposite)]
            */
-          v = operator()(src[i].m_winding_opposite) ? 1.0f : 0.0f;
+          i1 = (i + 1) % 3;
+          i2 = (i + 2) % 3;
+          v1 = operator()(src[i1].m_winding_opposite) ? 1.0f : 0.0f;
+          v2 = operator()(src[i2].m_winding_opposite) ? 1.0f : 0.0f;
 
           a1[i] = 1.0f;
-          a1[(i + 1) % 3] = a1[(i + 2) % 3] = v;
+          a1[i1] = v1;
+          a1[i2] = v2;
 
           dst[i].m_attrib1 = fastuidraw::pack_vec4(a1.x(), a1.y(), a1.z(), 0.0f);
           dst[i].m_attrib2 = fastuidraw::uvec4(0u, 0u, 0u, 0u);
