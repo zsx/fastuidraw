@@ -354,22 +354,6 @@ namespace
     fastuidraw::BoundingBox m_bounds;
     std::vector<SubContour> m_contours;
   };
-  /* vertices in anti-aliased data are NOT shared
-     between different triangles;
-   */
-  class AntiAliasedPoint
-  {
-  public:
-    fastuidraw::vec2 m_position;
-
-    /* the winding number of the triangle
-       that shares the edge -opposite-
-       to this vertex.
-     */
-    int m_winding_opposite;
-  };
-
-  typedef fastuidraw::vecN<AntiAliasedPoint, 3> AntiAliasedTriangle;
 
   class PointHoard:fastuidraw::noncopyable
   {
@@ -422,6 +406,8 @@ namespace
     std::vector<fastuidraw::vec2> &m_pts;
   };
 
+  typedef fastuidraw::FilledPath::TriangleWithOppositeEdgeData AntiAliasedTriangle;
+
   class AntiAliasedTrianglesHoard:fastuidraw::noncopyable
   {
   public:
@@ -435,6 +421,9 @@ namespace
 
     fastuidraw::const_c_array<AntiAliasedTriangle>
     anti_aliased_triangles(int w) const;
+
+    unsigned int
+    total_number_tris(void) const;
 
   private:
     /* anti-aliasing of data requires a seperate store for attribute
@@ -830,6 +819,7 @@ namespace
 
     unsigned int
     select_subsets(ScratchSpacePrivate &scratch,
+                   bool with_anti_aliasing,
                    fastuidraw::const_c_array<fastuidraw::vec3> clip_equations,
                    const fastuidraw::float3x3 &clip_matrix_local,
                    unsigned int max_attribute_cnt,
@@ -853,9 +843,28 @@ namespace
       return *m_painter_data;
     }
 
+    const AntiAliasedTrianglesHoard&
+    aa_triangles(void) const
+    {
+      assert(m_painter_data != NULL);
+      return m_aa_triangles;
+    }
+
   private:
+    bool
+    can_fit_into_buffer(bool use_aa_triangles,
+                        unsigned int max_attribute_cnt,
+                        unsigned int max_index_cnt)
+    {
+      assert(m_sizes_ready);
+      return use_aa_triangles ?
+        m_num_attributes <= max_attribute_cnt && m_largest_index_block <= max_index_cnt :
+        m_num_aa_triangle_points <= max_attribute_cnt && m_num_aa_triangle_points <= max_index_cnt;
+    }
+
     void
     select_subsets_implement(ScratchSpacePrivate &scratch,
+                             bool with_anti_aliasing,
                              fastuidraw::c_array<unsigned int> dst,
                              unsigned int max_attribute_cnt,
                              unsigned int max_index_cnt,
@@ -863,6 +872,7 @@ namespace
 
     void
     select_subsets_all_unculled(fastuidraw::c_array<unsigned int> dst,
+                                bool with_anti_aliasing,
                                 unsigned int max_attribute_cnt,
                                 unsigned int max_index_cnt,
                                 unsigned int &current);
@@ -894,11 +904,12 @@ namespace
      */
     fastuidraw::PainterAttributeData *m_painter_data;
     std::vector<int> m_winding_numbers;
-    AntiAliasedTrianglesHoard m_aa_triangles;;
+    AntiAliasedTrianglesHoard m_aa_triangles;
 
     bool m_sizes_ready;
     unsigned int m_num_attributes;
     unsigned int m_largest_index_block;
+    unsigned int m_num_aa_triangle_points;
 
     /* m_sub_path is non-NULL only if this SubsetPrivate
        has no children. In addition, it is set to NULL
@@ -1983,9 +1994,25 @@ anti_aliased_triangles(int w) const
   unsigned int I;
 
   I = fastuidraw::FilledPath::Subset::chunk_from_winding_number(w);
+  assert(I >= m_data.size() || m_data[I] != NULL);
   return I < m_data.size() ?
-    fastuidraw::make_c_array(*m_data[w]) :
+    fastuidraw::make_c_array(*m_data[I]) :
     fastuidraw::const_c_array<AntiAliasedTriangle>();
+}
+
+unsigned int
+AntiAliasedTrianglesHoard::
+total_number_tris(void) const
+{
+  unsigned int return_value;
+  for(unsigned int i = 0, endi = m_data.size(); i < endi; ++i)
+    {
+      if(m_data[i] != NULL)
+        {
+          return_value += m_data[i]->size();
+        }
+    }
+  return return_value;
 }
 
 void
@@ -2231,6 +2258,7 @@ SubsetPrivate::
 unsigned int
 SubsetPrivate::
 select_subsets(ScratchSpacePrivate &scratch,
+               bool with_anti_aliasing,
                fastuidraw::const_c_array<fastuidraw::vec3> clip_equations,
                const fastuidraw::float3x3 &clip_matrix_local,
                unsigned int max_attribute_cnt,
@@ -2248,13 +2276,14 @@ select_subsets(ScratchSpacePrivate &scratch,
       scratch.m_adjusted_clip_eqs[i] = clip_equations[i] * clip_matrix_local;
     }
 
-  select_subsets_implement(scratch, dst, max_attribute_cnt, max_index_cnt, return_value);
+  select_subsets_implement(scratch, with_anti_aliasing, dst, max_attribute_cnt, max_index_cnt, return_value);
   return return_value;
 }
 
 void
 SubsetPrivate::
 select_subsets_implement(ScratchSpacePrivate &scratch,
+                         bool with_anti_aliasing,
                          fastuidraw::c_array<unsigned int> dst,
                          unsigned int max_attribute_cnt,
                          unsigned int max_index_cnt,
@@ -2282,17 +2311,18 @@ select_subsets_implement(ScratchSpacePrivate &scratch,
   assert((m_children[0] == NULL) == (m_children[1] == NULL));
   if(unclipped || m_children[0] == NULL)
     {
-      select_subsets_all_unculled(dst, max_attribute_cnt, max_index_cnt, current);
+      select_subsets_all_unculled(dst, with_anti_aliasing, max_attribute_cnt, max_index_cnt, current);
       return;
     }
 
-  m_children[0]->select_subsets_implement(scratch, dst, max_attribute_cnt, max_index_cnt, current);
-  m_children[1]->select_subsets_implement(scratch, dst, max_attribute_cnt, max_index_cnt, current);
+  m_children[0]->select_subsets_implement(scratch, with_anti_aliasing, dst, max_attribute_cnt, max_index_cnt, current);
+  m_children[1]->select_subsets_implement(scratch, with_anti_aliasing, dst, max_attribute_cnt, max_index_cnt, current);
 }
 
 void
 SubsetPrivate::
 select_subsets_all_unculled(fastuidraw::c_array<unsigned int> dst,
+                            bool with_anti_aliasing,
                             unsigned int max_attribute_cnt,
                             unsigned int max_index_cnt,
                             unsigned int &current)
@@ -2306,15 +2336,15 @@ select_subsets_all_unculled(fastuidraw::c_array<unsigned int> dst,
       assert(m_painter_data != NULL);
     }
 
-  if(m_sizes_ready && m_num_attributes <= max_attribute_cnt && m_largest_index_block <= max_index_cnt)
+  if(m_sizes_ready && can_fit_into_buffer(with_anti_aliasing, max_attribute_cnt, max_index_cnt))
     {
       dst[current] = m_ID;
       ++current;
     }
   else if(m_children[0] != NULL)
     {
-      m_children[0]->select_subsets_all_unculled(dst, max_attribute_cnt, max_index_cnt, current);
-      m_children[1]->select_subsets_all_unculled(dst, max_attribute_cnt, max_index_cnt, current);
+      m_children[0]->select_subsets_all_unculled(dst, with_anti_aliasing, max_attribute_cnt, max_index_cnt, current);
+      m_children[1]->select_subsets_all_unculled(dst, with_anti_aliasing, max_attribute_cnt, max_index_cnt, current);
       if(!m_sizes_ready)
         {
           m_sizes_ready = true;
@@ -2322,6 +2352,7 @@ select_subsets_all_unculled(fastuidraw::c_array<unsigned int> dst,
           assert(m_children[1]->m_sizes_ready);
           m_num_attributes = m_children[0]->m_num_attributes + m_children[1]->m_num_attributes;
           m_largest_index_block = m_children[0]->m_largest_index_block + m_children[1]->m_largest_index_block;
+          m_num_aa_triangle_points = m_children[0]->m_num_aa_triangle_points + m_children[1]->m_num_aa_triangle_points;
         }
     }
   else
@@ -2383,6 +2414,7 @@ make_ready_from_children(void)
       assert(m_children[1]->m_sizes_ready);
       m_num_attributes = m_children[0]->m_num_attributes + m_children[1]->m_num_attributes;
       m_largest_index_block = m_children[0]->m_largest_index_block + m_children[1]->m_largest_index_block;
+      m_num_aa_triangle_points = m_children[0]->m_num_aa_triangle_points + m_children[1]->m_num_aa_triangle_points;
     }
   m_aa_triangles.absorb(m_children[0]->m_aa_triangles);
   m_aa_triangles.absorb(m_children[1]->m_aa_triangles);
@@ -2405,6 +2437,7 @@ make_ready_from_sub_path(void)
 
   B.fill_indices(filler.m_indices, filler.m_per_fill,
                  even_non_zero_start, zero_start);
+  m_num_aa_triangle_points = 3 * m_aa_triangles.total_number_tris();
 
   fastuidraw::const_c_array<unsigned int> indices_ptr;
   indices_ptr = fastuidraw::make_c_array(filler.m_indices);
@@ -2626,6 +2659,15 @@ Subset(void *d):
 {
 }
 
+fastuidraw::const_c_array<fastuidraw::FilledPath::TriangleWithOppositeEdgeData>
+fastuidraw::FilledPath::Subset::
+triangles_with_opposite_edge_data(int winding) const
+{
+  SubsetPrivate *d;
+  d = static_cast<SubsetPrivate*>(m_d);
+  return d->aa_triangles().anti_aliased_triangles(winding);
+}
+
 const fastuidraw::PainterAttributeData&
 fastuidraw::FilledPath::Subset::
 painter_data(void) const
@@ -2717,6 +2759,7 @@ subset(unsigned int I) const
 unsigned int
 fastuidraw::FilledPath::
 select_subsets(ScratchSpace &work_room,
+               bool triangle_with_opposite_data,
                const_c_array<vec3> clip_equations,
                const float3x3 &clip_matrix_local,
                unsigned int max_attribute_cnt,
@@ -2749,6 +2792,7 @@ select_subsets(ScratchSpace &work_room,
          being made ready via make_ready()).
    */
   return_value= d->m_root->select_subsets(*static_cast<ScratchSpacePrivate*>(work_room.m_d),
+                                          triangle_with_opposite_data,
                                           clip_equations, clip_matrix_local,
                                           max_attribute_cnt, max_index_cnt, dst);
 
@@ -2776,7 +2820,8 @@ compute_writer(ScratchSpace &scratch_space,
   dst_d->m_with_anti_aliasing = with_anti_aliasing;
 
   dst_d->m_subset_selector.resize(number_subsets());
-  num = select_subsets(scratch_space, clip_equations, clip_matrix_local,
+  num = select_subsets(scratch_space, with_anti_aliasing,
+                       clip_equations, clip_matrix_local,
                        max_attribute_cnt, max_index_cnt,
                        make_c_array(dst_d->m_subset_selector));
 

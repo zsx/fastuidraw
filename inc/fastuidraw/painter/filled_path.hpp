@@ -50,6 +50,34 @@ class FilledPath:
 {
 public:
   /*!
+    Holds the position of a point of a triangle for
+    filling a path and the winding number of the
+    triangle that shares the edge opposite to the
+    point.
+   */
+  class TrianglePointWithOppositeEdgeData
+  {
+  public:
+    /*!
+      Position of the point
+     */
+    vec2 m_position;
+
+    /*!
+      The winding number of the triangle that
+      shares the edge that is opposite to the
+      point.
+     */
+    int m_winding_opposite;
+  };
+
+  /*!
+    Conveniance typedef for a triangle with winding
+    number data for neighboring triangles.
+   */
+  typedef vecN<TrianglePointWithOppositeEdgeData, 3> TriangleWithOppositeEdgeData;
+
+  /*!
     A Subset represents a handle to a portion of a FilledPath.
     The handle is invalid once the FilledPath from which it
     comes goes out of scope. Do not save these handle values.
@@ -58,9 +86,21 @@ public:
   {
   public:
     /*!
-      Returns the PainterAttributeData for the portion of the
-      FilledPath the Subset represents. The attribute data is
-      packed as follows:
+      Returns the data for the triangles with the value
+      for the winding number of triangles that shares
+      edges. Note that the TriangleWithOppositeEdgeData
+      is non-indexed data.
+      \param winding winding number of triangle data to
+                     fetch.
+     */
+    const_c_array<TriangleWithOppositeEdgeData>
+    triangles_with_opposite_edge_data(int winding) const;
+
+    /*!
+      Returns the PainterAttributeData for drawing without
+      triangle neighbor data for the portion of the FilledPath
+      the Subset represents. The attribute data is packed as
+      follows:
       - PainterAttribute::m_attrib0 .xy -> position of point in local coordinate (float)
       - PainterAttribute::m_attrib0 .zw -> 0 (free)
       - PainterAttribute::m_attrib1 .xyzw -> 0 (free)
@@ -207,6 +247,9 @@ public:
     Fetch those Subset objects that have triangles that
     intersect a region specified by clip equations.
     \param scratch_space scratch space for computations.
+    \param triangle_with_opposite_data if true, only returns those Subsets
+                                       for which the 3 * Subset::triangles_with_opposite_edge_data()
+                                       is no more than min(max_attribute_cnt, max_index_cnt)
     \param clip_equations array of clip equations
     \param clip_matrix_local 3x3 transformation from local (x, y, 1)
                              coordinates to clip coordinates.
@@ -223,6 +266,7 @@ public:
    */
   unsigned int
   select_subsets(ScratchSpace &scratch_space,
+                 bool triangle_with_opposite_data,
                  const_c_array<vec3> clip_equations,
                  const float3x3 &clip_matrix_local,
                  unsigned int max_attribute_cnt,
