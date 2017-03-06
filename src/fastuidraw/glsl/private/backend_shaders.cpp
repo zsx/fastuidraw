@@ -425,7 +425,10 @@ create_fill_shader(void)
                                                    .add_source("fastuidraw_painter_fill.frag.glsl.resource_string",
                                                                ShaderSource::from_resource)
                                                    .remove_macro("FASTUIDRAW_FILL_SHADER_AA"),
-                                                   varying_list().add_float_varying("fastuidraw_painter_fill_inside")))
+                                                   varying_list()
+                                                   .add_float_varying("fastuidraw_painter_fill_inside0")
+                                                   .add_float_varying("fastuidraw_painter_fill_inside1")
+                                                   .add_float_varying("fastuidraw_painter_fill_inside2")))
 
     .non_aa_shader(FASTUIDRAWnew PainterItemShaderGLSL(false,
                                                        ShaderSource()

@@ -10,6 +10,13 @@ fastuidraw_gl_vert_main(in uint sub_shader,
 
   primary_attrib = uintBitsToFloat(uprimary_attrib);
   secondary_attrib = uintBitsToFloat(usecondary_attrib);
+  #ifdef FASTUIDRAW_FILL_SHADER_AA
+    {
+      fastuidraw_painter_fill_inside0 = secondary_attrib.x;
+      fastuidraw_painter_fill_inside1 = secondary_attrib.y;
+      fastuidraw_painter_fill_inside2 = secondary_attrib.z;
+    }
+  #endif
   z_add = 0u;
   return primary_attrib.xyxy;
 }
