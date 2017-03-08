@@ -1,3 +1,16 @@
+#ifndef FASTUUIDRAW_PAINTER_FILL_HELPER
+#define FASTUUIDRAW_PAINTER_FILL_HELPER
+float
+fastuidraw_helper_coverage(in float v)
+{
+  return min(1.0, v);
+  //float d;
+  //d = max(v, length(vec2(dFdx(v), dFdy(v))));
+  //return v / d;
+}
+
+#endif
+
 vec4
 fastuidraw_gl_frag_main(in uint sub_shader,
                         in uint shader_data_offset)
@@ -5,22 +18,11 @@ fastuidraw_gl_frag_main(in uint sub_shader,
 
   #ifdef FASTUIDRAW_FILL_SHADER_AA
     {
-      float a = 1.0, d, p, r;
+      float a;
 
-      p = fastuidraw_painter_fill_inside0;
-      d = max(p, fwidth(p));
-      r = p / d;
-      a *= r;
-
-      p = fastuidraw_painter_fill_inside1;
-      d = max(p, fwidth(p));
-      r = p / d;
-      a *= r;
-
-      p = fastuidraw_painter_fill_inside2;
-      d = max(p, fwidth(p));
-      r = p / d;
-      a *= r;
+      a = fastuidraw_helper_coverage(fastuidraw_painter_fill_inside0);
+      a *= fastuidraw_helper_coverage(fastuidraw_painter_fill_inside1);
+      a *= fastuidraw_helper_coverage(fastuidraw_painter_fill_inside2);
 
       return vec4(1.0, 1.0, 1.0, a);
     }

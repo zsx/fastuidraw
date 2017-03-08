@@ -159,6 +159,8 @@ namespace
     DstTriangle
     operator()(const SrcTriangle &src) const
     {
+      const int i1s[] = { 1, 2, 0 };
+      const int i2s[] = { 2, 0, 1 };
       DstTriangle dst;
 
       for(int i = 0; i < 3; ++i)
@@ -167,15 +169,18 @@ namespace
           unsigned int i1, i2;
           float v1, v2;
 
-          dst[i].m_attrib0 = fastuidraw::pack_vec4(src[i].m_position.x(), src[i].m_position.y(), 0.0f, 0.0f);
+          dst[i].m_attrib0.x() = fastuidraw::pack_float(src[i].m_position.x());
+          dst[i].m_attrib0.y() = fastuidraw::pack_float(src[i].m_position.y());
+          dst[i].m_attrib0.z() = i;
+          dst[i].m_attrib0.w() = 0;
 
           /* IDEA:
               dst[i].m_attrib1[j] =
                   1 : if i == j otherwise
                   m_values[compute_index(src[i].m_winding_opposite)]
            */
-          i1 = (i + 1) % 3;
-          i2 = (i + 2) % 3;
+          i1 = i1s[i];
+          i2 = i2s[i];
           v1 = operator()(src[i1].m_winding_opposite) ? 1.0f : 0.0f;
           v2 = operator()(src[i2].m_winding_opposite) ? 1.0f : 0.0f;
 
@@ -184,7 +189,8 @@ namespace
           a1[i2] = v2;
 
           dst[i].m_attrib1 = fastuidraw::pack_vec4(a1.x(), a1.y(), a1.z(), 0.0f);
-          dst[i].m_attrib2 = fastuidraw::uvec4(0u, 0u, 0u, 0u);
+          dst[i].m_attrib2 = fastuidraw::pack_vec4(src[i1].m_position.x(), src[i1].m_position.y(),
+                                                   src[i2].m_position.x(), src[i2].m_position.y());
         }
       return dst;
     }
