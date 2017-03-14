@@ -351,7 +351,7 @@ namespace
       return m_contours;
     }
 
-    const fastuidraw::BoundingBox&
+    const fastuidraw::BoundingBox<float>&
     bounds(void) const
     {
       return m_bounds;
@@ -367,7 +367,7 @@ namespace
     split(void) const;
 
   private:
-    SubPath(const fastuidraw::BoundingBox &bb,
+    SubPath(const fastuidraw::BoundingBox<float> &bb,
             std::vector<SubContour> &contours);
 
     int
@@ -391,7 +391,7 @@ namespace
                        int splitting_coordinate, float spitting_value);
 
     unsigned int m_total_points;
-    fastuidraw::BoundingBox m_bounds;
+    fastuidraw::BoundingBox<float> m_bounds;
     std::vector<SubContour> m_contours;
   };
 
@@ -402,7 +402,7 @@ namespace
     typedef std::list<Contour> Path;
 
     explicit
-    PointHoard(const fastuidraw::BoundingBox &bounds,
+    PointHoard(const fastuidraw::BoundingBox<float> &bounds,
                std::vector<fastuidraw::vec2> &pts):
       m_converter(bounds.min_point(), bounds.max_point()),
       m_pts(pts)
@@ -932,7 +932,7 @@ namespace
     /* The bounds of this SubsetPrivate used in
        select_subsets().
      */
-    fastuidraw::BoundingBox m_bounds;
+    fastuidraw::BoundingBox<float> m_bounds;
 
     /* if this SubsetPrivate has children then
        m_painter_data is made by "merging" the
@@ -1016,7 +1016,7 @@ namespace
 /////////////////////////////////////
 // SubPath methods
 SubPath::
-SubPath(const fastuidraw::BoundingBox &bb,
+SubPath(const fastuidraw::BoundingBox<float> &bb,
         std::vector<SubContour> &contours):
   m_total_points(0),
   m_bounds(bb)
@@ -1232,8 +1232,8 @@ split(void) const
   B1_min[1 - splitting_coordinate] = m_bounds.min_point()[1 - splitting_coordinate];
   B1_min[splitting_coordinate] = mid_pt[splitting_coordinate];
 
-  fastuidraw::BoundingBox B0(m_bounds.min_point(), B0_max);
-  fastuidraw::BoundingBox B1(B1_min, m_bounds.max_point());
+  fastuidraw::BoundingBox<float> B0(m_bounds.min_point(), B0_max);
+  fastuidraw::BoundingBox<float> B1(B1_min, m_bounds.max_point());
   std::vector<SubContour> C0, C1;
 
   C0.reserve(m_contours.size());
