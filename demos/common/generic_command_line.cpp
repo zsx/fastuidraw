@@ -81,7 +81,7 @@ parse_command_line(const std::vector<std::string> &argv)
         we do not use the iterator interface because an argument
         value may add new ones triggering a resize of m_children.
        */
-      for(unsigned int i=0; !arg_taken and i<m_children.size(); ++i)
+      for(unsigned int i=0; !arg_taken && i<m_children.size(); ++i)
         {
            command_line_argument *p(m_children[i]);
 
@@ -150,7 +150,7 @@ print_detailed_help(std::ostream &ostr) const
 command_line_argument::
 ~command_line_argument()
 {
-  if(m_parent!=nullptr and m_location>=0)
+  if(m_parent!=nullptr && m_location>=0)
     {
       m_parent->m_children[m_location]=nullptr;
     }
