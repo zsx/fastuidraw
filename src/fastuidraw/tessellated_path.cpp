@@ -95,7 +95,7 @@ TessellatedPathPrivate(const fastuidraw::Path &input,
 
                   work_room[n].m_distance_from_contour_start = contour_length + work_room[n].m_distance_from_edge_start;
 
-                  if(o == 0 and e == 0 and n == 0)
+                  if(o == 0 && e == 0 && n == 0)
                     {
                       m_box_min = pt;
                       m_box_max = pt;
