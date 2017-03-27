@@ -1,6 +1,6 @@
 #include <string>
 #include <algorithm>
-#include <dirent.h>
+#include <boost/filesystem.hpp>
 #include "text_helper.hpp"
 
 namespace
@@ -146,24 +146,18 @@ add_fonts_from_path(const std::string &filename,
                     fastuidraw::reference_counted_ptr<fastuidraw::GlyphSelector> glyph_selector,
                     fastuidraw::FontFreeType::RenderParams render_params)
 {
-  DIR *dir;
-  struct dirent *entry;
 
-  dir = opendir(filename.c_str());
-  if(!dir)
-    {
+  boost::filesystem::path path(filename);
+  if (!boost::filesystem::is_directory(path)) {
       add_fonts_from_file(filename, lib, glyph_selector, render_params);
       return;
-    }
+  }
 
-  for(entry = readdir(dir); entry != nullptr; entry = readdir(dir))
-    {
-      std::string file;
-      file = entry->d_name;
-      if(file != ".." && file != ".")
-        {
-          add_fonts_from_path(filename + "/" + file, lib, glyph_selector, render_params);
-        }
-    }
-  closedir(dir);
+  boost::system::error_code ec;
+  boost::filesystem::recursive_directory_iterator it(path, boost::filesystem::symlink_option::recurse, ec);
+  while (it != boost::filesystem::recursive_directory_iterator() && !ec) {
+      boost::filesystem::path c = it->path();
+      if (!boost::filesystem::is_directory(c))
+          add_fonts_from_file(c.generic_string(), lib, glyph_selector, render_params);
+  }
 }

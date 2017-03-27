@@ -1,5 +1,6 @@
 #include <fstream>
-#include <dirent.h>
+//#include <dirent.h>
+#include <boost/filesystem.hpp>
 
 #include <fastuidraw/painter/painter.hpp>
 #include <fastuidraw/text/glyph_cache.hpp>
@@ -162,7 +163,8 @@ painter_cells(void):
   m_num_cells_x(10, "num_cells_x", "Number of cells across", *this),
   m_num_cells_y(10, "num_cells_y", "Number of cells down", *this),
   m_cell_group_size(1, "cell_group_size", "width and height in number of cells for cell group size", *this),
-  m_font("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "font", "File from which to take font", *this),
+  //m_font("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "font", "File from which to take font", *this),
+  m_font("/c/Windows/Fonts/Arial.ttf", "font", "File from which to take font", *this),
   m_text_renderer(fastuidraw::curve_pair_glyph,
                   enumerated_string_type<enum fastuidraw::glyph_type>()
                   .add_entry("coverage", fastuidraw::coverage_glyph, "coverage glyphs (i.e. alpha masks)")
@@ -291,26 +293,19 @@ void
 painter_cells::
 add_images(const std::string &filename, std::vector<named_image> &dest)
 {
-  DIR *dir;
-  struct dirent *entry;
-
-  dir = opendir(filename.c_str());
-  if(!dir)
-    {
-      add_single_image(filename, dest);
-      return;
+    boost::filesystem::path path(filename);
+    if (!boost::filesystem::is_directory(path)) {
+        add_single_image(filename, dest);
+        return;
     }
 
-  for(entry = readdir(dir); entry != nullptr; entry = readdir(dir))
-    {
-      std::string file;
-      file = entry->d_name;
-      if(file != ".." && file != ".")
-        {
-          add_images(filename + "/" + file, dest);
-        }
+    boost::system::error_code ec;
+    boost::filesystem::recursive_directory_iterator it(path, boost::filesystem::symlink_option::recurse, ec);
+    while (it != boost::filesystem::recursive_directory_iterator() && !ec) {
+        boost::filesystem::path c = it->path();
+        if (!boost::filesystem::is_directory(c))
+            add_single_image(c.generic_string(), dest);
     }
-  closedir(dir);
 }
 
 void
