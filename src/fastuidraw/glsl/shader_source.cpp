@@ -125,10 +125,10 @@ SourcePrivate::
 strip_leading_white_spaces(const std::string &S)
 {
   std::string::const_iterator iter, end;
-  for(iter = S.begin(), end = S.end(); iter != end and isspace(*iter); ++iter)
+  for(iter = S.begin(), end = S.end(); iter != end && isspace(*iter); ++iter)
     {
     }
-  return (iter != end and *iter == '#')?
+  return (iter != end && *iter == '#')?
     std::string(iter, end):
     S;
 }
