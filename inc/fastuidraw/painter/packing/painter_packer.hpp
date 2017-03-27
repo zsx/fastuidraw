@@ -47,7 +47,7 @@ namespace fastuidraw
     A PainterPacker packs data created by a Painter
     to be fed to a PainterBackend to draw.
    */
-  class PainterPacker:public reference_counted<PainterPacker>::default_base
+  class FASTUIDRAW_API PainterPacker:public reference_counted<PainterPacker>::default_base
   {
   public:
     /*!

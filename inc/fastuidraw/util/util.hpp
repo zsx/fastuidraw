@@ -23,6 +23,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#ifndef FASTUIDRAW_API
+#define FASTUIDRAW_API
+#endif
+
 namespace fastuidraw
 {
 /*!\addtogroup Utility
@@ -71,6 +75,7 @@ namespace fastuidraw
     Returns the floor of the log2 of an unsinged integer,
     i.e. the value K so that 2^K <= x < 2^{K+1}
    */
+  FASTUIDRAW_API
   uint32_t
   uint32_log2(uint32_t v);
 
@@ -78,6 +83,7 @@ namespace fastuidraw
     Returns the floor of the log2 of an unsinged integer,
     i.e. the value K so that 2^K <= x < 2^{K+1}
    */
+  FASTUIDRAW_API
   uint64_t
   uint64_log2(uint64_t v);
 
@@ -85,6 +91,7 @@ namespace fastuidraw
     Returns the number of bits required to hold a 32-bit
     unsigned integer value.
    */
+  FASTUIDRAW_API
   uint32_t
   number_bits_required(uint32_t v);
 
@@ -92,6 +99,7 @@ namespace fastuidraw
     Returns the number of bits required to hold a 32-bit
     unsigned integer value.
    */
+  FASTUIDRAW_API
   uint64_t
   uint64_number_bits_required(uint64_t v);
 
@@ -162,6 +170,7 @@ namespace fastuidraw
     \param alignment value of which the return value is to be
            a multiple
    */
+  FASTUIDRAW_API
   unsigned int
   round_up_to_multiple(unsigned int v, unsigned int alignment);
 
@@ -170,6 +179,7 @@ namespace fastuidraw
     \param block_size size of block
     \param size size query
    */
+  FASTUIDRAW_API
   unsigned int
   number_blocks(unsigned int block_size, unsigned int size);
 
@@ -316,7 +326,7 @@ namespace fastuidraw
     Class for which copy ctor and assignment operator
     are private functions.
    */
-  class noncopyable
+  class FASTUIDRAW_API noncopyable
   {
   public:
     noncopyable(void)
@@ -334,7 +344,7 @@ namespace fastuidraw
     Functionally, a simplified version of
     std::true_type.
    */
-  class true_type
+  class FASTUIDRAW_API true_type
   {
   public:
     /*!
@@ -351,7 +361,7 @@ namespace fastuidraw
     Functionally, a simplified version of
     std::false_type.
    */
-  class false_type
+  class FASTUIDRAW_API false_type
   {
   public:
     /*!

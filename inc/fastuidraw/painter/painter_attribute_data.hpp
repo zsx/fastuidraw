@@ -34,7 +34,7 @@ namespace fastuidraw
     data ready to be consumed by a Painter. Data is organized
     into individual chuncks that can be drawn seperately.
    */
-  class PainterAttributeData:noncopyable
+  class FASTUIDRAW_API PainterAttributeData:noncopyable
   {
   public:
     /*!

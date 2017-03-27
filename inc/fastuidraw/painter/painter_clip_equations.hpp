@@ -35,7 +35,7 @@ namespace fastuidraw
     3D API clip coordinats (i.e. after PainterItemMatrix
     transformation is applied) as dot(clip_vector, p) >= 0.
   */
-  class PainterClipEquations
+  class FASTUIDRAW_API PainterClipEquations
   {
   public:
     /*!

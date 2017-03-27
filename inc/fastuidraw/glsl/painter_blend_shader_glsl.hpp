@@ -74,7 +74,7 @@ namespace fastuidraw
       fragment shader in PainterItemShaderGL are also avalailable to the
       blend shader.
      */
-    class PainterBlendShaderGLSL:public PainterBlendShader
+    class FASTUIDRAW_API PainterBlendShaderGLSL:public PainterBlendShader
     {
     public:
       /*!

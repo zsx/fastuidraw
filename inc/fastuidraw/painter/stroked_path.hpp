@@ -45,7 +45,7 @@ class PainterAttribute;
   one only needs to construct a StrokedPath <i>once</i> regardless
   of how one strokes the original path for drawing.
  */
-class StrokedPath:
+class FASTUIDRAW_API StrokedPath:
     public reference_counted<StrokedPath>::non_concurrent
 {
 public:
@@ -637,7 +637,7 @@ public:
     \param P source TessellatedPath
    */
   explicit
-  StrokedPath(const TessellatedPath &P);
+  StrokedPath(TessellatedPath const &P);
 
   ~StrokedPath();
 

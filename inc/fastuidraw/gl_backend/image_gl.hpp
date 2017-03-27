@@ -43,14 +43,14 @@ namespace gl
     flush(), otherwise it is done immediately and then must be done
     with a GL context current.
    */
-  class ImageAtlasGL:public ImageAtlas
+  class FASTUIDRAW_GL_API ImageAtlasGL:public ImageAtlas
   {
   public:
     /*!
       Class to hold the construction parameters for creating
       a ImageAtlasGL.
      */
-    class params
+    class FASTUIDRAW_GL_API params
     {
     public:
       /*!

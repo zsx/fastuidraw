@@ -528,7 +528,7 @@ private:
   the edge from the last point of the current
   contour to the first point of it.
  */
-class Path
+class FASTUIDRAW_API Path
 {
 public:
   /*!

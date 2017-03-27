@@ -31,7 +31,7 @@ namespace fastuidraw
     Class to hold the blend mode as exposed by typical
     3D APIs
   */
-  class BlendMode
+  class FASTUIDRAW_API BlendMode
   {
   public:
     /*!

@@ -36,7 +36,7 @@ namespace fastuidraw
     A GlyphLayoutData provides information on how to
     layout text using a glyph.
    */
-  class GlyphLayoutData
+  class FASTUIDRAW_API GlyphLayoutData
   {
   public:
     GlyphLayoutData(void):

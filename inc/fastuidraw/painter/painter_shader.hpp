@@ -35,7 +35,7 @@ namespace fastuidraw
     on the backend. Typically it is a source code -fragment-
     that is placed into a large uber-shader.
    */
-  class PainterShader:
+  class FASTUIDRAW_API PainterShader:
     public reference_counted<PainterShader>::default_base
   {
   public:

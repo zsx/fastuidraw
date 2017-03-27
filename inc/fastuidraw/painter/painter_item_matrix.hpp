@@ -35,7 +35,7 @@ namespace fastuidraw
     transformation from item coordinates to the coordinates
     in which the clipping rectangle applies.
   */
-  class PainterItemMatrix
+  class FASTUIDRAW_API PainterItemMatrix
   {
   public:
 

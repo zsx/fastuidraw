@@ -45,7 +45,7 @@ class Path;
   It contains -all- the data needed to fill a path regardless of
   the fill rule.
  */
-class FilledPath:
+class FASTUIDRAW_API FilledPath:
     public reference_counted<FilledPath>::non_concurrent
 {
 public:

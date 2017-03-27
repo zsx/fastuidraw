@@ -32,13 +32,13 @@ namespace fastuidraw
   @{
 */
 
-  class GlyphLayoutData;
+  class FASTUIDRAW_API GlyphLayoutData;
 
   /*!
     FontBase provides an interface for a font
     to generate glyph rendering data.
    */
-  class FontBase:
+  class FASTUIDRAW_API FontBase:
     public reference_counted<FontBase>::default_base
   {
   public:

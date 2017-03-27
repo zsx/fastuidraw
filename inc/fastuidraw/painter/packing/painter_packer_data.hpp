@@ -30,7 +30,7 @@ namespace fastuidraw
     A PainterPackerData is the data parameters for drawing
     commans of PainterPacker.
    */
-  class PainterPackerData:public PainterData
+  class FASTUIDRAW_API PainterPackerData:public PainterData
   {
   public:
     /*!

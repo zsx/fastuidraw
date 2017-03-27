@@ -33,7 +33,7 @@ namespace fastuidraw
     A PainterAttributeDataFiller is the interfaceto fill the
     data held by a \ref PainterAttributeData
    */
-  class PainterAttributeDataFiller:noncopyable
+  class FASTUIDRAW_API PainterAttributeDataFiller:noncopyable
   {
   public:
     virtual

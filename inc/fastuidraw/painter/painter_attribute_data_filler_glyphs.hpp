@@ -53,7 +53,7 @@ namespace fastuidraw
       - PainterAttribute::m_attrib2 .z -> layer in primary atlas (uint)
       - PainterAttribute::m_attrib2 .w -> layer in secondary atlas (uint)
    */
-  class PainterAttributeDataFillerGlyphs:public PainterAttributeDataFiller
+  class FASTUIDRAW_API PainterAttributeDataFillerGlyphs:public PainterAttributeDataFiller
   {
   public:
     /*!

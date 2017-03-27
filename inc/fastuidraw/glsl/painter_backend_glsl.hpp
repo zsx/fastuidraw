@@ -34,7 +34,7 @@ namespace fastuidraw
       A PainterBackendGLSL is a partial implementation of PainterBackend.
       It handles the building of the GLSL source code of an Uber-Shader.
      */
-    class PainterBackendGLSL:public PainterBackend
+    class FASTUIDRAW_API PainterBackendGLSL:public PainterBackend
     {
     public:
       /*!
@@ -150,7 +150,7 @@ namespace fastuidraw
         and the shaders it constructs via
         PainterBackendGLSL::construct_shader().
        */
-      class ConfigurationGLSL
+      class FASTUIDRAW_API ConfigurationGLSL
       {
       public:
         /*!
@@ -229,7 +229,7 @@ namespace fastuidraw
         Specifies the binding points (given in GLSL by layout(binding = ))
         for the textures and buffers used by the uber-shader.
        */
-      class BindingPoints
+      class FASTUIDRAW_API BindingPoints
       {
       public:
         /*!
@@ -415,7 +415,7 @@ namespace fastuidraw
         Note that the usage of HW clip-planes is specified by by
         ConfigurationGLSL, NOT UberShaderParams.
        */
-      class UberShaderParams
+      class FASTUIDRAW_API UberShaderParams
       {
       public:
         /*!
@@ -724,7 +724,7 @@ namespace fastuidraw
         An ItemShaderFilter is used to specify whether or not
         to include a named shader when creating an uber-shader.
        */
-      class ItemShaderFilter
+      class FASTUIDRAW_API ItemShaderFilter
       {
       public:
         virtual

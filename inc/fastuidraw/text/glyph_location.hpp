@@ -34,7 +34,7 @@ namespace fastuidraw
     A GlyphLocation represents the location of a glyph
     within a GlyphAtlas.
   */
-  class GlyphLocation
+  class FASTUIDRAW_API GlyphLocation
   {
   public:
     GlyphLocation(void):

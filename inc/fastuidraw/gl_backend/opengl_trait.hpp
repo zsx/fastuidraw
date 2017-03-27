@@ -197,7 +197,7 @@ struct opengl_trait< vecN<T,N> >
   Class the bundles up count, size and type parameters
   for the GL API function glVertexAttribPointer
 */
-class opengl_trait_value
+class FASTUIDRAW_GL_API opengl_trait_value
 {
 public:
   /*!

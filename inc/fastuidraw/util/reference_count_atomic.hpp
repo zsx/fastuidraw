@@ -33,7 +33,7 @@ namespace fastuidraw
     by atomic operations, this is usually faster
     (and much faster) than reference_count_mutex.
    */
-  class reference_count_atomic:noncopyable
+  class FASTUIDRAW_API reference_count_atomic:noncopyable
   {
   public:
     /*!

@@ -43,7 +43,7 @@ namespace fastuidraw
       thus slot 0 for flat float is a different slot than
       slot 0 for smooth float.
     */
-    class varying_list
+    class FASTUIDRAW_API varying_list
     {
     public:
       /*!
@@ -166,7 +166,7 @@ namespace fastuidraw
       A shader_unpack_value represents a value to unpack
       from the data store.
      */
-    class shader_unpack_value
+    class FASTUIDRAW_API shader_unpack_value
     {
     public:
       /*!
@@ -404,7 +404,7 @@ namespace fastuidraw
       to unpack values from the data in the data store buffer.
       That machine generated code uses the macro fastuidraw_fetch_data().
      */
-    class PainterItemShaderGLSL:public PainterItemShader
+    class FASTUIDRAW_API PainterItemShaderGLSL:public PainterItemShader
     {
     public:
       /*!

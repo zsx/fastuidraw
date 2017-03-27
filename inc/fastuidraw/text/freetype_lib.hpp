@@ -36,7 +36,7 @@ namespace fastuidraw
     A FreetypeLib wraps an FT_Library object of libFreeType
     in a reference counted object.
    */
-  class FreetypeLib:public reference_counted<FreetypeLib>::default_base
+  class FASTUIDRAW_API FreetypeLib:public reference_counted<FreetypeLib>::default_base
   {
   public:
     /*!

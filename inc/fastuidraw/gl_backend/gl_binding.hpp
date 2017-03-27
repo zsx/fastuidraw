@@ -21,6 +21,9 @@
 
 #include <fastuidraw/util/util.hpp>
 
+//#ifndef FASTUIDRAW_NGL_API
+//#define FASTUIDRAW_NGL_API
+//#endif
 
 namespace fastuidraw {
 
@@ -128,7 +131,7 @@ namespace gl_binding {
   A LoggerBase defines the interface for logging
   GL commands
  */
-class LoggerBase:noncopyable
+class FASTUIDRAW_NGL_API LoggerBase:noncopyable
 {
 public:
   virtual
@@ -159,6 +162,7 @@ public:
   \param l object to use, a nullptr value indicates
            to not send logging commands anywhere
  */
+FASTUIDRAW_NGL_API
 void
 logger(LoggerBase *l);
 
@@ -166,6 +170,7 @@ logger(LoggerBase *l);
   Returns the LoggerBase object used
   to log GL commands, initial value is nullptr.
  */
+FASTUIDRAW_NGL_API
 LoggerBase*
 logger(void);
 
@@ -179,6 +184,7 @@ logger(void);
   Logging is only possbile to
   be active if GL_DEBUG is defined.
  */
+FASTUIDRAW_NGL_API
 bool
 log_gl_commands(void);
 
@@ -192,6 +198,7 @@ log_gl_commands(void);
   Logging is only possbile to
   be active if GL_DEBUG is defined.
  */
+FASTUIDRAW_NGL_API
 void
 log_gl_commands(bool v);
 
@@ -203,6 +210,7 @@ log_gl_commands(bool v);
                          immediately instead of fetching on
                          first call.
  */
+FASTUIDRAW_NGL_API
 void
 get_proc_function(void* (*get_proc)(const char*),
                   bool fetch_functions = true);

@@ -71,7 +71,7 @@ namespace fastuidraw
   /*!
     Specifies how to render a glyph
    */
-  class GlyphRender
+  class FASTUIDRAW_API GlyphRender
   {
   public:
     /*!
@@ -138,7 +138,7 @@ namespace fastuidraw
     data used for rendering glyphs and to pack that data
     onto a GlyphAtlas.
    */
-  class GlyphRenderData:noncopyable
+  class FASTUIDRAW_API GlyphRenderData:noncopyable
   {
   public:
     virtual

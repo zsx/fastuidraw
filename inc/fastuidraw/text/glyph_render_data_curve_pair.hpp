@@ -59,7 +59,7 @@ namespace fastuidraw
          needs only the texel coordinate (because the curve data is effectively moved to
          the coordinates of texel coordinates).
    */
-  class GlyphRenderDataCurvePair:public GlyphRenderData
+  class FASTUIDRAW_API GlyphRenderDataCurvePair:public GlyphRenderData
   {
   public:
     /*!

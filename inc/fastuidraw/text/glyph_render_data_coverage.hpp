@@ -33,7 +33,7 @@ namespace fastuidraw
     glyphs are for rendering glyphs small where
     hinting plays a crucial role.
    */
-  class GlyphRenderDataCoverage:public GlyphRenderData
+  class FASTUIDRAW_API GlyphRenderDataCoverage:public GlyphRenderData
   {
   public:
     /*!

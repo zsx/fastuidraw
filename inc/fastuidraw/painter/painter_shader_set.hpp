@@ -40,7 +40,7 @@ namespace fastuidraw
      - stroking paths
      - filling paths
    */
-  class PainterShaderSet
+  class FASTUIDRAW_API PainterShaderSet
   {
   public:
     /*!

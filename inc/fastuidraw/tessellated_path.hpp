@@ -19,7 +19,6 @@
 
 #pragma once
 
-
 #include <fastuidraw/util/fastuidraw_memory.hpp>
 #include <fastuidraw/util/vecN.hpp>
 #include <fastuidraw/util/c_array.hpp>
@@ -40,7 +39,7 @@ class FilledPath;
 /*!
   A TessellatedPath represents the tessellation of a Path.
  */
-class TessellatedPath:
+class FASTUIDRAW_API TessellatedPath:
     public reference_counted<TessellatedPath>::non_concurrent
 {
 public:
@@ -162,7 +161,7 @@ public:
   /*!
     Represents point of a tessellated path.
    */
-  class point
+  class FASTUIDRAW_API point
   {
   public:
     /*!

@@ -33,6 +33,7 @@ namespace fastuidraw
     \param resource_label "name" of resource, the string is copied
     \param value "value" of resource, the data behind value is copied
    */
+  FASTUIDRAW_API 
   void
   generate_static_resource(const char *resource_label, const_c_array<uint8_t> value);
 
@@ -49,7 +50,7 @@ namespace fastuidraw
     Provided as a conveniance. The ctor calls
     generate_static_resource().
    */
-  class static_resource
+  class FASTUIDRAW_API static_resource
   {
   public:
     /*!

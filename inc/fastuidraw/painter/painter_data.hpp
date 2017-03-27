@@ -31,7 +31,7 @@ namespace fastuidraw
     A PainterData provides the data for how for a
     Painter to draw content.
    */
-  class PainterData
+  class FASTUIDRAW_API PainterData
   {
   public:
     /*!

@@ -37,7 +37,7 @@ namespace fastuidraw
       A PainterBackendGL implements PainterBackend
       using the GL (or GLES) API.
      */
-    class PainterBackendGL:public glsl::PainterBackendGLSL
+    class FASTUIDRAW_GL_API PainterBackendGL:public glsl::PainterBackendGLSL
     {
     public:
       /*!
@@ -72,7 +72,7 @@ namespace fastuidraw
         A ConfigurationGL gives parameters how to contruct
         a PainterBackendGL.
        */
-      class ConfigurationGL
+      class FASTUIDRAW_GL_API ConfigurationGL
       {
       public:
         /*!

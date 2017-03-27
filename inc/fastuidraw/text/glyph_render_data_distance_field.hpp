@@ -33,7 +33,7 @@ namespace fastuidraw
     distorts the corners of the glyph making them
     appeared rounded.
    */
-  class GlyphRenderDataDistanceField:public GlyphRenderData
+  class FASTUIDRAW_API GlyphRenderDataDistanceField:public GlyphRenderData
   {
   public:
     /*!

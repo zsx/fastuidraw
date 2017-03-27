@@ -43,7 +43,7 @@ class Image;
     backing store (ImageAtlas) performs calls to the backing store behind
     its own mutex.
    */
-  class AtlasColorBackingStoreBase:
+  class FASTUIDRAW_API AtlasColorBackingStoreBase:
     public reference_counted<AtlasColorBackingStoreBase>::default_base
   {
   public:
@@ -137,7 +137,7 @@ class Image;
     backing store (ImageAtlas) performs calls to the backing store behind
     its own mutex.
    */
-  class AtlasIndexBackingStoreBase:
+  class FASTUIDRAW_API AtlasIndexBackingStoreBase:
     public reference_counted<AtlasIndexBackingStoreBase>::default_base
   {
   public:
@@ -262,7 +262,7 @@ class Image;
     ImageAtlas force draw-call breaks). Methods of ImageAtlas are
     thread safe, locked behind a mutex of the ImageAtlas.
    */
-  class ImageAtlas:
+  class FASTUIDRAW_API ImageAtlas:
     public reference_counted<ImageAtlas>::default_base
   {
   public:
@@ -430,7 +430,7 @@ class Image;
     An Image represents an image comprising of RGBA8 values.
     The texel values themselves are stored in a ImageAtlas.
    */
-  class Image:
+  class FASTUIDRAW_API Image:
     public reference_counted<Image>::default_base
   {
   public:

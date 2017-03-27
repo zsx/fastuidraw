@@ -38,7 +38,7 @@ namespace fastuidraw
     holding data and copying itself (for the purpose
     of copying PainterShaderData objects).
    */
-  class PainterShaderData
+  class FASTUIDRAW_API PainterShaderData
   {
   public:
     /*!
@@ -152,13 +152,13 @@ namespace fastuidraw
   /*!
     PainterItemShaderData holds custom data for item shaders
    */
-  class PainterItemShaderData:public PainterShaderData
+  class FASTUIDRAW_API PainterItemShaderData:public PainterShaderData
   {};
 
   /*!
     PainterBlendShaderData holds custom data for blend shaders
    */
-  class PainterBlendShaderData:public PainterShaderData
+  class FASTUIDRAW_API PainterBlendShaderData:public PainterShaderData
   {};
 /*! @} */
 

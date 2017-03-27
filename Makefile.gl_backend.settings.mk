@@ -13,6 +13,8 @@ else
   GL_INCLUDEPATH=/mingw/include
 endif
 
+GL_INCLUDEPATH=inc
+
 ############################
 ## headers for GL and GLES
 GL_RAW_HEADER_FILES=GL/glcorearb.h

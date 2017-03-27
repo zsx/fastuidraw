@@ -40,14 +40,14 @@ namespace fastuidraw
     i.e. glyph_code(uint32_t) const, is performed by libfreetype's
     FT_Get_Char_Index().
    */
-  class FontFreeType:public FontBase
+  class FASTUIDRAW_API FontFreeType:public FontBase
   {
   public:
     /*!
       A RenderParams specifies the parameters
       for generating scalable glyph rendering data
      */
-    class RenderParams
+    class FASTUIDRAW_API RenderParams
     {
     public:
       /*!

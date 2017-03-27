@@ -40,7 +40,7 @@ namespace fastuidraw
     data for rendering and performing layout of a
     glyph.
    */
-  class Glyph
+  class FASTUIDRAW_API Glyph
   {
   public:
     /*!

@@ -39,7 +39,7 @@ namespace fastuidraw
     are -ALWAYS- in groups of three where each group is a single
     triangle and each index is an index into \ref m_attributes.
    */
-  class PainterDraw:
+  class FASTUIDRAW_API PainterDraw:
     public reference_counted<PainterDraw>::default_base
   {
   public:

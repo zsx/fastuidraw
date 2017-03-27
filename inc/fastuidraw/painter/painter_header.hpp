@@ -34,7 +34,7 @@ namespace fastuidraw
     item to draw, including with what shader and the data
     for the shader.
    */
-  class PainterHeader
+  class FASTUIDRAW_API PainterHeader
   {
   public:
     /*!

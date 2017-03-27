@@ -45,7 +45,7 @@ namespace fastuidraw
     repeat window can also be optionally applied (see
     \ref repeat_window()).
   */
-  class PainterBrush
+  class FASTUIDRAW_API PainterBrush
   {
   public:
     /*!

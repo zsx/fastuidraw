@@ -22,8 +22,16 @@
 #include <assert.h>
 #include <iostream>
 #include <sstream>
-#include <fastuidraw/gl_backend/ngl_header.hpp>
+
 #include <fastuidraw/gl_backend/gl_binding.hpp>
+
+// API is exported by ngl_gl.cpp
+#ifdef FASTUIDRAW_NGL_API
+#undef FASTUIDRAW_NGL_API
+#endif
+#define FASTUIDRAW_NGL_API
+
+#include <fastuidraw/gl_backend/ngl_header.hpp>
 
 namespace
 {

@@ -31,7 +31,7 @@ namespace fastuidraw
     A PainterShaderGroup gives to what groups the active shaders
     of a PainterPacker belong.
    */
-  class PainterShaderGroup:noncopyable
+  class FASTUIDRAW_API PainterShaderGroup:noncopyable
   {
   public:
     /*!

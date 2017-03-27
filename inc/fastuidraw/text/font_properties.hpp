@@ -30,7 +30,7 @@ namespace fastuidraw
     used by GlyphSelector to perform font
     merging.
    */
-  class FontProperties
+  class FASTUIDRAW_API FontProperties
   {
   public:
 

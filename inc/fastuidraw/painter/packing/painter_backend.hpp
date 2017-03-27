@@ -38,7 +38,7 @@ namespace fastuidraw
     A PainterBackend is an interface that defines the API-specific
     elements to implement Painter:
    */
-  class PainterBackend:public reference_counted<PainterBackend>::default_base
+  class FASTUIDRAW_API PainterBackend:public reference_counted<PainterBackend>::default_base
   {
   public:
 
@@ -46,7 +46,7 @@ namespace fastuidraw
       A ConfigurationBase holds how data should be set to a
       PainterBackend
      */
-    class ConfigurationBase
+    class FASTUIDRAW_API ConfigurationBase
     {
     public:
       /*!
@@ -107,7 +107,7 @@ namespace fastuidraw
       PerformanceHints provides miscellaneous data about
       an implementation of a PainterBackend.
      */
-    class PerformanceHints:fastuidraw::noncopyable
+    class FASTUIDRAW_API PerformanceHints:fastuidraw::noncopyable
     {
     public:
       /*!

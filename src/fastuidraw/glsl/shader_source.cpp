@@ -177,7 +177,7 @@ add_source_code_from_stream(const std::string &label,
     {
       /* combine source lines that end with \
        */
-      if(*S.rbegin() == '\\')
+      if(!S.empty() && *S.rbegin() == '\\')
         {
           std::vector<std::string> strings;
 

@@ -237,7 +237,7 @@ static ActiveRegion *AddRegionBelow( fastuidraw_GLUtesselator *tess,
 
 static FASTUIDRAW_GLUboolean IsWindingInside( fastuidraw_GLUtesselator *tess, int n )
 {
-  return n!=0 and CALL_TESS_WINDING_OR_WINDING_DATA(n);
+  return n!=0 && CALL_TESS_WINDING_OR_WINDING_DATA(n);
 }
 
 

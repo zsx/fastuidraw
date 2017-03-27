@@ -35,7 +35,7 @@ namespace fastuidraw
     A GlyphCache represents a cache of glyphs and manages the uploading
     of the data to a GlyphAtlas. Methods are NOT thread safe.
    */
-  class GlyphCache:public reference_counted<GlyphCache>::default_base
+  class FASTUIDRAW_API GlyphCache:public reference_counted<GlyphCache>::default_base
   {
   public:
     /*!

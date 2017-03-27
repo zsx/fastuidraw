@@ -31,7 +31,7 @@ namespace fastuidraw
     A PainterBlendShader represents a shader
     for performing blending operations.
    */
-  class PainterBlendShader:public PainterShader
+  class FASTUIDRAW_API PainterBlendShader:public PainterShader
   {
   public:
     /*!

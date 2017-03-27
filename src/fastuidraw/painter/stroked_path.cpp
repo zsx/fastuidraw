@@ -2827,7 +2827,7 @@ chunk_for_named_join(unsigned int J)
 }
 
 fastuidraw::StrokedPath::
-StrokedPath(const fastuidraw::TessellatedPath &P)
+StrokedPath(fastuidraw::TessellatedPath const &P)
 {
   assert(number_offset_types < FASTUIDRAW_MAX_VALUE_FROM_NUM_BITS(offset_type_num_bits));
   m_d = FASTUIDRAWnew StrokedPathPrivate(P);

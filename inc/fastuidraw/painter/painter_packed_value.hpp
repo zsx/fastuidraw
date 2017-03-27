@@ -41,7 +41,7 @@ namespace fastuidraw
   /*!
     (Private) base classe used for PainterPackedValue
    */
-  class PainterPackedValueBase
+  class FASTUIDRAW_API PainterPackedValueBase
   {
   private:
     friend class PainterPacker;
@@ -196,7 +196,7 @@ namespace fastuidraw
     PainterPacker::Configuration::alignment()) is the same for each of
     these objects.
    */
-  class PainterPackedValuePool:noncopyable
+  class FASTUIDRAW_API PainterPackedValuePool:noncopyable
   {
   public:
     /*!

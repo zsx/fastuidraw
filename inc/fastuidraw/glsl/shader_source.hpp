@@ -34,7 +34,7 @@ namespace glsl {
   to a GLSL shader, specifying blocks of source
   code and macros to use.
  */
-class ShaderSource
+class FASTUIDRAW_API ShaderSource
 {
 public:
   /*!

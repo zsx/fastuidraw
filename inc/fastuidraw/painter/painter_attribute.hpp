@@ -33,7 +33,7 @@ namespace fastuidraw
     the expectation that shaders will cast the bits
     to the appropiate types for themselves.
    */
-  class PainterAttribute
+  class FASTUIDRAW_API PainterAttribute
   {
   public:
     /*!

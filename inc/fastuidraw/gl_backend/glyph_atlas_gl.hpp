@@ -43,14 +43,14 @@ namespace gl
     flush() is called, otherwise it is done immediately and then
     must be done with a GL context current.
    */
-  class GlyphAtlasGL:public GlyphAtlas
+  class FASTUIDRAW_GL_API GlyphAtlasGL:public GlyphAtlas
   {
   public:
     /*!
       Class to hold the construction parameters for creating
       a GlyphAtlasGL.
      */
-    class params
+    class FASTUIDRAW_GL_API params
     {
     public:
       /*!

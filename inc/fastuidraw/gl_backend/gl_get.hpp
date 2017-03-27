@@ -39,6 +39,7 @@ namespace gl {
   \param v GL enumeration to fetch
   \param ptr address to which to write values
  */
+FASTUIDRAW_GL_API
 void
 context_get(GLenum v, GLint *ptr);
 

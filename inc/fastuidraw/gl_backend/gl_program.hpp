@@ -51,7 +51,7 @@ namespace gl {
   true. Moreover, a Shader may only be deleted from the GL rendering
   thread.
 */
-class Shader:
+class FASTUIDRAW_GL_API Shader:
   public reference_counted<Shader>::default_base
 {
 public:
@@ -161,7 +161,7 @@ private:
   A PreLinkAction is an action to apply to a Program
   after attaching shaders but before linking.
  */
-class PreLinkAction:
+class FASTUIDRAW_GL_API PreLinkAction:
   public reference_counted<PreLinkAction>::default_base
 {
 public:
@@ -185,7 +185,7 @@ public:
   it's purpose is to bind named attributes to named
   locations, i.e. it calls glBindAttributeLocation().
  */
-class BindAttribute:public PreLinkAction
+class FASTUIDRAW_GL_API BindAttribute:public PreLinkAction
 {
 public:
   /*!
@@ -213,7 +213,7 @@ private:
   - for GLES: GLES3.0 or higher
   - for GL: either GL version 4.1 or the extension GL_ARB_separate_shader_objects
  */
-class ProgramSeparable:public PreLinkAction
+class FASTUIDRAW_GL_API ProgramSeparable:public PreLinkAction
 {
 public:
   virtual
@@ -225,7 +225,7 @@ public:
   A PreLinkActionArray is a conveniance class
   wrapper over an array of PreLinkAction handles.
  */
-class PreLinkActionArray
+class FASTUIDRAW_GL_API PreLinkActionArray
 {
 public:
   /*!
@@ -290,7 +290,7 @@ class Program;
   It's main purpose is to facilitate initializing
   uniform values.
  */
-class ProgramInitializer:
+class FASTUIDRAW_GL_API ProgramInitializer:
   public reference_counted<ProgramInitializer>::default_base
 {
 public:
@@ -318,7 +318,7 @@ public:
   set the uniform value is to be implemented by
   a derived class in init_uniform().
  */
-class UniformInitalizerBase:public ProgramInitializer
+class FASTUIDRAW_GL_API UniformInitalizerBase:public ProgramInitializer
 {
 public:
   /*!
@@ -519,7 +519,7 @@ typedef UniformInitializer<int> SamplerInitializer;
   used by a bindable uniform (aka Uniform buffer object, see the
   GL spec on glGetUniformBlockIndex and glUniformBlockBinding.
  */
-class UniformBlockInitializer:public ProgramInitializer
+class FASTUIDRAW_GL_API UniformBlockInitializer:public ProgramInitializer
 {
 public:
   /*!
@@ -546,7 +546,7 @@ private:
   glShaderStorageBlockBinding). Initializer is not supported
   in OpenGL ES.
  */
-class ShaderStorageBlockInitializer:public ProgramInitializer
+class FASTUIDRAW_GL_API ShaderStorageBlockInitializer:public ProgramInitializer
 {
 public:
   /*!
@@ -572,7 +572,7 @@ private:
   Conveniance class to hold an array of handles
   of ProgramInitializer objects
  */
-class ProgramInitializerArray
+class FASTUIDRAW_GL_API ProgramInitializerArray
 {
 public:
   /*!
@@ -680,7 +680,7 @@ private:
   Program's are considered a resource,
   as such have a resource manager.
  */
-class Program:
+class FASTUIDRAW_GL_API Program:
   public reference_counted<Program>::default_base
 {
 public:
@@ -745,7 +745,7 @@ public:
     size and name of a uniform or an attribute
     of a GL program.
   */
-  class shader_variable_info
+  class FASTUIDRAW_GL_API shader_variable_info
   {
   public:
     /*!
@@ -928,7 +928,7 @@ public:
     one can query the members of a uniform or
     shader storage block.
    */
-  class block_info
+  class FASTUIDRAW_GL_API block_info
   {
   public:
     /*!
@@ -1039,7 +1039,7 @@ public:
     A block_info represents an object from which
     one can query teh data of an atomic buffer.
    */
-  class atomic_buffer_info
+  class FASTUIDRAW_GL_API atomic_buffer_info
   {
   public:
     /*!

@@ -39,7 +39,7 @@ namespace fastuidraw
     because the user of the backing store (ColorStopAtlas) performs
     calls to the backing store behind its own mutex.
    */
-  class ColorStopBackingStore:
+  class FASTUIDRAW_API ColorStopBackingStore:
     public reference_counted<ColorStopBackingStore>::default_base
   {
   public:
@@ -136,7 +136,7 @@ namespace fastuidraw
     application. Ideally, all color stop sequences are placed into a single
     ColorStopAtlas (changes of ColorStopAtlas force draw-call breaks).
    */
-  class ColorStopAtlas:
+  class FASTUIDRAW_API ColorStopAtlas:
     public reference_counted<ColorStopAtlas>::default_base
   {
   public:
@@ -246,7 +246,7 @@ namespace fastuidraw
     The values of ColorStop::m_place are discretized. Values in between the
     ColorStop 's of a ColorStopSequence are interpolated.
    */
-  class ColorStopSequenceOnAtlas:
+  class FASTUIDRAW_API ColorStopSequenceOnAtlas:
     public reference_counted<ColorStopSequenceOnAtlas>::default_base
   {
   public:

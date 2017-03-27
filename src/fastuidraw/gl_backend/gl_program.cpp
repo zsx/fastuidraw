@@ -30,7 +30,13 @@
 #include <algorithm>
 #include <sstream>
 #include <stdint.h>
+#include <cctype>
+#ifdef _MSC_VER
+#include <Windows.h>
+#include <fastuidraw/util/time.hpp>
+#else
 #include <sys/time.h>
+#endif
 
 #include <fastuidraw/util/static_resource.hpp>
 #include <fastuidraw/gl_backend/ngl_header.hpp>
@@ -1896,7 +1902,7 @@ is_row_major(void) const
 {
   const ShaderVariableInfo *d;
   d = static_cast<const ShaderVariableInfo*>(m_d);
-  return (d) ? d->m_is_row_major : false;
+  return (d) ? (d->m_is_row_major != 0) : false;
 }
 
 GLint

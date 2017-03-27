@@ -58,7 +58,7 @@ namespace fastuidraw
     PainterAttributeData can be used to generate and save attribute and
     index data to be used repeatedly.
    */
-  class Painter:public reference_counted<Painter>::default_base
+  class FASTUIDRAW_API Painter:public reference_counted<Painter>::default_base
   {
   public:
     /*!

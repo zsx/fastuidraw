@@ -32,7 +32,7 @@ namespace fastuidraw
     draw an item (typically a vertex and fragment
     shader pair).
    */
-  class PainterItemShader:public PainterShader
+  class FASTUIDRAW_API PainterItemShader:public PainterShader
   {
   public:
     /*!

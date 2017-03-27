@@ -37,7 +37,7 @@ namespace fastuidraw
     to realize the data to send to a PainterPacker for
     the purpose of dashed stroking.
    */
-  class DashEvaluatorBase:
+  class FASTUIDRAW_API DashEvaluatorBase:
     public reference_counted<DashEvaluatorBase>::default_base
   {
   public:
@@ -89,7 +89,7 @@ namespace fastuidraw
     data. In particular, attributes/indices for caps are
     NEVER given to a shader within a PainterDashedStrokeShaderSet.
    */
-  class PainterDashedStrokeShaderSet
+  class FASTUIDRAW_API PainterDashedStrokeShaderSet
   {
   public:
     /*!

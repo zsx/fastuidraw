@@ -33,7 +33,7 @@ namespace fastuidraw
     A GlyphSelector performs the act of selecting a glyph
     from a font preference and a character code.
    */
-  class GlyphSelector:public reference_counted<GlyphSelector>::default_base
+  class FASTUIDRAW_API GlyphSelector:public reference_counted<GlyphSelector>::default_base
   {
   public:
 

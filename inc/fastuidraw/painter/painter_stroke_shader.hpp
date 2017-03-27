@@ -40,7 +40,7 @@ namespace fastuidraw
     to select correct LOD for rounded joins and caps when
     drawing rounded joins and caps.
    */
-  class StrokingDataSelectorBase:
+  class FASTUIDRAW_API StrokingDataSelectorBase:
     public reference_counted<StrokingDataSelectorBase>::default_base
   {
   public:
@@ -87,7 +87,7 @@ namespace fastuidraw
     A PainterStrokeShader holds shaders for
     stroking with and without anit-aliasing.
   */
-  class PainterStrokeShader
+  class FASTUIDRAW_API PainterStrokeShader
   {
   public:
     /*!

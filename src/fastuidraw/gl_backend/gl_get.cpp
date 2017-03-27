@@ -16,6 +16,7 @@
  *
  */
 
+#define FASTUIDRAW_NGL_API __declspec(dllimport)
 #include <fastuidraw/gl_backend/ngl_header.hpp>
 #include <fastuidraw/gl_backend/gl_get.hpp>
 

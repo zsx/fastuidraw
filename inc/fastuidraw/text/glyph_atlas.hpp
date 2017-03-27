@@ -40,7 +40,7 @@ namespace fastuidraw
     need to be thread safe because the user of the backing store (GlyphAtlas)
     performs calls to the backing store behind its own mutex.
    */
-  class GlyphAtlasTexelBackingStoreBase:
+  class FASTUIDRAW_API GlyphAtlasTexelBackingStoreBase:
     public reference_counted<GlyphAtlasTexelBackingStoreBase>::default_base
   {
   public:
@@ -136,7 +136,7 @@ namespace fastuidraw
     store (GlyphAtlas) performs calls to the backing store behind its
     own mutex.
    */
-  class GlyphAtlasGeometryBackingStoreBase:
+  class FASTUIDRAW_API GlyphAtlasGeometryBackingStoreBase:
     public reference_counted<GlyphAtlasGeometryBackingStoreBase>::default_base
   {
   public:
@@ -225,7 +225,7 @@ namespace fastuidraw
     single GlyphAtlas. Methods of GlyphAtlas are thread
     safe, locked behind a mutex of the GlyphAtlas.
    */
-  class GlyphAtlas:
+  class FASTUIDRAW_API GlyphAtlas:
     public reference_counted<GlyphAtlas>::default_base
   {
   public:

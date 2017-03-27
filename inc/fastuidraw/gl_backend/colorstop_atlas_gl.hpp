@@ -42,14 +42,14 @@ namespace gl
     flush, otherwise it is done immediately and then must be done
     with a GL context current.
    */
-  class ColorStopAtlasGL:public ColorStopAtlas
+  class FASTUIDRAW_GL_API ColorStopAtlasGL:public ColorStopAtlas
   {
   public:
     /*!
       Class to hold the construction parameters for creating
       a ColorStopAtlasGL.
      */
-    class params
+    class FASTUIDRAW_GL_API params
     {
     public:
       /*!

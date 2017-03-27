@@ -33,7 +33,7 @@ namespace fastuidraw
     A ColorStop is a pair consisting of an RGBA value and a place. The
     value of the place is a floating point value in the range [0, 1].
    */
-  class ColorStop
+  class FASTUIDRAW_API ColorStop
   {
   public:
     /*!
@@ -87,7 +87,7 @@ namespace fastuidraw
     (1-t) * S.m_color + t * S.m_color where t is given by
     (q-S.m_place) / (T.m_place - S.m_place).
    */
-  class ColorStopSequence:noncopyable
+  class FASTUIDRAW_API ColorStopSequence:noncopyable
   {
   public:
     /*!

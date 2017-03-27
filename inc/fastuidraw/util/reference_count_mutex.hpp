@@ -32,7 +32,7 @@ namespace fastuidraw
     behind a mutex lock. Usually slower (and much slower) than
     reference_count_atomic.
    */
-  class reference_count_mutex:noncopyable
+  class FASTUIDRAW_API reference_count_mutex:noncopyable
   {
   public:
     /*!

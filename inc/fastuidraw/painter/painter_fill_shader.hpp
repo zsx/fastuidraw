@@ -32,7 +32,7 @@ namespace fastuidraw
   /*!
     A PainterFillShader holds the shaders for drawing filled paths.
    */
-  class PainterFillShader
+  class FASTUIDRAW_API PainterFillShader
   {
   public:
     /*!

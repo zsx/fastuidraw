@@ -35,7 +35,7 @@ namespace fastuidraw
     handle attribute data as packed by
     PainterAttributeDataFillerGlyphs.
    */
-  class PainterGlyphShader
+  class FASTUIDRAW_API PainterGlyphShader
   {
   public:
     /*!

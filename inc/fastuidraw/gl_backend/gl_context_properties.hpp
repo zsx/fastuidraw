@@ -35,7 +35,7 @@ namespace fastuidraw
       A ContextProperties provides an interface to
       query GL/GLES version and extensions.
      */
-    class ContextProperties:noncopyable
+    class FASTUIDRAW_GL_API ContextProperties:noncopyable
     {
     public:
       /*!
