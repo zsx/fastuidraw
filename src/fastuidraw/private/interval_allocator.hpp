@@ -137,7 +137,7 @@ namespace fastuidraw
     {
     public:
       bool
-      operator()(interval_ref lhs, interval_ref rhs)
+      operator()(const interval_ref lhs, const interval_ref rhs) const
       {
         assert(lhs->first == lhs->second.m_end);
         assert(rhs->first == rhs->second.m_end);
