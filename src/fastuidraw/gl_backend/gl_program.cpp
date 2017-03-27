@@ -1076,7 +1076,7 @@ filter_name(iterator begin, iterator end, unsigned int *array_index)
     and if it is remove characters until
     a '[' is encountered.
   */
-  if(!return_value.empty() and *return_value.rbegin() == ']')
+  if(!return_value.empty() && *return_value.rbegin() == ']')
     {
       std::string::size_type loc;
 
@@ -2162,7 +2162,7 @@ assemble(fastuidraw::gl::Program *program)
   error_ostr << "\n-----------------------\n" << &raw_log[0];
 
   m_link_log = error_ostr.str();
-  m_link_success = m_link_success and (linkOK == GL_TRUE);
+  m_link_success = m_link_success && (linkOK == GL_TRUE);
 
   if(m_link_success)
     {
