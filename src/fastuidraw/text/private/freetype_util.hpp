@@ -666,8 +666,8 @@ namespace detail
     reliable_test(void) const
     {
       return (m_solution_count[0]&1)==(m_solution_count[1]&1)
-        and (m_solution_count[0]&1)==(m_solution_count[2]&1)
-        and (m_solution_count[0]&1)==(m_solution_count[3]&1);
+        && (m_solution_count[0]&1)==(m_solution_count[2]&1)
+        && (m_solution_count[0]&1)==(m_solution_count[3]&1);
     }
 
     /*!\fn bool inside
@@ -881,7 +881,7 @@ namespace detail
   bool
   is_max_side_type(enum boundary_type v)
   {
-    return v==right_boundary or v==above_boundary;
+    return v==right_boundary || v==above_boundary;
   }
 
   /*!\fn bool is_min_side_type(enum boundary_type)
@@ -893,7 +893,7 @@ namespace detail
   bool
   is_min_side_type(enum boundary_type v)
   {
-    return v==left_boundary or v==below_boundary;
+    return v==left_boundary || v==below_boundary;
   }
 
   /*!\class analytic_return_type
@@ -1180,7 +1180,7 @@ namespace detail
     const ivec2&
     control_point(int I) const
     {
-      assert(I>=0 and I<=degree());
+      assert(I>=0 && I<=degree());
       return m_raw_curve[I];
     }
 
@@ -1770,7 +1770,7 @@ namespace detail
     const range_type<int>&
     component(int C) const
     {
-      assert(C>=0 and static_cast<unsigned int>(C)<m_curve_sets.size());
+      assert(C>=0 && static_cast<unsigned int>(C)<m_curve_sets.size());
       return m_curve_sets[C];
     }
 
@@ -2437,7 +2437,7 @@ namespace detail
       bool
       endpoint_inside_of_texel(void) const
       {
-        return (m_enter==no_boundary or m_exit==no_boundary);
+        return (m_enter==no_boundary || m_exit==no_boundary);
       }
     };
 

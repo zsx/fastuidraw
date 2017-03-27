@@ -224,8 +224,8 @@ namespace
   {
     int mult;
 
-    mult= (t>0.0f and t<1.0f)?1:-1;
-    if(mult==1 or record_all)
+    mult= (t>0.0f && t<1.0f)?1:-1;
+    if(mult==1 || record_all)
       {
         return_value.push_back( polynomial_solution_solve()
                                 .t(t)
@@ -249,8 +249,8 @@ namespace
         poly[0]=-poly[0];
       }
 
-    mult=( poly[0]<T(0) and poly[0]+poly[1]>T(0) ) ? 1: -1;
-    if(poly[1]!=T(0) and (mult==1 or record_all) )
+    mult=( poly[0]<T(0) && poly[0]+poly[1]>T(0) ) ? 1: -1;
+    if(poly[1]!=T(0) && (mult==1 && record_all) )
       {
         float v;
 
@@ -344,9 +344,9 @@ namespace
             v[1]=-v[1];
           }
 
-        mult=(v[0]<T(0) and v[0]+v[1]>T(0))?1:-1;
+        mult=(v[0]<T(0) && v[0]+v[1]>T(0))?1:-1;
 
-        if(mult==1 or record_all)
+        if(mult==1 && record_all)
           {
             float t;
 
@@ -373,17 +373,17 @@ namespace
     two_a_plus_b=T(2)*poly[2]+poly[1];
 
     plus_radical_root_want=
-      (two_a_plus_b>T(0) and sum>T(0)) // <1 condition
-      and
-      (poly[0]<T(0) or poly[1]<T(0));  // >0 condition
+      (two_a_plus_b>T(0) && sum>T(0)) // <1 condition
+      &&
+      (poly[0]<T(0) && poly[1]<T(0));  // >0 condition
 
     negative_radical_root_want=
-               (two_a_plus_b>T(0) or sum<T(0))  //<1 condition
-               and
-               (poly[1]<T(0) and poly[0]>T(0));  // >0 condition
+               (two_a_plus_b>T(0) && sum<T(0))  //<1 condition
+               &&
+               (poly[1]<T(0) && poly[0]>T(0));  // >0 condition
 
 
-    if(plus_radical_root_want or negative_radical_root_want or record_all)
+    if(plus_radical_root_want || negative_radical_root_want || record_all)
       {
 
         float a, b, c, radical;
@@ -400,14 +400,14 @@ namespace
         v0=(-b+radical)/(2.0f*a);
         v1=(-b-radical)/(2.0f*a);
 
-        if(plus_radical_root_want or record_all)
+        if(plus_radical_root_want || record_all)
           {
             return_value.push_back( polynomial_solution_solve()
                                     .multiplicity(plus_radical_root_want?1:-1)
                                     .t(v0));
           }
 
-        if(negative_radical_root_want or record_all)
+        if(negative_radical_root_want || record_all)
           {
             return_value.push_back( polynomial_solution_solve()
                                     .multiplicity(negative_radical_root_want?1:-1)
@@ -556,7 +556,7 @@ namespace
         return;
       }
 
-    assert(poly.size()==2 or poly.size()==3 or poly.size()==4);
+    assert(poly.size()==2 || poly.size()==3 || poly.size()==4);
 
     switch(poly.size())
       {
@@ -710,7 +710,7 @@ namespace
         x_extremal_flag, //x_fixed=0
         y_extremal_flag, //y_fixed=1
       };
-    assert(tp==x_fixed or tp==y_fixed);
+    assert(tp==x_fixed || tp==y_fixed);
 
     return 0!=(flag&masks[tp]);
   }
@@ -730,12 +730,12 @@ namespace
   void
   remove_end_point_solutions(c_array<int> &feed)
   {
-    while(feed.size()>0 and 0==feed[0])
+    while(feed.size()>0 && 0==feed[0])
       {
         feed=feed.sub_array(1, feed.size() -1);
       }
 
-    while(feed.size()>0 and 0==sum_array(feed.begin(), feed.end()))
+    while(feed.size()>0 && 0==sum_array(feed.begin(), feed.end()))
       {
         for(int k=feed.size()-1; k>0; --k)
           {
@@ -852,7 +852,7 @@ namespace detail
       For now we only check degree=2:
      */
     if(indices.size()==3
-       and is_flat_curve(dbg, indices[0], indices[1], indices[2]))
+       && is_flat_curve(dbg, indices[0], indices[1], indices[2]))
       {
         m_raw_index.pop_back();
         m_raw_index[1]=indices[2];
@@ -1193,7 +1193,7 @@ namespace detail
   init_pt_tags(const BezierCurve *prev_curve,
                const BezierCurve *next_curve)
   {
-    assert(m_tag_pt0==-1 and m_tag_pt1==-1);
+    assert(m_tag_pt0==-1 && m_tag_pt1==-1);
 
     vec2 d0, d1, p1, n0;
 
@@ -1224,8 +1224,8 @@ namespace detail
     sz=m_curve.x().size();
 
     if(sz==2
-       and in_pt==pt0()[fixed_coordinate(tp)]
-       and in_pt==pt1()[fixed_coordinate(tp)])
+       && in_pt==pt0()[fixed_coordinate(tp)]
+       && in_pt==pt1()[fixed_coordinate(tp)])
       {
         //this is a vertial or horizontal line parrallel to line.
         //out_pts.push_back( solution_point(1, pt0()[varying_coordinate(tp)], this, 0.0f));
@@ -1237,7 +1237,7 @@ namespace detail
     assert(m_tag_pt0!=-1);
     assert(m_tag_pt1!=-1);
 
-    if(in_pt==pt0()[fixed_coordinate(tp)] and !count_as_multiplicity2(tp, m_tag_pt0))
+    if(in_pt==pt0()[fixed_coordinate(tp)] && !count_as_multiplicity2(tp, m_tag_pt0))
       {
         out_pts.push_back( solution_point(1, pt0()[varying_coordinate(tp)], this, 0.0f));
         if(compute_derivatives)
@@ -1246,7 +1246,7 @@ namespace detail
           }
       }
 
-    if(in_pt==pt1()[fixed_coordinate(tp)] and !count_as_multiplicity2(tp, m_tag_pt1))
+    if(in_pt==pt1()[fixed_coordinate(tp)] && !count_as_multiplicity2(tp, m_tag_pt1))
       {
         out_pts.push_back( solution_point(1, pt0()[varying_coordinate(tp)], this, 1.0f));
         if(compute_derivatives)
@@ -1256,7 +1256,7 @@ namespace detail
       }
 
 
-    assert(sz==2 or sz==3 or sz==4);
+    assert(sz==2 || sz==3 || sz==4);
 
     std::copy(m_curve[fixed_coordinate(tp)].begin(),
               m_curve[fixed_coordinate(tp)].end(), work_array.begin());
@@ -1302,9 +1302,9 @@ namespace detail
     assert(m_curve.x().size()==m_raw_curve.size());
     sz=m_curve.x().size();
 
-    assert(sz==2 or sz==3 or sz==4);
+    assert(sz==2 || sz==3 || sz==4);
 
-    if(in_pt==pt0()[fixed_coordinate(tp)] and include_pt_intersections)
+    if(in_pt==pt0()[fixed_coordinate(tp)] && include_pt_intersections)
       {
         solution_point V(1, 0.0f, this);
 
@@ -1315,7 +1315,7 @@ namespace detail
 
       }
 
-    if(in_pt==pt1()[fixed_coordinate(tp)] and include_pt_intersections)
+    if(in_pt==pt1()[fixed_coordinate(tp)] && include_pt_intersections)
       {
         solution_point V(1, 1.0f, this);
 
@@ -1326,8 +1326,8 @@ namespace detail
       }
 
     if(sz==2
-       and in_pt==pt0()[fixed_coordinate(tp)]
-       and in_pt==pt1()[fixed_coordinate(tp)])
+       && in_pt==pt0()[fixed_coordinate(tp)]
+       && in_pt==pt1()[fixed_coordinate(tp)])
       {
         //this is a vertial or horizontal line parrallel
         //with same point as the in_pt.
@@ -1685,7 +1685,7 @@ namespace detail
           k-1;
 
         if( FT_CURVE_TAG(pts_tag[k])==FT_CURVE_TAG_CONIC
-            and FT_CURVE_TAG(pts_tag[prev_k])==FT_CURVE_TAG_CONIC)
+            && FT_CURVE_TAG(pts_tag[prev_k])==FT_CURVE_TAG_CONIC)
           {
             ivec2 implicit_pt;
 
@@ -1711,7 +1711,7 @@ namespace detail
 
         tag=dbg.tag(real_k);
 
-        if(tag==point_type::on_curve and
+        if(tag==point_type::on_curve &&
            prev_tag==point_type::on_curve)
           {
             int pt0(k-1), pt1(real_k);
@@ -1724,8 +1724,8 @@ namespace detail
             work_curves.push_back(FASTUIDRAWnew BezierCurve(dbg, pt0, pt1));
           }
         else if(tag==point_type::on_curve
-                and prev_tag==point_type::conic_off_curve
-                and prev_prev_tag==point_type::on_curve)
+                && prev_tag==point_type::conic_off_curve
+                && prev_prev_tag==point_type::on_curve)
           {
             int k_minus_2;
 
@@ -1743,8 +1743,8 @@ namespace detail
             work_curves.push_back(FASTUIDRAWnew BezierCurve(dbg, pt0, pt1, pt2));
           }
         else if(tag==point_type::cubic_off_curve
-                and prev_tag==point_type::cubic_off_curve
-                and prev_prev_tag==point_type::on_curve)
+                && prev_tag==point_type::cubic_off_curve
+                && prev_prev_tag==point_type::on_curve)
           {
             int next_k;
             int k_minus_2;
@@ -1828,7 +1828,7 @@ namespace detail
   RawOutlineData::
   reverse_component(int ID)
   {
-    assert(ID>=0 and ID<static_cast<int>(m_curve_sets.size()) );
+    assert(ID>=0 && ID<static_cast<int>(m_curve_sets.size()) );
 
     c_array<BezierCurve*> all_curves(make_c_array(m_bezier_curves));
     c_array<BezierCurve*> component(all_curves.sub_array(m_curve_sets[ID]));
@@ -1904,14 +1904,14 @@ namespace detail
     int contourID(c->contourID());
     int curveID(c->curveID());
 
-    if(contourID<0 or contourID>=static_cast<int>(m_curve_sets.size()))
+    if(contourID<0 || contourID>=static_cast<int>(m_curve_sets.size()))
       {
         return nullptr;
       }
 
     const range_type<int> &R(m_curve_sets[contourID]);
 
-    if(curveID>=R.m_end or curveID<R.m_begin)
+    if(curveID>=R.m_end || curveID<R.m_begin)
       {
         return nullptr;
       }
@@ -1938,14 +1938,14 @@ namespace detail
     int contourID(c->contourID());
     int curveID(c->curveID());
 
-    if(contourID<0 or contourID>=static_cast<int>(m_curve_sets.size()))
+    if(contourID<0 || contourID>=static_cast<int>(m_curve_sets.size()))
       {
         return nullptr;
       }
 
     const range_type<int> &R(m_curve_sets[contourID]);
 
-    if(curveID>=R.m_end or curveID<R.m_begin)
+    if(curveID>=R.m_end || curveID<R.m_begin)
       {
         return nullptr;
       }
@@ -2007,7 +2007,7 @@ namespace detail
                            point_from_bitmap_y(m_bitmap_size.y()-1) + m_half_texel_size);
     m_glyph_size=m_glyph_top_right-m_glyph_bottom_left;
 
-    if(m_bitmap_size.x()>0 and m_bitmap_size.y()>0)
+    if(m_bitmap_size.x()>0 && m_bitmap_size.y()>0)
       {
         m_glyph_size_reciprocal=vec2(1.0f, 1.0f)/m_glyph_size;
       }
@@ -2307,7 +2307,7 @@ namespace detail
             (void)prev_count;
 
             while(current_index<sz
-                  and L[current_index].m_value<=p)
+                  && L[current_index].m_value<=p)
               {
                 current_count+=std::max(0, L[current_index].m_multiplicity);
                 ++current_index;
@@ -2419,7 +2419,7 @@ namespace detail
         bool accept_intersection;
 
         accept_intersection=L[i].m_multiplicity==1
-          and (L[i].m_bezier->degree()>1 or
+          && (L[i].m_bezier->degree()>1 ||
                L[i].m_bezier->pt0()[coord]!=L[i].m_bezier->pt1()[coord]);
 
 
@@ -2436,7 +2436,7 @@ namespace detail
             xx=static_cast<int>(fxx);
             intersection_after_center=(pxx>point_from_bitmap_coord(xx, other_coord_tp));
 
-            assert(xx>=0 and xx<bitmap_size()[1-coord]);
+            assert(xx>=0 && xx<bitmap_size()[1-coord]);
 
             dy=L[i].m_derivative[coord];
             v=(dy>0.0)?1:-1;
@@ -2600,7 +2600,7 @@ namespace detail
         current_index=0;
         texel_top=static_cast<float>(point_from_bitmap_coord(0, other_coord, bitmap_begin));
         while(current_index<total_count
-              and L[current_index].m_value<=texel_top)
+              && L[current_index].m_value<=texel_top)
           {
             ++current_index;
           }
@@ -2629,7 +2629,7 @@ namespace detail
 
             //increment current_index until it crosses into the texel.
             while(current_index<total_count
-                  and L[current_index].m_value<=texel_top)
+                  && L[current_index].m_value<=texel_top)
               {
                 ++current_index;
               }
@@ -2663,8 +2663,8 @@ namespace detail
                       {
                         bool v;
 
-                        v=(dsign<0.0f) xor filled
-                          xor (coord==x_fixed);
+                        v=(dsign<0.0f) ^ filled
+                          ^ (coord==x_fixed);
 
                         /*
                           increment if this texel thinks it is reversed, otherwise
@@ -2698,7 +2698,7 @@ namespace detail
             for(int k=start_k; k<end_k; ++k)
               {
                 //only record if the curve intersects the edge of the texel:
-                if(L[k].m_value<=texel_top and L[k].m_value>=texel_bottom)
+                if(L[k].m_value<=texel_top && L[k].m_value>=texel_bottom)
                   {
                     if(x>0)
                       {
@@ -2801,7 +2801,7 @@ namespace detail
                             texel_bottom_left.y());
 
     for(grab_map::const_iterator iter=hits_found.begin(), end=hits_found.end();
-        iter!=end and return_value<max_return_value; ++iter, ++return_value)
+        iter!=end && return_value<max_return_value; ++iter, ++return_value)
       {
         const BezierCurve *curve(iter->first);
         float min_t(100.0f), max_t(-100.0f);
@@ -2834,9 +2834,9 @@ namespace detail
           {
             //then time t=1 or t=0 is within the texel:
             if( curve->pt0().x()>=texel_bottom_left.x()
-                and curve->pt0().y()>=texel_bottom_left.y()
-                and curve->pt0().x()<=texel_top_right.x()
-                and curve->pt0().y()<=texel_top_right.y())
+                && curve->pt0().y()>=texel_bottom_left.y()
+                && curve->pt0().x()<=texel_top_right.x()
+                && curve->pt0().y()<=texel_top_right.y())
               {
                 min_t=0.0f;
                 min_t_boundary=no_boundary;
