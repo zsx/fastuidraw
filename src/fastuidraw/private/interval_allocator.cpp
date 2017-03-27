@@ -18,6 +18,7 @@
 
 
 #include <assert.h>
+#include <algorithm>
 #include "interval_allocator.hpp"
 
 
