@@ -51,8 +51,8 @@ namespace
   is_help_request(const std::string &v)
   {
     return v==std::string("-help")
-      or v==std::string("--help")
-      or v==std::string("-h");
+      || v==std::string("--help")
+      || v==std::string("-h");
   }
 
   void*
@@ -483,7 +483,7 @@ main(int argc, char **argv)
   simple_time render_time;
   unsigned int num_frames;
 
-  if(argc == 2 and is_help_request(argv[1]))
+  if(argc == 2 && is_help_request(argv[1]))
     {
       std::cout << m_about << "\n\nUsage: " << argv[0];
       print_help(std::cout);
