@@ -1048,7 +1048,7 @@ sub_select_index_hard_case(curve_cache &curves,
 
       if(v.second!=nullptr)
         {
-          if(best_canidate==nullptr or v.first<current_distance)
+          if(best_canidate==nullptr || v.first<current_distance)
             {
               best_canidate=v.second;
               current_distance=v.first;
