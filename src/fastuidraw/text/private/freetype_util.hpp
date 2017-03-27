@@ -32,8 +32,12 @@
 #include <map>
 #include <tuple>
 #include <vector>
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <mutex>
 #include <fastuidraw/util/util.hpp>
 #include <fastuidraw/util/c_array.hpp>
