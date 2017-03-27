@@ -114,7 +114,7 @@ ErrorCheck(const char *call, const char *src_call,
     }
 
   errorcode = glGetError();
-  if(errorcode == GL_NO_ERROR and !log_gl_commands())
+  if(errorcode == GL_NO_ERROR && !log_gl_commands())
     {
       return;
     }
