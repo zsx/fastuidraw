@@ -134,8 +134,8 @@ namespace
           v0 is either left or right
           and v1 is either below or above.
         */
-        assert(v0==fastuidraw::detail::left_boundary or v0==fastuidraw::detail::right_boundary);
-        assert(v1==fastuidraw::detail::below_boundary or v1==fastuidraw::detail::above_boundary);
+        assert(v0==fastuidraw::detail::left_boundary || v0==fastuidraw::detail::right_boundary);
+        assert(v1==fastuidraw::detail::below_boundary || v1==fastuidraw::detail::above_boundary);
 
         R[0].x()= (v0==fastuidraw::detail::left_boundary)?
           texel_bl.x():
@@ -549,7 +549,7 @@ consume_contour(void)
     {
       fastuidraw::detail::BezierCurve *ptr(m_curves_to_emit[C].first);
 
-      if(ptr->degree()==2 and m_master->m_curvature_collapse>0.0f)
+      if(ptr->degree()==2 && m_master->m_curvature_collapse>0.0f)
         {
           float curvature;
 
@@ -720,7 +720,7 @@ curve_hugs_edge(const fastuidraw::detail::BezierCurve *curve,
 
   if(pt0.x()==pt1.x())
     {
-      if( std::abs(pt0.x()-texel_bl.x())<thresshold or
+      if( std::abs(pt0.x()-texel_bl.x())<thresshold ||
           std::abs(pt0.x()-texel_tr.x())<thresshold)
         {
           return true;
@@ -728,7 +728,7 @@ curve_hugs_edge(const fastuidraw::detail::BezierCurve *curve,
     }
   else if(pt0.y()==pt1.y())
     {
-      if( std::abs(pt0.y()-texel_bl.y())<thresshold or
+      if( std::abs(pt0.y()-texel_bl.y())<thresshold ||
           std::abs(pt0.y()-texel_tr.y())<thresshold)
         {
           return true;
@@ -880,7 +880,7 @@ compute_feature_importance(curve_cache &curves,
         computing the area of a triangle fan.
        */
       if(sideA==fastuidraw::detail::above_boundary
-         or sideA==fastuidraw::detail::right_boundary)
+         || sideA==fastuidraw::detail::right_boundary)
         {
           std::swap(sideA, sideB);
           std::swap(iter, neighbor);
