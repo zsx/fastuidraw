@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "fastuidraw/c/colorstop_atlas_gl.h"
 #include "fastuidraw/c/glyph_atlas_gl.h"
 #include "fastuidraw/c/image_atlas_gl.h"
@@ -52,6 +55,7 @@ static fui_context_t *fui_context_create()
     ctx->painter = fui_painter_new_gl(backend);
     fui_gl_painter_backend_gl_free(backend);
 
+#if 0
     FILE *fp = fopen("tiger.jpg", "rb");
     if (fp == NULL) {
         printf("Can't open tiger.jpg\n");
@@ -75,7 +79,7 @@ static fui_context_t *fui_context_create()
 
     ctx->image = fui_image_new_from_RGBA8888((fui_image_atlas_t*)ctx->image_atlas, w, h, 1, img_data, 0);
     unload_jpeg(img_data);
-
+#endif
     return ctx;
 }
 
@@ -85,7 +89,7 @@ static void fui_context_free(fui_context_t *ctx)
     fui_gl_colorstop_atlas_gl_free(ctx->colorstop_atlas);
     fui_gl_image_atlas_gl_free(ctx->image_atlas);
     fui_painter_free(ctx->painter);
-    fui_image_free(ctx->image);
+    //fui_image_free(ctx->image);
 }
 
 static void draw(fui_context_t *ctx, int w, int h)
@@ -153,7 +157,7 @@ static void draw(fui_context_t *ctx, int w, int h)
     fui_painter_brush_set_no_gradient(brush);
     fui_painter_brush_set_pen_rgba(brush, 1, 1, 1, 1);
     //fui_painter_brush_set_sub_image(brush, ctx->image, 0, 0, 225, 225, -1);
-    fui_painter_brush_set_image(brush, ctx->image, -1);
+    //fui_painter_brush_set_image(brush, ctx->image, -1);
     //fui_painter_brush_set_transformation_translate_xy(brush, -50, -300);
     fui_painter_fill_path(ctx->painter, brush, path2, 0, 1);
     fui_path_free(path2);
