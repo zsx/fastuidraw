@@ -51,15 +51,6 @@ namespace
       uniform_ubo_number_entries
     };
 
-  enum stroke_shader_dash_bits_t
-    {
-      stroke_gauranteed_to_be_covered_bit,
-      stroke_skip_dash_interval_lookup_bit,
-
-      stroke_gauranteed_to_be_covered_mask = FASTUIDRAW_MASK(stroke_gauranteed_to_be_covered_bit, 1),
-      stroke_skip_dash_interval_lookup_mask = FASTUIDRAW_MASK(stroke_skip_dash_interval_lookup_bit, 1)
-    };
-
   class BlendShaderGroup
   {
   public:
@@ -260,14 +251,17 @@ PainterBackendGLSLPrivate(fastuidraw::glsl::PainterBackendGLSL *p,
     .add_source("fastuidraw_compute_local_distance_from_pixel_distance.glsl.resource_string",
                 ShaderSource::from_resource)
     .add_source("fastuidraw_align.vert.glsl.resource_string", ShaderSource::from_resource)
-    .add_source("fastuidraw_painter_stroke_util.vert.glsl.resource_string", ShaderSource::from_resource)
-    .add_source(code::compute_interval("fastuidraw_compute_interval", m_p->configuration_base().alignment()));
+    .add_source(code::compute_interval("fastuidraw_compute_interval", m_p->configuration_base().alignment()))
+    .add_source("fastuidraw_painter_stroke_util.constants.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_stroke_util.vert.glsl.resource_string", ShaderSource::from_resource);
 
   m_frag_shader_utils
     .add_source("fastuidraw_circular_interpolate.glsl.resource_string", ShaderSource::from_resource)
     .add_source("fastuidraw_anisotropic.frag.glsl.resource_string", ShaderSource::from_resource)
     .add_macro("FASTUIDRAW_PORTER_DUFF_MACRO(src_factor, dst_factor)", "( (src_factor) * in_src + (dst_factor) * in_fb )")
     .add_source(code::compute_interval("fastuidraw_compute_interval", m_p->configuration_base().alignment()))
+    .add_source("fastuidraw_painter_stroke_util.constants.glsl.resource_string", ShaderSource::from_resource)
+    .add_source("fastuidraw_painter_stroke_util.frag.glsl.resource_string", ShaderSource::from_resource)
     .add_source(code::image_atlas_compute_coord("fastuidraw_compute_image_atlas_coord",
                                                 "fastuidraw_imageIndexAtlas",
                                                 m_p->image_atlas()->index_tile_size(),
@@ -547,9 +541,7 @@ add_enums(fastuidraw::glsl::ShaderSource &src)
     .add_macro("fastuidraw_stroke_dashed_rounded_caps", PainterEnums::rounded_caps)
     .add_macro("fastuidraw_stroke_dashed_square_caps", PainterEnums::square_caps)
 
-    .add_macro("fastuidraw_stroke_gauranteed_to_be_covered_mask", stroke_gauranteed_to_be_covered_mask)
-    .add_macro("fastuidraw_stroke_skip_dash_interval_lookup_mask", stroke_skip_dash_interval_lookup_mask)
-
+    /* and finally the data store alingment */
     .add_macro("fastuidraw_data_store_alignment", alignment);
 }
 
