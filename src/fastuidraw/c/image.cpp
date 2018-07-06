@@ -20,13 +20,14 @@ fui_image_t *fui_image_new_from_RGBA8888(fui_image_atlas_t* atlas, int w, int h,
     }
     auto r = Image::create(rc, w, h, c_array<const u8vec4>(&vdata[0], vdata.size()), pslack);
     auto p = r.get();
-    p->add_reference(p);
+    //p->add_reference(p);
     return p;
 }
 
 void fui_image_free(fui_image_t *image)
 {
-    image->remove_reference(image);
+    FASTUIDRAWdelete(image);
+    //image->remove_reference(image);
 }
 
 void fui_image_dimensions(const fui_image_t *image, int *w, int *h)

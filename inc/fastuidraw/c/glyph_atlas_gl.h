@@ -5,11 +5,13 @@
 #include "fastuidraw/gl_backend/glyph_atlas_gl.hpp"
 
 using namespace fastuidraw::gl;
+typedef class GlyphAtlasGL fui_gl_glyph_atlas_gl_t;
 
 extern "C" {
+#else
+typedef struct GlyphAtlasGL fui_gl_glyph_atlas_gl_t;
 #endif
 
-typedef struct GlyphAtlasGL fui_gl_glyph_atlas_gl_t;
 
 fui_gl_glyph_atlas_gl_t *fui_gl_glyph_atlas_gl_new(fui_gl_glyph_atlas_gl_params_t *params);
 void fui_gl_glyph_atlas_gl_free(fui_gl_glyph_atlas_gl_t *p);

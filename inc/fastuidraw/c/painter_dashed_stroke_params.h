@@ -5,12 +5,13 @@
 
 using namespace fastuidraw;
 
+typedef class PainterDashedStrokeParams fui_painter_dashed_stroke_params_t;
 extern "C" {
 #else
 #include <stddef.h> // for size_t
+typedef struct PainterDashedStrokeParams fui_painter_dashed_stroke_params_t;
 #endif
 
-typedef struct PainterDashedStrokeParams fui_painter_dashed_stroke_params_t;
 
 fui_painter_dashed_stroke_params_t *fui_painter_dashed_stroke_params_new();
 void fui_painter_dashed_stroke_params_free(fui_painter_dashed_stroke_params_t *);

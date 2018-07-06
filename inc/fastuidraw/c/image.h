@@ -7,12 +7,14 @@
 #include "fastuidraw/image.hpp"
 
 using namespace fastuidraw;
+typedef class Image fui_image_t;
+typedef class ImageAtlas fui_image_atlas_t;
 
 extern "C" {
-#endif
-
+#else
 typedef struct Image fui_image_t;
 typedef struct ImageAtlas fui_image_atlas_t;
+#endif
 
 fui_image_t *fui_image_new_from_RGBA8888(fui_image_atlas_t* atlas, int w, int h, int flip_y, const char *data, unsigned int pslack);
 void fui_image_free(fui_image_t *image);

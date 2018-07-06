@@ -13,14 +13,15 @@ fui_painter_t *fui_painter_new_gl(fui_gl_painter_backend_gl_t *backend)
 {
     fastuidraw::reference_counted_ptr<fastuidraw::gl::PainterBackendGL> painterBackend(backend);
     auto p = FASTUIDRAWnew fastuidraw::Painter(painterBackend);
-    p->add_reference(p);
+    //p->add_reference(p);
 
     return p;
 }
 
 void fui_painter_free(fui_painter_t *painter)
 {
-    painter->remove_reference(painter);
+    FASTUIDRAWdelete(painter);
+    //painter->remove_reference(painter);
 }
 
 int fui_painter_current_z(const fui_painter_t *painter)

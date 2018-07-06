@@ -8,7 +8,7 @@
 #include "fastuidraw/gl_backend/painter_backend_gl.hpp"
 
 using namespace fastuidraw::gl;
-typedef struct PainterBackendGL::ConfigurationGL fui_gl_configuration_gl_t;
+typedef class PainterBackendGL::ConfigurationGL fui_gl_configuration_gl_t;
 
 extern "C" {
 #else

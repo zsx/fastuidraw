@@ -5,7 +5,7 @@
 
 using namespace fastuidraw::gl;
 
-typedef struct GlyphAtlasGL::params fui_gl_glyph_atlas_gl_params_t;
+typedef class GlyphAtlasGL::params fui_gl_glyph_atlas_gl_params_t;
 extern "C" {
 #else
 typedef struct glyph_atlas_params fui_gl_glyph_atlas_gl_params_t;

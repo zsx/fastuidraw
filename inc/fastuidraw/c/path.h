@@ -5,10 +5,13 @@
 
 using namespace fastuidraw;
 
+typedef class Path fui_path_t;
+
 extern "C" {
+#else
+typedef struct Path fui_path_t;
 #endif
 
-typedef struct Path fui_path_t;
 
 fui_path_t *fui_path_new();
 void fui_path_free(fui_path_t *);

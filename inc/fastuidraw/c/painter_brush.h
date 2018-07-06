@@ -6,10 +6,11 @@
 #include "fastuidraw/painter/painter_brush.hpp"
 
 using namespace fastuidraw;
+typedef class PainterBrush fui_painter_brush_t;
 extern "C" {
-#endif
-
+#else
 typedef struct PainterBrush fui_painter_brush_t;
+#endif
 
 fui_painter_brush_t *fui_painter_brush_new();
 fui_painter_brush_t *fui_painter_brush_new_with_pen(const float color[4]);

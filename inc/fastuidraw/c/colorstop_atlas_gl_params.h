@@ -5,7 +5,7 @@
 
 using namespace fastuidraw::gl;
 
-typedef struct ColorStopAtlasGL::params fui_gl_colorstop_atlas_gl_params_t;
+typedef class ColorStopAtlasGL::params fui_gl_colorstop_atlas_gl_params_t;
 extern "C" {
 #else
 typedef struct params fui_gl_colorstop_atlas_gl_params_t;

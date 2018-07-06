@@ -11,12 +11,14 @@
 #include "fastuidraw/painter/painter.hpp"
 
 using namespace fastuidraw;
-extern "C" {
-#endif
+typedef class Painter fui_painter_t;
+typedef class PainterData fui_painter_data_t;
 
+extern "C" {
+#else
 typedef struct Painter fui_painter_t;
 typedef struct PainterData fui_painter_data_t;
-
+#endif
 
 fui_painter_t *fui_painter_new_gl(fui_gl_painter_backend_gl_t *backend);
 void fui_painter_free(fui_painter_t *);

@@ -5,7 +5,7 @@
 
 using namespace fastuidraw::gl;
 
-typedef struct ImageAtlasGL::params fui_gl_image_atlas_gl_params_t;
+typedef class ImageAtlasGL::params fui_gl_image_atlas_gl_params_t;
 extern "C" {
 #else
 typedef struct params fui_gl_image_atlas_gl_params_t;

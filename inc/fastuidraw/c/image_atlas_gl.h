@@ -6,10 +6,11 @@
 
 using namespace fastuidraw::gl;
 
+typedef class ImageAtlasGL fui_gl_image_atlas_gl_t;
 extern "C" {
-#endif
-
+#else
 typedef struct ImageAtlasGL fui_gl_image_atlas_gl_t;
+#endif
 
 fui_gl_image_atlas_gl_t *fui_gl_image_atlas_gl_new(fui_gl_image_atlas_gl_params_t *params);
 void fui_gl_image_atlas_gl_free(fui_gl_image_atlas_gl_t *p);
