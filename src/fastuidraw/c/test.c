@@ -13,7 +13,10 @@
 #include "fastuidraw/c/image.h"
 #include "fastuidraw/c/image_loader.h"
 #include <SDL.h>
+//#include <GL/GL.h>
 #include <SDL_opengl.h>
+
+static PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer;
 
 typedef struct {
     fui_gl_image_atlas_gl_t *image_atlas;
@@ -21,6 +24,7 @@ typedef struct {
     fui_gl_glyph_atlas_gl_t *glyph_atlas;
     fui_painter_t *painter;
     fui_image_t *image;
+    fui_gl_surface_gl_t *surface;
 } fui_context_t;
 
 static fui_context_t *fui_context_create()
@@ -54,6 +58,10 @@ static fui_context_t *fui_context_create()
 
     ctx->painter = fui_painter_new_gl(backend);
     fui_gl_painter_backend_gl_free(backend);
+
+    fui_gl_surface_gl_properties_t *p = fui_gl_surface_gl_properties_new();
+    ctx->surface = fui_gl_surface_gl_new(p);
+    fui_gl_surface_gl_properties_free(p);
 
 #if 0
     FILE *fp = fopen("tiger.jpg", "rb");
@@ -89,6 +97,7 @@ static void fui_context_free(fui_context_t *ctx)
     fui_gl_colorstop_atlas_gl_free(ctx->colorstop_atlas);
     fui_gl_image_atlas_gl_free(ctx->image_atlas);
     fui_painter_free(ctx->painter);
+    fui_gl_surface_gl_free(ctx->surface);
     //fui_image_free(ctx->image);
 }
 
@@ -98,17 +107,14 @@ static void draw(fui_context_t *ctx, int w, int h)
 
     //fui_painter_set_target_resolution(painter, 1600, 1200);
     //fui_painter_set_target_resolution(ctx->painter, w, h);
-    fui_gl_surface_gl_properties_t *p = fui_gl_surface_gl_properties_new();
-    fui_gl_surface_gl_properties_set_dimensions_xy(p, w, h);
-    fui_gl_surface_gl_t *s = fui_gl_surface_gl_new(p);
-    fui_gl_surface_gl_properties_free(p);
 
     glClearColor(0,0,0,0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    fui_painter_begin(ctx->painter, s, 1);
+    fui_painter_begin(ctx->painter, ctx->surface, 1);
 
     fui_painter_save(ctx->painter);
+#if 0
     float identity[][3] = {{2.0/w, 0, 0}, {0, 2.0/h, 0}, {-1, -1, 1}};
     fui_painter_set_transformation_3x3(ctx->painter, identity);
 
@@ -132,6 +138,9 @@ static void draw(fui_context_t *ctx, int w, int h)
 
     fui_painter_brush_t *brush = fui_painter_brush_new();
 
+#endif
+
+#if 0
     fui_colorstop_sequence_t *cs_seq = fui_colorstop_sequence_new();
     fui_colorstop_sequence_add_components(cs_seq, 255, 0, 0, 255, 0.0f);
     fui_colorstop_sequence_add_components(cs_seq, 0, 255, 0, 255, 0.33f);
@@ -145,7 +154,9 @@ static void draw(fui_context_t *ctx, int w, int h)
     //fui_painter_brush_set_pen_rgba(brush, 1, 0, 0, 1);
 
     fui_painter_fill_path(ctx->painter, brush, path, 0, 0);
+#endif
 
+#if 0
     fui_path_t *path2 = fui_path_new();
     fui_path_move_xy(path2, 50, 300);
 
@@ -166,7 +177,9 @@ static void draw(fui_context_t *ctx, int w, int h)
     float wh[] = {300, 600};
     fui_painter_brush_set_pen_rgba(brush, 0, 1, 1, 1);
     fui_painter_draw_rect(ctx->painter, brush, xy, wh);
+#endif
 
+#if 0
     fui_painter_brush_set_no_gradient(brush);
     fui_painter_brush_set_pen_rgba(brush, 0, 1, 0, 1);
 
@@ -181,6 +194,7 @@ static void draw(fui_context_t *ctx, int w, int h)
     
     fui_painter_stroke_dashed_path(ctx->painter, path, brush, dashed_params, 1, 1, 1, 1);
     fui_painter_dashed_stroke_params_free(dashed_params);
+#endif
 
 #if 0
     fui_path_clear(path);
@@ -192,6 +206,7 @@ static void draw(fui_context_t *ctx, int w, int h)
     fui_painter_stroke_path(ctx->painter, path, brush, stroke_params, 1, 1, 1, 1);
 #endif
 
+#if 0
     xy[0] = 440; xy[1] = 50;
     wh[0] = 300; wh[1] = 200;
     fui_painter_brush_set_pen_rgba(brush, 0, 1, 1, 1);
@@ -204,15 +219,20 @@ static void draw(fui_context_t *ctx, int w, int h)
     //fui_painter_translate_xy(ctx->painter, -440, -270);
     //fui_painter_rotate(ctx->painter, 5.0 * M_PI / 180.0);
     //fui_painter_draw_rect(ctx->painter, brush, xy, wh);
+#endif
 
-    fui_path_free(path);
-    fui_painter_brush_free(brush);
-    fui_painter_stroke_params_free(stroke_params);
+//    fui_painter_brush_free(brush);
+//    fui_painter_stroke_params_free(stroke_params);
 
     fui_painter_restore(ctx->painter);
     fui_painter_end(ctx->painter);
-    fui_gl_surface_gl_blit_surface(s);
-    fui_gl_surface_gl_free(s);
+    if (glBindFramebuffer) 
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glClearColor(0,0,0,0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    fui_gl_surface_gl_blit_surface(ctx->surface);
+
+    fui_path_free(path);
 }
 
 int main ()
@@ -236,6 +256,7 @@ int main ()
     glClearColor(0,0,0,0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     SDL_GL_SwapWindow(win);
+    glBindFramebuffer = SDL_GL_GetProcAddress("glBindFramebuffer");
 
     printf("OpenGL version: %s\n", glGetString(GL_VERSION));
 
