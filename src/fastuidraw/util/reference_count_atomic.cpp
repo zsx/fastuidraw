@@ -20,7 +20,7 @@
 #include <fastuidraw/util/fastuidraw_memory.hpp>
 #include <fastuidraw/util/reference_count_atomic.hpp>
 
-namespace
+namespace FastuidrawPrivate
 {
   class ReferenceCountAtomicPrivate
   {
@@ -32,6 +32,8 @@ namespace
     std::atomic<int> m_reference_count;
   };
 }
+
+using namespace FastuidrawPrivate;
 
 //////////////////////////////////
 // fastuidraw::reference_count_atomic methods
